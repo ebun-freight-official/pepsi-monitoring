@@ -76,17 +76,17 @@ function tooltipStyle () {
     borderWidth: 1,
     textStyle: { color: '#fafafa', fontSize: 12 },
     extraCssText: 'box-shadow: 0 10px 30px rgba(0,0,0,0.6);',
-    confine: true,
-    ...(isMobile && {
-      position: (point, params, dom, rect, size) => {
-        const [tipW, tipH] = size.contentSize
-        const x = Math.max(4, rect.width / 2 - tipW / 2)
-        const yAbove = point[1] - tipH - 12
-        const yBelow = point[1] + 12
-        const y = yAbove >= 4 ? yAbove : yBelow
-        return [x, Math.max(4, Math.min(y, rect.height - tipH - 4))]
-      }
-    })
+    ...(isMobile
+      ? {
+          appendToBody: true,
+          position: (point, params, dom, rect, size) => {
+            const [tipW, tipH] = size.contentSize
+            const x = Math.max(8, window.innerWidth / 2 - tipW / 2)
+            const y = Math.max(8, window.innerHeight / 2 - tipH / 2)
+            return [x, y]
+          }
+        }
+      : { confine: true })
   }
 }
 

@@ -52,12 +52,14 @@ export default function Layout () {
             className='h-6 w-6 shrink-0 object-contain select-none'
             draggable={false}
           />
-          <span className='text-xs font-bold text-blue-400 tracking-[0.18em] uppercase'>
-            Pepsi
-          </span>
-          <span className='text-[10px] text-zinc-500 tracking-[0.2em] uppercase'>
-            Inventory
-          </span>
+          <div className='flex flex-col leading-tight min-w-0'>
+            <span className='text-xs font-bold text-blue-400 tracking-[0.18em] uppercase'>
+              Pepsi
+            </span>
+            <span className='text-[9px] text-zinc-500 tracking-[0.2em] uppercase'>
+              Inventory
+            </span>
+          </div>
         </div>
       </header>
 

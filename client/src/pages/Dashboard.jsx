@@ -218,7 +218,7 @@ function KpiCard ({
     <div className='relative overflow-hidden bg-zinc-950/60 border border-zinc-800 rounded-lg p-2.5 sm:p-3.5 flex items-start gap-2 sm:gap-3 min-w-0'>
       {/* Icon — faint corner watermark on mobile, inline pill on sm+ */}
       <div
-        className={`pointer-events-none absolute -right-2.5 -bottom-2.5 flex items-center justify-center opacity-20 [&>svg]:w-12 [&>svg]:h-12 sm:static sm:opacity-100 sm:w-9 sm:h-9 sm:rounded-lg sm:[&>svg]:w-[18px] sm:[&>svg]:h-[18px] ${accent} ${iconBg}`}
+        className={`pointer-events-none absolute right-2 bottom-2 flex items-center justify-center opacity-20 [&>svg]:w-12 [&>svg]:h-12 sm:static sm:opacity-100 sm:w-9 sm:h-9 sm:rounded-lg sm:[&>svg]:w-[18px] sm:[&>svg]:h-[18px] ${accent} ${iconBg}`}
       >
         {icon}
       </div>
@@ -2638,17 +2638,16 @@ export default function Dashboard () {
 
   return (
     <div className='bg-zinc-900 flex-1 outline outline-zinc-800 rounded-lg p-3 overflow-auto shadow-lg shadow-black/40 space-y-3'>
-      <div className='flex justify-between items-center pb-2 border-b border-zinc-800'>
-        <div>
+      <div className='flex justify-between items-center gap-2 pb-2 border-b border-zinc-800'>
+        <div className='min-w-0'>
           <div className='uppercase font-medium text-base sm:text-lg'>
             Dashboard
           </div>
-          <div className='text-[11px] text-zinc-500 mt-0.5'>
-            {formatDate(new Date())}
-          </div>
+        </div>
+        <div className='text-[10px] sm:text-[11px] text-zinc-500 tabular-nums text-right shrink-0'>
+          {formatDate(new Date())}
         </div>
       </div>
-
       {/* KPI strip */}
       <div className='grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3'>
         <KpiCard

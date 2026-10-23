@@ -189,7 +189,7 @@ function InfoHint ({ children }) {
 function Panel ({ title, action, info, children, className = '' }) {
   return (
     <div
-      className={`bg-zinc-950/60 border border-zinc-800 rounded-lg overflow-hidden flex flex-col min-h-0 ${className}`}
+      className={`bg-zinc-950/60 border border-zinc-800 rounded-lg overflow-hidden flex flex-col min-h-0 shrink-0 ${className}`}
     >
       <div className='flex justify-between items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 border-b border-zinc-800 bg-zinc-900/60 shrink-0'>
         <div className='text-[10px] sm:text-xs uppercase tracking-wider font-semibold text-zinc-300 truncate'>
@@ -2595,8 +2595,8 @@ export default function Dashboard () {
   }, [safeStocks, safeDeployments])
 
   return (
-    <div className='bg-zinc-900 flex-1 outline outline-zinc-800 rounded-lg p-3 overflow-auto shadow-lg shadow-black/40 space-y-3'>
-      <div className='flex justify-between items-center gap-2 pb-2 border-b border-zinc-800'>
+    <div className='bg-zinc-900 flex-1 outline outline-zinc-800 rounded-lg p-3 overflow-auto shadow-lg shadow-black/40 flex flex-col gap-3'>
+      <div className='flex justify-between items-center gap-2 pb-2 border-b border-zinc-800 shrink-0'>
         <div className='min-w-0'>
           <div className='uppercase font-medium text-sm sm:text-lg'>
             Dashboard
@@ -2607,7 +2607,7 @@ export default function Dashboard () {
         </div>
       </div>
 
-      <div className='grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3'>
+      <div className='grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 shrink-0 order-1 lg:order-none'>
         <KpiCard
           icon={<TbCurrencyPeso size={18} />}
           label='Total Sales'
@@ -2666,10 +2666,10 @@ export default function Dashboard () {
         />
       </div>
 
-      <div className='grid grid-cols-1 lg:grid-cols-3 gap-3'>
+      <div className='contents lg:grid lg:grid-cols-3 lg:gap-3'>
         <Panel
           title='Sales — Trend'
-          className='lg:col-span-2 min-h-[420px]'
+          className='order-2 lg:order-none lg:col-span-2 min-h-[420px]'
           info={
             <>
               <b className='text-zinc-100'>Sales trend over time.</b>
@@ -2686,7 +2686,7 @@ export default function Dashboard () {
 
         <Panel
           title='Empties Received'
-          className='min-h-[420px]'
+          className='order-6 lg:order-none min-h-[420px]'
           info={
             <>
               <b className='text-zinc-100'>Physical empties returned.</b>
@@ -2701,10 +2701,10 @@ export default function Dashboard () {
         </Panel>
       </div>
 
-      <div className='grid grid-cols-1 lg:grid-cols-3 gap-3'>
+      <div className='contents lg:grid lg:grid-cols-3 lg:gap-3'>
         <Panel
           title='Agent Performance — Trend'
-          className='lg:col-span-2'
+          className='order-3 lg:order-none lg:col-span-2'
           info={
             <>
               <b className='text-zinc-100'>Sales per agent over time.</b>
@@ -2720,6 +2720,7 @@ export default function Dashboard () {
 
         <Panel
           title='Expected vs Remitted — All Time'
+          className='order-4 lg:order-none'
           info={
             <>
               <b className='text-zinc-100'>Cumulative equation.</b>
@@ -2737,10 +2738,10 @@ export default function Dashboard () {
         </Panel>
       </div>
 
-      <div className='grid grid-cols-1 lg:grid-cols-2 gap-3'>
+      <div className='contents lg:grid lg:grid-cols-2 lg:gap-3'>
         <Panel
           title='Remit Health — Over vs Short (30 days)'
-          className='min-h-[420px]'
+          className='order-5 lg:order-none min-h-[420px]'
           info={
             <>
               <b className='text-zinc-100'>Daily remittance accuracy.</b>
@@ -2758,7 +2759,7 @@ export default function Dashboard () {
 
         <Panel
           title='Payment Mix'
-          className='min-h-[420px]'
+          className='order-7 lg:order-none min-h-[420px]'
           info={
             <>
               <b className='text-zinc-100'>How customers pay.</b>
@@ -2775,6 +2776,7 @@ export default function Dashboard () {
 
       <Panel
         title='Trending Products'
+        className='order-8 lg:order-none'
         info={
           <>
             <b className='text-zinc-100'>Which products sell best.</b>
@@ -2791,6 +2793,7 @@ export default function Dashboard () {
 
       <Panel
         title='Agent Leaderboard'
+        className='order-10 lg:order-none'
         info={
           <>
             <b className='text-zinc-100'>Agent ranking by total sales.</b>
@@ -2810,10 +2813,10 @@ export default function Dashboard () {
         <AgentLeaderboard deployments={safeDeployments} />
       </Panel>
 
-      <div className='grid grid-cols-1 lg:grid-cols-2 gap-3'>
+      <div className='contents lg:grid lg:grid-cols-2 lg:gap-3'>
         <Panel
           title='Stock Alerts'
-          className='min-h-[420px]'
+          className='order-9 lg:order-none min-h-[420px]'
           info={
             <>
               <b className='text-zinc-100'>Products that need attention.</b>
@@ -2840,7 +2843,7 @@ export default function Dashboard () {
 
         <Panel
           title='Weekly Selling Pattern'
-          className='min-h-[420px]'
+          className='order-11 lg:order-none min-h-[420px]'
           info={
             <>
               <b className='text-zinc-100'>Which days sell best.</b>
@@ -2857,7 +2860,7 @@ export default function Dashboard () {
         </Panel>
       </div>
 
-      <div className='max-w-2xl mx-auto w-full'>
+      <div className='order-12 lg:order-none max-w-2xl mx-auto w-full shrink-0'>
         <Panel
           title='Deployment Calendar'
           info={

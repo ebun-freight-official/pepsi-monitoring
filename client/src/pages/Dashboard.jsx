@@ -215,9 +215,10 @@ function KpiCard ({
   iconBg = 'bg-zinc-800/60'
 }) {
   return (
-    <div className='bg-zinc-950/60 border border-zinc-800 rounded-lg p-3 sm:p-3.5 flex items-start gap-2.5 sm:gap-3 min-w-0'>
+    <div className='relative overflow-hidden bg-zinc-950/60 border border-zinc-800 rounded-lg p-2.5 sm:p-3.5 flex items-start gap-2 sm:gap-3 min-w-0'>
+      {/* Icon — big faint watermark on mobile, inline pill on sm+ */}
       <div
-        className={`w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center shrink-0 ${iconBg} ${accent}`}
+        className={`pointer-events-none absolute -right-1 -bottom-1 w-14 h-14 rounded-lg flex items-center justify-center shrink-0 opacity-10 ${accent} sm:static sm:opacity-100 sm:w-9 sm:h-9 ${iconBg}`}
       >
         {icon}
       </div>
@@ -226,7 +227,7 @@ function KpiCard ({
           {label}
         </div>
         <div
-          className={`text-base sm:text-lg font-semibold tabular-nums truncate leading-tight mt-0.5 ${accent}`}
+          className={`text-sm sm:text-lg font-semibold tabular-nums truncate leading-tight mt-0.5 ${accent}`}
         >
           {value}
         </div>

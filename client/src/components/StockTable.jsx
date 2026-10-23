@@ -305,16 +305,9 @@ export default function StockTable ({
                 )}`}
               >
                 <td className={CELL}>
-                  <StackCell
-                    primary={formatMoney(r.price)}
-                    primaryClass='text-zinc-100'
-                    secondary={
-                      r.emptiesPer > 0
-                        ? `${formatMoney(r.emptiesPer)} empties`
-                        : undefined
-                    }
-                    secondaryClass='text-amber-300'
-                  />
+                  <span className='text-xs sm:text-sm text-zinc-100 font-medium tabular-nums'>
+                    {formatMoney(r.price)}
+                  </span>
                 </td>
 
                 <td className={CELL}>

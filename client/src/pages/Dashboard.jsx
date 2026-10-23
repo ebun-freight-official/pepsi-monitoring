@@ -216,9 +216,9 @@ function KpiCard ({
 }) {
   return (
     <div className='relative overflow-hidden bg-zinc-950/60 border border-zinc-800 rounded-lg p-2.5 sm:p-3.5 flex items-start gap-2 sm:gap-3 min-w-0'>
-      {/* Icon — big faint watermark on mobile, inline pill on sm+ */}
+      {/* Icon — faint corner watermark on mobile, inline pill on sm+ */}
       <div
-        className={`pointer-events-none absolute -right-1 -bottom-1 w-14 h-14 rounded-lg flex items-center justify-center shrink-0 opacity-10 ${accent} sm:static sm:opacity-100 sm:w-9 sm:h-9 ${iconBg}`}
+        className={`pointer-events-none absolute -right-2.5 -bottom-2.5 flex items-center justify-center opacity-20 [&>svg]:w-12 [&>svg]:h-12 sm:static sm:opacity-100 sm:w-9 sm:h-9 sm:rounded-lg sm:[&>svg]:w-[18px] sm:[&>svg]:h-[18px] ${accent} ${iconBg}`}
       >
         {icon}
       </div>

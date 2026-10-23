@@ -113,7 +113,6 @@ const formatCompactMoney = n => {
   return `₱${Math.floor(v)}`
 }
 
-// ── Diff helper (mirrors HistoryTable) ──────────────────────────────────
 const diffMeta = diff => {
   const isExact = Math.abs(diff) < 0.01
   const isOver = diff > 0.01
@@ -128,10 +127,6 @@ const diffMeta = diff => {
     color: 'text-rose-400'
   }
 }
-
-// ═══════════════════════════════════════════════════════════════════════
-//  InfoHint — ⓘ icon with hover tooltip rendered via portal
-// ═══════════════════════════════════════════════════════════════════════
 
 function InfoHint ({ children }) {
   const [open, setOpen] = useState(false)
@@ -193,7 +188,7 @@ function Panel ({ title, action, info, children, className = '' }) {
       className={`bg-zinc-950/60 border border-zinc-800 rounded-lg overflow-hidden flex flex-col min-h-0 ${className}`}
     >
       <div className='flex justify-between items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 border-b border-zinc-800 bg-zinc-900/60 shrink-0'>
-        <div className='text-[11px] sm:text-xs uppercase tracking-wider font-semibold text-zinc-300 truncate'>
+        <div className='text-[10px] sm:text-xs uppercase tracking-wider font-semibold text-zinc-300 truncate'>
           {title}
         </div>
         <div className='flex items-center gap-2 shrink-0'>
@@ -216,7 +211,6 @@ function KpiCard ({
 }) {
   return (
     <div className='relative overflow-hidden bg-zinc-950/60 border border-zinc-800 rounded-lg p-2.5 sm:p-3.5 flex items-start gap-2 sm:gap-3 min-w-0'>
-      {/* Icon — faint corner watermark on mobile, inline pill on sm+ */}
       <div
         className={`pointer-events-none absolute right-2 bottom-2 flex items-center justify-center opacity-20 [&>svg]:w-12 [&>svg]:h-12 sm:static sm:opacity-100 sm:w-9 sm:h-9 sm:rounded-lg sm:[&>svg]:w-[18px] sm:[&>svg]:h-[18px] ${accent} ${iconBg}`}
       >
@@ -240,10 +234,6 @@ function KpiCard ({
     </div>
   )
 }
-
-// ═══════════════════════════════════════════════════════════════════════
-//  Shared range filter config
-// ═══════════════════════════════════════════════════════════════════════
 
 const RANGE_OPTIONS = [
   { value: 'day', label: 'Day', count: 14 },
@@ -334,7 +324,7 @@ function RangeTabs ({ rangeMode, setRangeMode }) {
           <button
             key={opt.value}
             onClick={() => setRangeMode(opt.value)}
-            className={`px-2 sm:px-2.5 py-1 rounded text-[10px] sm:text-[11px] font-medium transition ${
+            className={`px-2 sm:px-2.5 py-1 rounded text-[9px] sm:text-[11px] font-medium transition ${
               rangeMode === opt.value
                 ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
                 : 'text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100'
@@ -347,10 +337,6 @@ function RangeTabs ({ rangeMode, setRangeMode }) {
     </div>
   )
 }
-
-// ═══════════════════════════════════════════════════════════════════════
-//  Shared footer stats
-// ═══════════════════════════════════════════════════════════════════════
 
 function FooterStat ({ dotColor, label, value, valueClass }) {
   return (
@@ -388,7 +374,7 @@ function FooterGrid ({ cols = 3, children }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-//  Sales Trend — Day / Week / Month filter
+//  Sales Trend
 // ═══════════════════════════════════════════════════════════════════════
 
 function SalesTrendChart ({ deployments }) {
@@ -446,7 +432,7 @@ function SalesTrendChart ({ deployments }) {
     return (
       <div className='flex flex-col h-full min-h-0'>
         <RangeTabs rangeMode={rangeMode} setRangeMode={setRangeMode} />
-        <div className='flex-1 flex items-center justify-center text-zinc-600 text-sm'>
+        <div className='flex-1 flex items-center justify-center text-zinc-600 text-xs'>
           No sales data yet.
         </div>
       </div>
@@ -573,13 +559,15 @@ function SalesTrendChart ({ deployments }) {
       <RangeTabs rangeMode={rangeMode} setRangeMode={setRangeMode} />
 
       <div className='flex-1 min-h-[240px] relative'>
-        <div className='absolute inset-0 p-3'>
-          <ReactECharts
-            option={option}
-            style={{ height: '100%', width: '100%' }}
-            opts={{ renderer: 'canvas' }}
-            notMerge
-          />
+        <div className='absolute inset-0 overflow-x-auto'>
+          <div className='h-full min-w-[640px] sm:min-w-0 p-3'>
+            <ReactECharts
+              option={option}
+              style={{ height: '100%', width: '100%' }}
+              opts={{ renderer: 'canvas' }}
+              notMerge
+            />
+          </div>
         </div>
       </div>
 
@@ -614,7 +602,7 @@ function SalesTrendChart ({ deployments }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-//  Agent Performance — Trend
+//  Agent Performance
 // ═══════════════════════════════════════════════════════════════════════
 
 function DailyAgentPerformance ({ deployments }) {
@@ -677,7 +665,7 @@ function DailyAgentPerformance ({ deployments }) {
     return (
       <div className='flex flex-col h-full min-h-0'>
         <RangeTabs rangeMode={rangeMode} setRangeMode={setRangeMode} />
-        <div className='flex-1 flex items-center justify-center text-zinc-600 text-sm'>
+        <div className='flex-1 flex items-center justify-center text-zinc-600 text-xs'>
           No agent data yet.
         </div>
       </div>
@@ -849,15 +837,17 @@ function DailyAgentPerformance ({ deployments }) {
       <RangeTabs rangeMode={rangeMode} setRangeMode={setRangeMode} />
 
       <div className='flex-1 min-h-[260px] relative'>
-        <div className='absolute inset-0 p-3'>
-          <ReactECharts
-            ref={chartRef}
-            option={option}
-            onEvents={onEvents}
-            style={{ height: '100%', width: '100%' }}
-            opts={{ renderer: 'canvas' }}
-            notMerge
-          />
+        <div className='absolute inset-0 overflow-x-auto'>
+          <div className='h-full min-w-[720px] sm:min-w-0 p-3'>
+            <ReactECharts
+              ref={chartRef}
+              option={option}
+              onEvents={onEvents}
+              style={{ height: '100%', width: '100%' }}
+              opts={{ renderer: 'canvas' }}
+              notMerge
+            />
+          </div>
         </div>
       </div>
 
@@ -882,7 +872,7 @@ function DailyAgentPerformance ({ deployments }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-//  Remit Health Trend
+//  Remit Health
 // ═══════════════════════════════════════════════════════════════════════
 
 function RemitHealthTrend ({ deployments }) {
@@ -967,7 +957,7 @@ function RemitHealthTrend ({ deployments }) {
 
   if (!hasData) {
     return (
-      <div className='px-4 py-12 text-center text-zinc-600 text-sm'>
+      <div className='px-4 py-12 text-center text-zinc-600 text-xs'>
         No remit data in the last 30 days.
       </div>
     )
@@ -1084,13 +1074,15 @@ function RemitHealthTrend ({ deployments }) {
   return (
     <div className='flex flex-col h-full min-h-0'>
       <div className='flex-1 min-h-0 relative'>
-        <div className='absolute inset-0 p-3'>
-          <ReactECharts
-            option={option}
-            style={{ height: '100%', width: '100%' }}
-            opts={{ renderer: 'canvas' }}
-            notMerge
-          />
+        <div className='absolute inset-0 overflow-x-auto'>
+          <div className='h-full min-w-[720px] sm:min-w-0 p-3'>
+            <ReactECharts
+              option={option}
+              style={{ height: '100%', width: '100%' }}
+              opts={{ renderer: 'canvas' }}
+              notMerge
+            />
+          </div>
         </div>
       </div>
 
@@ -1121,7 +1113,7 @@ function RemitHealthTrend ({ deployments }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-//  Expected vs Remitted — receipt style
+//  Expected vs Remitted
 // ═══════════════════════════════════════════════════════════════════════
 
 function Dashed ({ className = '' }) {
@@ -1189,13 +1181,13 @@ function ExpectedVsRemitted ({ deployments }) {
     : 'text-emerald-300/90'
 
   return (
-    <div className='px-3 sm:px-4 py-4 sm:py-5 font-mono'>
+    <div className='px-3 sm:px-4 py-3 sm:py-5 font-mono'>
       <div>
-        <div className='text-[9px] sm:text-[10px] uppercase tracking-[0.14em] text-emerald-400/70 font-semibold mb-2'>
+        <div className='text-[9px] sm:text-[10px] uppercase tracking-[0.14em] text-emerald-400/70 font-semibold mb-1 sm:mb-2'>
           Expected
         </div>
 
-        <div className='space-y-1.5'>
+        <div className='space-y-0.5 sm:space-y-1.5'>
           <div className='flex justify-between items-baseline gap-2'>
             <span className='text-[10px] sm:text-xs text-zinc-500'>Sales</span>
             <span className='text-[10px] sm:text-xs text-zinc-300 tabular-nums'>
@@ -1212,7 +1204,7 @@ function ExpectedVsRemitted ({ deployments }) {
           </div>
         </div>
 
-        <Dashed className='my-2.5' />
+        <Dashed className='my-1.5 sm:my-2.5' />
 
         <div className='flex justify-between items-baseline gap-2'>
           <span className='text-[9px] sm:text-[11px] uppercase tracking-[0.12em] text-zinc-400 font-semibold'>
@@ -1224,14 +1216,14 @@ function ExpectedVsRemitted ({ deployments }) {
         </div>
       </div>
 
-      <Dashed className='my-4' />
+      <Dashed className='my-2 sm:my-4' />
 
       <div>
-        <div className='text-[9px] sm:text-[10px] uppercase tracking-[0.14em] text-teal-400/70 font-semibold mb-2'>
+        <div className='text-[9px] sm:text-[10px] uppercase tracking-[0.14em] text-teal-400/70 font-semibold mb-1 sm:mb-2'>
           Remitted
         </div>
 
-        <div className='space-y-1.5'>
+        <div className='space-y-0.5 sm:space-y-1.5'>
           <div className='flex justify-between items-baseline gap-2'>
             <span className='text-[10px] sm:text-xs text-zinc-500'>Cash</span>
             <span className='text-[10px] sm:text-xs text-zinc-300 tabular-nums'>
@@ -1246,7 +1238,7 @@ function ExpectedVsRemitted ({ deployments }) {
           </div>
         </div>
 
-        <Dashed className='my-2.5' />
+        <Dashed className='my-1.5 sm:my-2.5' />
 
         <div className='flex justify-between items-baseline gap-2'>
           <span className='text-[9px] sm:text-[11px] uppercase tracking-[0.12em] text-zinc-400 font-semibold'>
@@ -1258,7 +1250,7 @@ function ExpectedVsRemitted ({ deployments }) {
         </div>
       </div>
 
-      <Dashed className='my-4' />
+      <Dashed className='my-2 sm:my-4' />
 
       <div className='text-center'>
         {isExact ? (
@@ -1342,7 +1334,7 @@ function PaymentMixChart ({ deployments }) {
     return (
       <div className='flex flex-col h-full min-h-0'>
         <RangeTabs rangeMode={rangeMode} setRangeMode={setRangeMode} />
-        <div className='flex-1 flex items-center justify-center text-zinc-600 text-sm'>
+        <div className='flex-1 flex items-center justify-center text-zinc-600 text-xs'>
           No payment data yet.
         </div>
       </div>
@@ -1446,13 +1438,15 @@ function PaymentMixChart ({ deployments }) {
       <RangeTabs rangeMode={rangeMode} setRangeMode={setRangeMode} />
 
       <div className='flex-1 min-h-0 relative'>
-        <div className='absolute inset-0 p-3'>
-          <ReactECharts
-            option={option}
-            style={{ height: '100%', width: '100%' }}
-            opts={{ renderer: 'canvas' }}
-            notMerge
-          />
+        <div className='absolute inset-0 overflow-x-auto'>
+          <div className='h-full min-w-[640px] sm:min-w-0 p-3'>
+            <ReactECharts
+              option={option}
+              style={{ height: '100%', width: '100%' }}
+              opts={{ renderer: 'canvas' }}
+              notMerge
+            />
+          </div>
         </div>
       </div>
 
@@ -1771,7 +1765,7 @@ function WeeklySellingPattern ({ deployments }) {
 
   if (!hasData) {
     return (
-      <div className='px-4 py-12 text-center text-zinc-600 text-sm'>
+      <div className='px-4 py-12 text-center text-zinc-600 text-xs'>
         Not enough sales data yet.
       </div>
     )
@@ -1874,7 +1868,7 @@ function WeeklySellingPattern ({ deployments }) {
         />
       </div>
 
-      <div className='px-4 pb-3 text-center text-[10px] text-zinc-600'>
+      <div className='px-4 pb-3 text-center text-[9px] sm:text-[10px] text-zinc-600'>
         Average sales per {PATTERN_WINDOW_DAYS}-day window · Mon–Sat only
       </div>
     </>
@@ -2041,7 +2035,7 @@ function AgentLeaderboard ({ deployments }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-//  Trending Products — Horizontal Bar Ranking
+//  Trending Products
 // ═══════════════════════════════════════════════════════════════════════
 
 function useTrendingProducts (deployments) {
@@ -2077,7 +2071,7 @@ function TrendingProducts ({ deployments }) {
 
   if (products.length === 0) {
     return (
-      <div className='px-4 py-12 text-center text-zinc-600 text-sm'>
+      <div className='px-4 py-12 text-center text-zinc-600 text-xs'>
         No product data yet.
       </div>
     )
@@ -2188,8 +2182,11 @@ function TrendingProducts ({ deployments }) {
 
   return (
     <>
-      <div className='max-h-[520px] overflow-y-auto p-3'>
-        <div style={{ height: chartHeight }}>
+      <div className='max-h-[520px] overflow-auto p-3'>
+        <div
+          className='min-w-[640px] sm:min-w-0'
+          style={{ height: chartHeight }}
+        >
           <ReactECharts
             option={option}
             style={{ height: '100%', width: '100%' }}
@@ -2199,7 +2196,7 @@ function TrendingProducts ({ deployments }) {
         </div>
       </div>
 
-      <div className='px-4 pb-3 text-center text-[10px] text-zinc-600'>
+      <div className='px-4 pb-3 text-center text-[9px] sm:text-[10px] text-zinc-600'>
         Ranked by cases sold · Top 3 highlighted
         {products.length > 20 && ' · Scroll for more'}
       </div>
@@ -2645,15 +2642,15 @@ export default function Dashboard () {
     <div className='bg-zinc-900 flex-1 outline outline-zinc-800 rounded-lg p-3 overflow-auto shadow-lg shadow-black/40 space-y-3'>
       <div className='flex justify-between items-center gap-2 pb-2 border-b border-zinc-800'>
         <div className='min-w-0'>
-          <div className='uppercase font-medium text-base sm:text-lg'>
+          <div className='uppercase font-medium text-sm sm:text-lg'>
             Dashboard
           </div>
         </div>
-        <div className='text-[10px] sm:text-[11px] text-zinc-500 tabular-nums text-right shrink-0'>
+        <div className='text-[9px] sm:text-[11px] text-zinc-500 tabular-nums text-right shrink-0'>
           {formatDate(new Date())}
         </div>
       </div>
-      {/* KPI strip */}
+
       <div className='grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3'>
         <KpiCard
           icon={<TbCurrencyPeso size={18} />}
@@ -2713,7 +2710,6 @@ export default function Dashboard () {
         />
       </div>
 
-      {/* Sales Trend + Empties Received */}
       <div className='grid grid-cols-1 lg:grid-cols-3 gap-3'>
         <Panel
           title='Sales — Trend'
@@ -2749,7 +2745,6 @@ export default function Dashboard () {
         </Panel>
       </div>
 
-      {/* Agent Performance Trend + Expected vs Remitted */}
       <div className='grid grid-cols-1 lg:grid-cols-3 gap-3'>
         <Panel
           title='Agent Performance — Trend'
@@ -2786,7 +2781,6 @@ export default function Dashboard () {
         </Panel>
       </div>
 
-      {/* Remit Health + Payment Mix */}
       <div className='grid grid-cols-1 lg:grid-cols-2 gap-3'>
         <Panel
           title='Remit Health — Over vs Short (30 days)'
@@ -2823,7 +2817,6 @@ export default function Dashboard () {
         </Panel>
       </div>
 
-      {/* Trending Products */}
       <Panel
         title='Trending Products'
         info={
@@ -2840,7 +2833,6 @@ export default function Dashboard () {
         <TrendingProducts deployments={safeDeployments} />
       </Panel>
 
-      {/* Agent Leaderboard */}
       <Panel
         title='Agent Leaderboard'
         info={
@@ -2862,7 +2854,6 @@ export default function Dashboard () {
         <AgentLeaderboard deployments={safeDeployments} />
       </Panel>
 
-      {/* Stock Alerts + Weekly Selling Pattern */}
       <div className='grid grid-cols-1 lg:grid-cols-2 gap-3'>
         <Panel
           title='Stock Alerts'
@@ -2910,7 +2901,6 @@ export default function Dashboard () {
         </Panel>
       </div>
 
-      {/* Deployment Calendar — alone, width-constrained */}
       <div className='max-w-2xl mx-auto w-full'>
         <Panel
           title='Deployment Calendar'

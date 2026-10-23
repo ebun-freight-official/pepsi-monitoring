@@ -1911,19 +1911,25 @@ function AgentLeaderboard ({ deployments }) {
       <table className='w-full text-xs sm:text-sm border-collapse'>
         <thead className='bg-zinc-900/60'>
           <tr className='text-left text-[9px] sm:text-[10px] uppercase tracking-wider text-zinc-500'>
-            <th className='px-2 sm:px-3 py-2 font-medium w-12'>Rank</th>
-            <th className='px-2 sm:px-3 py-2 font-medium'>Agent</th>
-            <th className='px-2 sm:px-3 py-2 font-medium text-center'>Trips</th>
-            <th className='px-2 sm:px-3 py-2 font-medium text-right'>
+            <th className='px-2 sm:px-3 py-2 font-medium w-12 whitespace-nowrap'>
+              Rank
+            </th>
+            <th className='px-2 sm:px-3 py-2 font-medium whitespace-nowrap'>
+              Agent
+            </th>
+            <th className='px-2 sm:px-3 py-2 font-medium text-center whitespace-nowrap'>
+              Trips
+            </th>
+            <th className='px-2 sm:px-3 py-2 font-medium text-right whitespace-nowrap'>
               Sales ₱
             </th>
-            <th className='px-2 sm:px-3 py-2 font-medium text-right'>
+            <th className='px-2 sm:px-3 py-2 font-medium text-right whitespace-nowrap'>
               Cash Remit
             </th>
-            <th className='px-2 sm:px-3 py-2 font-medium text-right'>
+            <th className='px-2 sm:px-3 py-2 font-medium text-right whitespace-nowrap'>
               Empties ₱
             </th>
-            <th className='px-2 sm:px-3 py-2 font-medium text-right'>
+            <th className='px-2 sm:px-3 py-2 font-medium text-right whitespace-nowrap'>
               Case Remit
             </th>
           </tr>

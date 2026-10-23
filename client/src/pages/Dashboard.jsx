@@ -68,12 +68,25 @@ const chartTheme = {
 const baseGrid = { top: 20, right: 16, bottom: 30, left: 50 }
 
 function tooltipStyle () {
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 640
+
   return {
     backgroundColor: chartTheme.tooltipBg,
     borderColor: chartTheme.tooltipBorder,
     borderWidth: 1,
     textStyle: { color: '#fafafa', fontSize: 12 },
-    extraCssText: 'box-shadow: 0 10px 30px rgba(0,0,0,0.6);'
+    extraCssText: 'box-shadow: 0 10px 30px rgba(0,0,0,0.6);',
+    confine: true,
+    ...(isMobile && {
+      position: (point, params, dom, rect, size) => {
+        const [tipW, tipH] = size.contentSize
+        const x = Math.max(4, rect.width / 2 - tipW / 2)
+        const yAbove = point[1] - tipH - 12
+        const yBelow = point[1] + 12
+        const y = yAbove >= 4 ? yAbove : yBelow
+        return [x, Math.max(4, Math.min(y, rect.height - tipH - 4))]
+      }
+    })
   }
 }
 
@@ -373,10 +386,6 @@ function FooterGrid ({ cols = 3, children }) {
   )
 }
 
-// ═══════════════════════════════════════════════════════════════════════
-//  Sales Trend
-// ═══════════════════════════════════════════════════════════════════════
-
 function SalesTrendChart ({ deployments }) {
   const [rangeMode, setRangeMode] = useState('day')
 
@@ -600,10 +609,6 @@ function SalesTrendChart ({ deployments }) {
     </div>
   )
 }
-
-// ═══════════════════════════════════════════════════════════════════════
-//  Agent Performance
-// ═══════════════════════════════════════════════════════════════════════
 
 function DailyAgentPerformance ({ deployments }) {
   const chartRef = useRef(null)
@@ -871,10 +876,6 @@ function DailyAgentPerformance ({ deployments }) {
   )
 }
 
-// ═══════════════════════════════════════════════════════════════════════
-//  Remit Health
-// ═══════════════════════════════════════════════════════════════════════
-
 function RemitHealthTrend ({ deployments }) {
   const data = useMemo(() => {
     const DAYS = 30
@@ -1112,10 +1113,6 @@ function RemitHealthTrend ({ deployments }) {
   )
 }
 
-// ═══════════════════════════════════════════════════════════════════════
-//  Expected vs Remitted
-// ═══════════════════════════════════════════════════════════════════════
-
 function Dashed ({ className = '' }) {
   return (
     <div className={`border-t border-dashed border-zinc-700/40 ${className}`} />
@@ -1276,10 +1273,6 @@ function ExpectedVsRemitted ({ deployments }) {
     </div>
   )
 }
-
-// ═══════════════════════════════════════════════════════════════════════
-//  Payment Mix
-// ═══════════════════════════════════════════════════════════════════════
 
 function PaymentMixChart ({ deployments }) {
   const [rangeMode, setRangeMode] = useState('day')
@@ -1473,10 +1466,6 @@ function PaymentMixChart ({ deployments }) {
     </div>
   )
 }
-
-// ═══════════════════════════════════════════════════════════════════════
-//  Stock Alerts
-// ═══════════════════════════════════════════════════════════════════════
 
 const ALERT_WINDOW = 30
 const TARGET_COVER_DAYS = 30
@@ -1690,10 +1679,6 @@ function StockAlerts ({ stocks, deployments }) {
   )
 }
 
-// ═══════════════════════════════════════════════════════════════════════
-//  Weekly Selling Pattern
-// ═══════════════════════════════════════════════════════════════════════
-
 const WEEKDAYS = [
   { idx: 1, short: 'Mon', label: 'Monday' },
   { idx: 2, short: 'Tue', label: 'Tuesday' },
@@ -1875,10 +1860,6 @@ function WeeklySellingPattern ({ deployments }) {
   )
 }
 
-// ═══════════════════════════════════════════════════════════════════════
-//  Agent Leaderboard
-// ═══════════════════════════════════════════════════════════════════════
-
 const MEDALS = ['🥇', '🥈', '🥉']
 
 function AgentLeaderboard ({ deployments }) {
@@ -2033,10 +2014,6 @@ function AgentLeaderboard ({ deployments }) {
     </div>
   )
 }
-
-// ═══════════════════════════════════════════════════════════════════════
-//  Trending Products
-// ═══════════════════════════════════════════════════════════════════════
 
 function useTrendingProducts (deployments) {
   return useMemo(() => {
@@ -2204,10 +2181,6 @@ function TrendingProducts ({ deployments }) {
   )
 }
 
-// ═══════════════════════════════════════════════════════════════════════
-//  Empties Received
-// ═══════════════════════════════════════════════════════════════════════
-
 function EmptiesReceived ({ deployments }) {
   const data = useMemo(() => {
     const groups = { fullCase: {}, caseOnly: {}, bottlesOnly: {} }
@@ -2348,10 +2321,6 @@ function EmptiesReceived ({ deployments }) {
     </div>
   )
 }
-
-// ═══════════════════════════════════════════════════════════════════════
-//  Deployment Calendar
-// ═══════════════════════════════════════════════════════════════════════
 
 function DeploymentCalendar ({ deployments }) {
   const [cursor, setCursor] = useState(() => {
@@ -2535,10 +2504,6 @@ function DeploymentCalendar ({ deployments }) {
     </div>
   )
 }
-
-// ═══════════════════════════════════════════════════════════════════════
-//  Main Dashboard
-// ═══════════════════════════════════════════════════════════════════════
 
 export default function Dashboard () {
   const { stocks, deployments } = useOutletContext() || {}

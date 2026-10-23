@@ -2,9 +2,10 @@ import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router'
 import { TbLoader2 } from 'react-icons/tb'
 import { useAuth } from '../context/AuthContext'
+import pepsiIcon from '../assets/pepsi_icon.png'
 
 const inputClass =
-  'w-full bg-zinc-950 border border-zinc-700 rounded-md px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-blue-500 transition'
+  'w-full bg-zinc-950 border border-zinc-700 rounded-md px-3 py-2 text-base sm:text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-blue-500 transition'
 
 const labelClass =
   'block text-[10px] uppercase tracking-wider text-zinc-500 mb-1.5'
@@ -35,15 +36,16 @@ export default function Login () {
   }
 
   return (
-    <div className='bg-zinc-950 h-screen flex items-center justify-center p-4 text-zinc-100'>
+    <div className='bg-zinc-950 min-h-screen flex items-center justify-center px-4 py-8 text-zinc-100'>
       <div className='w-full max-w-sm'>
         {/* Brand */}
         <div className='flex items-center justify-center gap-3 mb-6'>
-          <div className='w-1.5 h-10 rounded-full overflow-hidden flex flex-col shrink-0'>
-            <div className='flex-1 bg-red-500' />
-            <div className='flex-1 bg-slate-200' />
-            <div className='flex-1 bg-blue-600' />
-          </div>
+          <img
+            src={pepsiIcon}
+            alt='Pepsi'
+            className='h-10 w-10 sm:h-12 sm:w-12 shrink-0 object-contain select-none'
+            draggable={false}
+          />
           <div className='min-w-0'>
             <div className='text-base font-bold text-blue-400 tracking-widest uppercase leading-tight'>
               Pepsi
@@ -57,7 +59,7 @@ export default function Login () {
         {/* Card */}
         <form
           onSubmit={handleSubmit}
-          className='bg-zinc-900 outline outline-zinc-800 rounded-xl p-6 shadow-2xl shadow-black/60 space-y-4'
+          className='bg-zinc-900 outline outline-zinc-800 rounded-xl p-5 sm:p-6 shadow-2xl shadow-black/60 space-y-4'
         >
           <div className='text-center'>
             <div className='uppercase font-medium text-sm tracking-wider text-zinc-300'>
@@ -118,10 +120,6 @@ export default function Login () {
             )}
           </button>
         </form>
-
-        <p className='text-center text-[11px] text-zinc-600 mt-4'>
-          Contact your administrator if you need an account.
-        </p>
       </div>
     </div>
   )

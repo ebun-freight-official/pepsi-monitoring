@@ -1,4 +1,3 @@
-import { TbX } from 'react-icons/tb'
 import { calcItemCases, formatDate, formatMoney } from '../utils/inventory'
 
 function Dashed ({ className = '' }) {
@@ -42,7 +41,7 @@ function EntryReceipt ({ entry }) {
           <div className='font-semibold text-xs sm:text-sm text-zinc-100 uppercase tracking-[0.15em]'>
             Stock Entry
           </div>
-          <div className='text-[10px] sm:text-xs text-zinc-500 mt-1 tabular-nums'>
+          <div className='text-[11px] sm:text-xs text-zinc-500 mt-1 tabular-nums'>
             {formatDate(entry.createdAt || entry.date)}
           </div>
         </div>
@@ -69,12 +68,12 @@ function EntryReceipt ({ entry }) {
                     </span>
                   </div>
                   <div className='flex justify-between items-baseline gap-2 mt-1'>
-                    <span className='text-[10px] sm:text-xs text-zinc-500 tabular-nums pl-0.5'>
+                    <span className='text-[11px] sm:text-xs text-zinc-500 tabular-nums pl-0.5'>
                       {item.quantity} cases
                       {Number(item.promo) > 0 && ` + ${item.promo} free`}
                     </span>
                     {discount > 0 && (
-                      <span className='text-[10px] sm:text-xs text-rose-400 tabular-nums shrink-0'>
+                      <span className='text-[11px] sm:text-xs text-rose-400 tabular-nums shrink-0'>
                         − {formatMoney(discount)}
                       </span>
                     )}
@@ -84,7 +83,7 @@ function EntryReceipt ({ entry }) {
             })}
           </div>
         ) : (
-          <div className='text-center text-[10px] sm:text-xs text-zinc-600 py-3'>
+          <div className='text-center text-[11px] sm:text-xs text-zinc-600 py-3'>
             No items
           </div>
         )}
@@ -92,7 +91,7 @@ function EntryReceipt ({ entry }) {
         <Dashed className='my-3 sm:my-4' />
 
         <div className='flex justify-between items-baseline gap-2'>
-          <span className='text-[10px] sm:text-xs uppercase tracking-[0.14em] text-zinc-500'>
+          <span className='text-[11px] sm:text-xs uppercase tracking-[0.14em] text-zinc-500'>
             Cases
           </span>
           <span className='text-xs sm:text-sm text-zinc-300 tabular-nums'>
@@ -118,30 +117,22 @@ function EntryReceipt ({ entry }) {
 }
 
 export default function RecentEntries ({ entries, onClose }) {
+  const isModal = !!onClose
+
   return (
     <>
-      <div className='flex items-center justify-between mb-2 sticky top-0 bg-zinc-900 z-10 pb-2'>
-        <div className='text-[10px] sm:text-[11px] uppercase tracking-wide text-zinc-500'>
-          Recent Entries
-        </div>
-        <div className='flex items-center gap-1.5'>
+      {!isModal && (
+        <div className='flex items-center justify-between mb-2 sticky top-0 bg-zinc-900 z-10 pb-2'>
+          <div className='text-[10px] sm:text-[11px] uppercase tracking-wide text-zinc-500'>
+            Recent Entries
+          </div>
           {entries.length > 0 && (
             <span className='text-[9px] sm:text-[10px] bg-zinc-800 text-zinc-400 px-1.5 sm:px-2 py-0.5 rounded tabular-nums'>
               {entries.length}
             </span>
           )}
-          {onClose && (
-            <button
-              type='button'
-              onClick={onClose}
-              className='p-1 -m-1 text-zinc-500 hover:text-zinc-100 transition'
-              aria-label='Close'
-            >
-              <TbX size={16} />
-            </button>
-          )}
         </div>
-      </div>
+      )}
 
       {entries.length === 0 ? (
         <div className='px-3 py-10 sm:py-12 text-center text-zinc-600 text-xs sm:text-sm'>

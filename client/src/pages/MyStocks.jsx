@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useOutletContext } from 'react-router'
-import { TbPlus, TbHistory } from 'react-icons/tb'
+import { TbPlus, TbHistory, TbX } from 'react-icons/tb'
 import StockTable from '../components/StockTable'
 import RecentEntries from '../components/RecentEntries'
 import NewEntryModal from '../components/NewEntryModal'
@@ -97,7 +97,31 @@ export default function MyStocks () {
       {/* Mobile Recent Entries modal */}
       {entriesOpen && (
         <div className='fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 lg:hidden'>
-          <div className='bg-zinc-900 outline outline-zinc-800 rounded-xl w-full max-w-lg max-h-[80dvh] flex flex-col shadow-2xl shadow-black/60'>
+          <div className='bg-zinc-900 outline outline-zinc-800 rounded-xl w-full max-w-lg max-h-[80dvh] flex flex-col shadow-2xl shadow-black/60 overflow-hidden'>
+            {/* Fixed header */}
+            <div className='flex justify-between items-center gap-2 px-4 py-3 border-b border-zinc-800 shrink-0'>
+              <div className='flex items-center gap-2 min-w-0'>
+                <TbHistory className='text-blue-400 shrink-0' size={16} />
+                <span className='uppercase font-medium text-sm tracking-wide truncate'>
+                  Recent Entries
+                </span>
+                {entries.length > 0 && (
+                  <span className='text-[10px] bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded tabular-nums shrink-0'>
+                    {entries.length}
+                  </span>
+                )}
+              </div>
+              <button
+                type='button'
+                onClick={() => setEntriesOpen(false)}
+                className='text-zinc-500 hover:text-zinc-100 transition shrink-0'
+                aria-label='Close'
+              >
+                <TbX size={18} />
+              </button>
+            </div>
+
+            {/* Scrollable body */}
             <div className='flex-1 min-h-0 overflow-y-auto p-3'>
               <RecentEntries
                 entries={entries}

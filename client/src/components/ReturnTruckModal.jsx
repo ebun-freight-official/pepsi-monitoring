@@ -1,165 +1,489 @@
-import { useState, useEffect } from 'react'
-import { TbX } from 'react-icons/tb'
+import { useState, useEffect, useMemo } from 'react'
+import { TbX, TbArrowDown, TbLoader2 } from 'react-icons/tb'
+import { formatMoney, formatNumber } from '../utils/inventory'
+import {
+  EMPTIES_RATES,
+  EMPTIES_GROUPS,
+  EMPTIES_GROUP_LABELS,
+  EMPTY_EMPTIES,
+  calcEmptiesGroupSubtotal
+} from '../data/bottleSizes'
 
-const inputClass =
-  'w-full bg-slate-900 border border-slate-700 rounded-md px-3 py-1.5 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-indigo-500'
+const GRID_RETURN =
+  'grid grid-cols-[minmax(0,1fr)_3.5rem_4rem_2.75rem_5rem_5rem] gap-2 items-center'
 
-const labelClass = 'block text-xs uppercase tracking-wide text-slate-500 mb-1'
+const diffMeta = diff => {
+  const isExact = Math.abs(diff) < 0.01
+  const isOver = diff > 0.01
+  if (isExact) {
+    return {
+      label: 'Difference',
+      display: formatMoney(0),
+      color: 'text-zinc-400'
+    }
+  }
+  if (isOver) {
+    return {
+      label: 'Over',
+      display: `+${formatMoney(diff)}`,
+      color: 'text-emerald-400'
+    }
+  }
+  return {
+    label: 'Short',
+    display: `-${formatMoney(Math.abs(diff))}`,
+    color: 'text-rose-400'
+  }
+}
 
 export default function ReturnTruckModal ({
   isOpen,
   onClose,
-  onReturn,
-  deployment
+  deployment,
+  onReturn
 }) {
-  const [returns, setReturns] = useState([])
+  const [returns, setReturns] = useState({})
+  const [empties, setEmpties] = useState(EMPTY_EMPTIES)
+  const [remit, setRemit] = useState({ cash: 0, gcash: 0, credit: 0 })
+  const [busy, setBusy] = useState(false)
 
   useEffect(() => {
     if (isOpen && deployment) {
-      setReturns(
-        deployment.items.map(item => ({
-          product_name: item.product_name,
-          cases_deployed: item.cases,
-          cases_returned: item.cases
-        }))
-      )
+      const init = {}
+      deployment.items.forEach(item => {
+        init[item.product_name] = item.cases
+      })
+      setReturns(init)
+      setEmpties(EMPTY_EMPTIES)
+      setRemit({ cash: 0, gcash: 0, credit: 0 })
+      setBusy(false)
     }
-  }, [isOpen, deployment])
+  }, [isOpen, deployment?._id])
+
+  // Pre-compute size rows + per-group prices to avoid repeated .find()
+  const emptiesSizes = useMemo(() => {
+    return EMPTIES_RATES.fullCase.map(fc => {
+      const co = EMPTIES_RATES.caseOnly.find(r => r.id === fc.id)
+      const bo = EMPTIES_RATES.bottlesOnly.find(r => r.id === fc.id)
+      return {
+        id: fc.id,
+        label: fc.label,
+        rates: {
+          fullCase: fc?.price ?? 0,
+          caseOnly: co?.price ?? 0,
+          bottlesOnly: bo?.price ?? 0
+        }
+      }
+    })
+  }, [])
 
   if (!isOpen || !deployment) return null
 
-  const updateReturned = (index, value) => {
-    const max = returns[index].cases_deployed
-    const num = Math.min(Math.max(Number(value) || 0, 0), max)
-    setReturns(prev =>
-      prev.map((r, i) => (i === index ? { ...r, cases_returned: num } : r))
-    )
-  }
+  const sortedItems = [...deployment.items].sort((a, b) =>
+    a.product_name.localeCompare(b.product_name)
+  )
 
-  const totalDeployed = returns.reduce((sum, r) => sum + r.cases_deployed, 0)
-  const totalReturned = returns.reduce((sum, r) => sum + r.cases_returned, 0)
+  const totalDeployed = deployment.items.reduce((s, i) => s + i.cases, 0)
+  const totalReturned = deployment.items.reduce(
+    (s, i) => s + (returns[i.product_name] ?? i.cases),
+    0
+  )
   const totalSold = totalDeployed - totalReturned
 
-  const handleSubmit = event => {
-    event.preventDefault()
-    if (onReturn(deployment.id, returns)) onClose()
+  const soldTotals = deployment.items.reduce(
+    (acc, item) => {
+      const remaining = returns[item.product_name] ?? item.cases
+      const sold = item.cases - remaining
+      acc.value += sold * (Number(item.price_per_case) || 0)
+      acc.empties += sold * (Number(item.empties_per_case) || 0)
+      return acc
+    },
+    { value: 0, empties: 0 }
+  )
+
+  const returnedEmptiesValue =
+    calcEmptiesGroupSubtotal('fullCase', empties.fullCase) +
+    calcEmptiesGroupSubtotal('caseOnly', empties.caseOnly) +
+    calcEmptiesGroupSubtotal('bottlesOnly', empties.bottlesOnly)
+
+  const cashRemit =
+    (Number(remit.cash) || 0) +
+    (Number(remit.gcash) || 0) +
+    (Number(remit.credit) || 0)
+
+  const salesDiff = cashRemit - soldTotals.value
+  const salesMeta = diffMeta(salesDiff)
+
+  const emptiesDiff = returnedEmptiesValue - soldTotals.empties
+  const emptiesMeta = diffMeta(emptiesDiff)
+
+  const updateReturn = (productName, value) => {
+    const deployed = deployment.items.find(i => i.product_name === productName)
+    const max = deployed ? deployed.cases : 0
+    const num = Math.min(Math.max(Number(value) || 0, 0), max)
+    setReturns(prev => ({ ...prev, [productName]: num }))
+  }
+
+  const updateEmpties = (group, id, value) => {
+    const num = Math.max(Number(value) || 0, 0)
+    setEmpties(prev => ({ ...prev, [group]: { ...prev[group], [id]: num } }))
+  }
+
+  const updateRemit = (key, value) => {
+    const num = Math.max(Number(value) || 0, 0)
+    setRemit(prev => ({ ...prev, [key]: num }))
+  }
+
+  const handleSubmit = async () => {
+    if (busy) return
+    setBusy(true)
+    try {
+      const returnItems = deployment.items.map(item => ({
+        product_name: item.product_name,
+        cases_deployed: item.cases,
+        cases_returned: returns[item.product_name] ?? item.cases
+      }))
+      await onReturn(
+        deployment._id,
+        returnItems,
+        { ...remit, case_remit: returnedEmptiesValue },
+        empties
+      )
+    } finally {
+      setBusy(false)
+    }
   }
 
   return (
-    <div className='fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50'>
-      <div className='bg-slate-900 outline outline-slate-800 rounded-xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl'>
-        <div className='flex justify-between items-center px-4 py-3 border-b border-slate-800'>
-          <div>
-            <div className='uppercase font-medium text-sm tracking-wide'>
-              Truck Return
-            </div>
-            <div className='text-xs text-slate-500 mt-0.5'>
-              {deployment.truck} · {deployment.date}
-            </div>
+    <div className='fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4'>
+      <div className='bg-zinc-900 outline outline-zinc-800 rounded-xl w-full max-w-5xl max-h-[60vh] flex flex-col shadow-2xl shadow-black/60'>
+        {/* Header */}
+        <div className='flex justify-between items-center px-4 py-3 border-b border-zinc-800 shrink-0'>
+          <div className='flex items-center gap-2 min-w-0'>
+            <TbArrowDown className='text-emerald-400 shrink-0' size={16} />
+            <span className='uppercase font-medium text-sm tracking-wide truncate'>
+              Return Truck
+            </span>
+            <span className='text-[11px] text-zinc-500 truncate'>
+              · {deployment.truck}
+            </span>
           </div>
           <button
             onClick={onClose}
-            className='text-slate-500 hover:text-slate-100 transition'
+            disabled={busy}
+            className='text-zinc-500 hover:text-zinc-100 transition disabled:opacity-40'
           >
-            <TbX size={20} />
+            <TbX size={18} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className='flex flex-col overflow-hidden'>
-          <div className='p-4 overflow-auto space-y-3'>
-            <div className='text-xs text-slate-500'>
-              Enter the remaining cases left in the truck. The sold count will
-              be calculated automatically.
+        {/* Body — scrollable */}
+        <div className='flex-1 min-h-0 overflow-y-auto p-4 space-y-3'>
+          {/* Return items */}
+          <div className='rounded-md border border-zinc-800 bg-zinc-950/60 overflow-hidden'>
+            <div
+              className={`${GRID_RETURN} px-3 py-2 border-b border-zinc-800 bg-zinc-900/60 text-[10px] uppercase tracking-wider text-zinc-500`}
+            >
+              <span>Product</span>
+              <span className='text-center'>Loaded</span>
+              <span className='text-center'>Left</span>
+              <span className='text-center'>Sold</span>
+              <span className='text-right'>Sold ₱</span>
+              <span className='text-right'>Empties</span>
             </div>
 
-            {returns.map((item, index) => {
-              const sold = item.cases_deployed - item.cases_returned
-              return (
-                <div
-                  key={index}
-                  className='bg-slate-950/60 border border-slate-800 rounded-lg p-3'
-                >
-                  <div className='flex justify-between items-center mb-2'>
-                    <span className='text-sm font-medium text-slate-100'>
-                      {item.product_name}
-                    </span>
-                    <span className='text-[11px] uppercase tracking-wide text-slate-500'>
-                      {item.cases_deployed} cases loaded
-                    </span>
+            <div className='divide-y divide-zinc-800/50'>
+              {sortedItems.map((item, i) => {
+                const remaining = returns[item.product_name] ?? item.cases
+                const sold = item.cases - remaining
+                const price = Number(item.price_per_case) || 0
+                const emptiesPer = Number(item.empties_per_case) || 0
+                return (
+                  <div
+                    key={i}
+                    className={`${GRID_RETURN} px-3 py-2 items-center transition-colors hover:bg-zinc-800/40`}
+                  >
+                    <div className='min-w-0'>
+                      <div className='text-sm text-zinc-100 font-medium truncate'>
+                        {item.product_name}
+                      </div>
+                      <div className='text-[10px] text-zinc-500 tabular-nums'>
+                        {formatMoney(price)}/case · {formatNumber(item.unit)}{' '}
+                        btls
+                      </div>
+                    </div>
+                    <div className='text-sm text-blue-400 font-medium text-center tabular-nums'>
+                      {formatNumber(item.cases)}
+                    </div>
+                    <input
+                      type='number'
+                      min='0'
+                      max={item.cases}
+                      step='1'
+                      value={remaining}
+                      onChange={e =>
+                        updateReturn(item.product_name, e.target.value)
+                      }
+                      className='w-full bg-zinc-950 border border-zinc-700 rounded-md px-1.5 py-1 text-sm text-center focus:outline-none focus:border-emerald-500 tabular-nums'
+                    />
+                    <div className='text-sm text-zinc-300 font-medium text-center tabular-nums'>
+                      {sold}
+                    </div>
+                    <div className='text-sm text-emerald-400 font-semibold text-right tabular-nums'>
+                      {formatMoney(sold * price)}
+                    </div>
+                    <div className='text-sm text-amber-400 font-semibold text-right tabular-nums'>
+                      {formatMoney(sold * emptiesPer)}
+                    </div>
                   </div>
+                )
+              })}
+            </div>
+          </div>
 
-                  <div className='grid grid-cols-12 gap-3 items-end'>
-                    <div className='col-span-6 sm:col-span-4'>
-                      <label className={labelClass}>Remaining</label>
-                      <input
-                        type='number'
-                        min='0'
-                        max={item.cases_deployed}
-                        step='1'
-                        value={item.cases_returned}
-                        onChange={e => updateReturned(index, e.target.value)}
-                        className={inputClass}
-                      />
-                    </div>
+          {/* ── Empties Received — table layout matching print sheet ── */}
+          <div className='rounded-md border border-zinc-800 bg-zinc-950/60 overflow-hidden'>
+            <div className='flex justify-between items-center px-3 py-2 border-b border-zinc-800 bg-zinc-900/60'>
+              <span className='text-[10px] uppercase tracking-wider font-semibold text-amber-400'>
+                Empties Received
+              </span>
+              <span className='text-sm font-semibold text-amber-400 tabular-nums'>
+                {formatMoney(returnedEmptiesValue)}
+              </span>
+            </div>
 
-                    <div className='col-span-6 sm:col-span-4'>
-                      <label className={labelClass}>Sold</label>
-                      <div className='px-3 py-1.5 text-sm rounded-md border border-emerald-800 text-emerald-400 bg-emerald-500/10'>
-                        {sold}
+            <table className='w-full border-collapse'>
+              <thead>
+                <tr className='text-[10px] uppercase tracking-wider text-zinc-500 border-b border-zinc-800'>
+                  <th className='px-3 py-2 text-left font-medium'>
+                    Bottle Size
+                  </th>
+                  {EMPTIES_GROUPS.map(group => (
+                    <th
+                      key={group}
+                      className='px-2 py-2 text-center font-medium w-28'
+                    >
+                      {EMPTIES_GROUP_LABELS[group]}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {emptiesSizes.map(size => (
+                  <tr
+                    key={size.id}
+                    className='border-t border-zinc-800/50 transition-colors hover:bg-zinc-800/30'
+                  >
+                    <td className='px-3 py-2 text-[11px] text-zinc-300 font-medium'>
+                      {size.label}
+                    </td>
+                    {EMPTIES_GROUPS.map(group => {
+                      const qty = empties[group]?.[size.id] || 0
+                      const price = size.rates[group]
+                      return (
+                        <td key={group} className='px-2 py-1.5'>
+                          <div className='flex flex-col items-center gap-0.5'>
+                            <input
+                              type='number'
+                              min='0'
+                              step='1'
+                              value={qty || ''}
+                              placeholder='0'
+                              onChange={e =>
+                                updateEmpties(group, size.id, e.target.value)
+                              }
+                              className='w-full max-w-[5.5rem] bg-zinc-950 border border-zinc-700 rounded-md px-1.5 py-1 text-xs text-center focus:outline-none focus:border-amber-500 tabular-nums'
+                            />
+                            <span className='text-[9px] text-zinc-600 tabular-nums'>
+                              ₱{price.toFixed(2)}
+                            </span>
+                          </div>
+                        </td>
+                      )
+                    })}
+                  </tr>
+                ))}
+
+                {/* Subtotal row */}
+                <tr className='border-t-2 border-zinc-700 bg-zinc-900/40'>
+                  <td className='px-3 py-2 text-[10px] uppercase tracking-wide text-zinc-400 font-semibold'>
+                    Subtotal
+                  </td>
+                  {EMPTIES_GROUPS.map(group => (
+                    <td
+                      key={group}
+                      className='px-2 py-2 text-center text-xs text-amber-400 font-semibold tabular-nums'
+                    >
+                      {formatMoney(
+                        calcEmptiesGroupSubtotal(group, empties[group])
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          {/* ── Split remit: Sales↔Cash | Empties↔Case ── */}
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
+            {/* Card A: Sales → Cash Remit */}
+            <div className='rounded-md border border-zinc-800 bg-zinc-950/60 overflow-hidden'>
+              <div className='flex justify-between items-center px-3 py-2 border-b border-zinc-800 bg-zinc-900/60'>
+                <span className='text-[10px] uppercase tracking-wider font-semibold text-emerald-400'>
+                  Sales → Cash Remit
+                </span>
+                <span
+                  className={`text-[10px] font-medium tabular-nums ${salesMeta.color}`}
+                >
+                  {salesMeta.label} · {salesMeta.display}
+                </span>
+              </div>
+
+              <div className='p-3 space-y-2'>
+                <div className='flex justify-between items-baseline gap-2'>
+                  <span className='text-[11px] text-zinc-500'>Sales Value</span>
+                  <span className='text-xs font-semibold text-emerald-400 tabular-nums'>
+                    {formatMoney(soldTotals.value)}
+                  </span>
+                </div>
+
+                <div className='mt-1 border-t border-zinc-800/60'>
+                  <div className='flex items-center gap-2 bg-black/50'>
+                    {[
+                      { key: 'cash', label: 'Cash' },
+                      { key: 'gcash', label: 'G-Cash' },
+                      { key: 'credit', label: 'Credit' }
+                    ].map(f => (
+                      <div
+                        key={f.key}
+                        className='flex items-center gap-1.5 flex-1 min-w-0 py-2'
+                      >
+                        <label className='text-[10px] uppercase tracking-wide text-zinc-500 shrink-0'>
+                          {f.label}:
+                        </label>
+                        <input
+                          type='number'
+                          min='0'
+                          value={remit[f.key] || ''}
+                          placeholder='0'
+                          onChange={e => updateRemit(f.key, e.target.value)}
+                          className='flex-1 min-w-0 bg-transparent border-0 px-1 py-0 text-[11px] text-right text-zinc-100 tabular-nums focus:outline-none focus:text-teal-400 transition'
+                        />
                       </div>
-                    </div>
-
-                    <div className='col-span-12 sm:col-span-4'>
-                      <label className={labelClass}>Bottles Sold</label>
-                      <div className='px-3 py-1.5 text-sm rounded-md border border-slate-800 text-sky-400 bg-slate-950'>
-                        {sold * (Number(item.unit) || 0)}
-                      </div>
-                    </div>
+                    ))}
                   </div>
                 </div>
-              )
-            })}
-          </div>
-
-          <div className='px-4 py-3 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-3'>
-            <div className='flex gap-4 text-xs'>
-              <span className='text-slate-500'>
-                Deployed:{' '}
-                <span className='text-slate-300 font-medium'>
-                  {totalDeployed}
-                </span>
-              </span>
-              <span className='text-slate-500'>
-                Returned:{' '}
-                <span className='text-amber-400 font-medium'>
-                  {totalReturned}
-                </span>
-              </span>
-              <span className='text-slate-500'>
-                Sold:{' '}
-                <span className='text-emerald-400 font-medium'>
-                  {totalSold}
-                </span>
-              </span>
+                <div className='pt-2 -mt-2 border-t border-zinc-800/60 space-y-1'>
+                  <div className='flex justify-between items-baseline gap-2'>
+                    <span className='text-[10px] uppercase tracking-wider text-zinc-400 font-semibold'>
+                      Total Cash Remit
+                    </span>
+                    <span className='text-sm font-semibold text-teal-400 tabular-nums'>
+                      {formatMoney(cashRemit)}
+                    </span>
+                  </div>
+                  <div className='flex justify-between items-baseline gap-2'>
+                    <span className='text-[11px] text-zinc-500'>
+                      {salesMeta.label}
+                    </span>
+                    <span
+                      className={`text-xs font-medium tabular-nums ${salesMeta.color}`}
+                    >
+                      {salesMeta.display}
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div className='flex gap-2 w-full sm:w-auto'>
-              <button
-                type='button'
-                onClick={onClose}
-                className='flex-1 sm:flex-none px-4 py-2 text-sm rounded-md border border-slate-700 text-slate-300 hover:bg-slate-800 transition'
-              >
-                Cancel
-              </button>
-              <button
-                type='submit'
-                className='flex-1 sm:flex-none px-4 py-2 text-sm rounded-md bg-emerald-600 hover:bg-emerald-500 font-medium transition'
-              >
+            {/* Card B: Empties → Case Remit */}
+            <div className='rounded-md border border-zinc-800 bg-zinc-950/60 overflow-hidden'>
+              <div className='flex justify-between items-center px-3 py-2 border-b border-zinc-800 bg-zinc-900/60'>
+                <span className='text-[10px] uppercase tracking-wider font-semibold text-amber-400'>
+                  Empties → Case Remit
+                </span>
+                <span
+                  className={`text-[10px] font-medium tabular-nums ${emptiesMeta.color}`}
+                >
+                  {emptiesMeta.label} · {emptiesMeta.display}
+                </span>
+              </div>
+
+              <div className='p-3 space-y-2'>
+                <div className='flex justify-between items-baseline gap-2'>
+                  <span className='text-[11px] text-zinc-500'>
+                    Empties Value
+                  </span>
+                  <span className='text-xs font-semibold text-amber-400 tabular-nums'>
+                    {formatMoney(soldTotals.empties)}
+                  </span>
+                </div>
+
+                <div className='pt-2 mt-1 border-t border-zinc-800/60 space-y-1.5'>
+                  <div className='flex justify-between items-baseline gap-2'>
+                    <span className='text-[10px] uppercase tracking-wider text-amber-400/80 font-semibold'>
+                      Case Remit
+                    </span>
+                    <span className='text-xs text-amber-400 font-medium tabular-nums'>
+                      {formatMoney(returnedEmptiesValue)}
+                    </span>
+                  </div>
+                </div>
+
+                <div className='pt-2 mt-1 border-t border-zinc-800/60 space-y-1'>
+                  <div className='flex justify-between items-baseline gap-2'>
+                    <span className='text-[10px] uppercase tracking-wider text-zinc-400 font-semibold'>
+                      Total Case Remit
+                    </span>
+                    <span className='text-sm font-semibold text-teal-400 tabular-nums'>
+                      {formatMoney(returnedEmptiesValue)}
+                    </span>
+                  </div>
+                  <div className='flex justify-between items-baseline gap-2'>
+                    <span className='text-[11px] text-zinc-500'>
+                      {emptiesMeta.label}
+                    </span>
+                    <span
+                      className={`text-xs font-medium tabular-nums ${emptiesMeta.color}`}
+                    >
+                      {emptiesMeta.display}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className='shrink-0 border-t border-zinc-800 p-3 flex justify-end gap-2'>
+          <button
+            type='button'
+            onClick={onClose}
+            disabled={busy}
+            className='border border-zinc-700 hover:bg-zinc-800 text-xs font-medium px-4 py-2 rounded-md transition disabled:opacity-40'
+          >
+            Cancel
+          </button>
+          <button
+            type='button'
+            onClick={handleSubmit}
+            disabled={busy}
+            className='bg-emerald-600 hover:bg-emerald-500 text-xs font-medium px-4 py-2 rounded-md transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1 shadow-md shadow-emerald-600/20'
+          >
+            {busy ? (
+              <>
+                <TbLoader2 size={12} className='animate-spin' />
+                Returning…
+              </>
+            ) : (
+              <>
+                <TbArrowDown size={12} />
                 Confirm Return
-              </button>
-            </div>
-          </div>
-        </form>
+              </>
+            )}
+          </button>
+        </div>
       </div>
     </div>
   )

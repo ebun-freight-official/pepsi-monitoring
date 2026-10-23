@@ -1,23 +1,18 @@
-import { useState, useMemo } from 'react'
-import { useOutletContext } from 'react-router'
-import { TbPlus, TbCheck, TbX } from 'react-icons/tb'
+import { useState, useMemo, useEffect } from 'react'
+import { useOutletContext, Link } from 'react-router'
+import { TbUsers, TbHistory, TbArrowLeft } from 'react-icons/tb'
 import TruckOverviewCard from '../components/TruckOverviewCard'
-import FocusedTruckView from '../components/FocusedTruckView'
-import DeploymentHistoryCard from '../components/DeploymentHistoryCard'
-import {
-  calcDeploymentStats,
-  formatMoney,
-  formatNumber
-} from '../utils/inventory'
-
-function HeaderStat ({ label, value, color }) {
-  return (
-    <div className='text-right hidden sm:block'>
-      <div className='text-[10px] uppercase text-zinc-500'>{label}</div>
-      <div className={`text-sm font-medium tabular-nums ${color}`}>{value}</div>
-    </div>
-  )
-}
+import FocusedHistoryView from '../components/FocusedHistoryView'
+import HistoryTable from '../components/HistoryTable'
+import HistorySummary from '../components/HistorySummary'
+import EditLoadoutModal from '../components/EditLoadoutModal'
+import DeployConfirmModal from '../components/DeployConfirmModal'
+import ReloadTruckModal from '../components/ReloadTruckModal'
+import ReturnTruckModal from '../components/ReturnTruckModal'
+import { printLoadoutSheet } from '../utils/printLoadout'
+import { useAuth } from '../context/AuthContext'
+import { formatMoney, formatNumber } from '../utils/inventory'
+import { api } from '../lib/api'
 
 function CombinedStat ({ label, value, color }) {
   return (
@@ -35,27 +30,48 @@ function CombinedStat ({ label, value, color }) {
 }
 
 export default function Deployments () {
+  const { isAdmin } = useAuth()
   const {
     stocks,
     deployments,
-    trucks,
     truckLoadouts,
-    truckAgents,
-    addTruck,
-    removeTruck,
-    renameTruck,
+    loadoutMeta,
     deployTruck,
+    reloadTruck,
     returnTruck,
     updateTruckLoadout,
-    updateTruckAgent
+    markLoadoutPrinted,
+    markCreditPaid
   } = useOutletContext()
 
+  const [trucks, setTrucks] = useState([])
+  const [trucksLoading, setTrucksLoading] = useState(true)
   const [viewMode, setViewMode] = useState('all')
-  const [isAdding, setIsAdding] = useState(false)
-  const [newTruckName, setNewTruckName] = useState('')
-  const [addError, setAddError] = useState('')
+  const [focusedHistoryId, setFocusedHistoryId] = useState(null)
 
-  const stats = calcDeploymentStats(deployments)
+  const [editLoadoutTruck, setEditLoadoutTruck] = useState(null)
+  const [deployingTruck, setDeployingTruck] = useState(null)
+  const [reloadingTruck, setReloadingTruck] = useState(null)
+  const [returningTruck, setReturningTruck] = useState(null)
+  const [printingTruck, setPrintingTruck] = useState(null)
+
+  const loadTrucks = async () => {
+    setTrucksLoading(true)
+    try {
+      const data = await api.get('/trucks')
+      setTrucks(data.trucks || [])
+    } catch (err) {
+      console.error('Failed to load trucks:', err)
+      setTrucks([])
+    } finally {
+      setTrucksLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadTrucks()
+  }, [])
+
   const history = deployments.filter(d => d.status === 'returned')
 
   const activeByTruck = {}
@@ -65,18 +81,14 @@ export default function Deployments () {
       activeByTruck[d.truck] = d
     })
 
-  if (viewMode !== 'all' && !trucks.includes(viewMode)) {
-    setViewMode('all')
-  }
-
   const combinedStats = useMemo(() => {
     let loadoutValue = 0
     let loadoutCases = 0
     let loadoutEmpties = 0
     let trucksOut = 0
 
-    trucks.forEach(truck => {
-      const active = activeByTruck[truck]
+    trucks.forEach(t => {
+      const active = activeByTruck[t.name]
       if (active) {
         trucksOut++
         active.items.forEach(item => {
@@ -86,7 +98,7 @@ export default function Deployments () {
           loadoutEmpties += cases * (Number(item.empties_per_case) || 0)
         })
       } else {
-        const lo = truckLoadouts[truck] || []
+        const lo = truckLoadouts[t.name] || []
         lo.forEach(item => {
           const cases = Number(item.cases) || 0
           const stock = stocks.find(s => s.product_name === item.product_name)
@@ -102,275 +114,303 @@ export default function Deployments () {
     return { loadoutValue, loadoutCases, loadoutEmpties, trucksOut }
   }, [trucks, activeByTruck, truckLoadouts, stocks])
 
-  const handleRename = (oldName, newName) => {
-    const ok = renameTruck(oldName, newName)
-    if (!ok) return false
-    // Keep the focus on the renamed truck
-    if (viewMode === oldName) setViewMode(newName)
-    return true
+  const focusedHistory = focusedHistoryId
+    ? history.find(d => d._id === focusedHistoryId)
+    : null
+
+  const handleOpenHistory = deployment => {
+    setFocusedHistoryId(deployment._id)
   }
 
-  const truckProps = truck => ({
-    truck,
-    activeDeployment: activeByTruck[truck] || null,
-    loadout: truckLoadouts[truck] || [],
-    agent: truckAgents[truck],
-    stocks,
-    onDeploy: deployTruck,
-    onReturn: returnTruck,
-    onUpdateLoadout: updateTruckLoadout,
-    onUpdateAgent: name => updateTruckAgent(truck, name),
-    onRename: newName => handleRename(truck, newName),
-    onRemove: handleRemoveTruck
-  })
-
-  const handleOpenAdd = () => {
-    setIsAdding(true)
-    setNewTruckName('')
-    setAddError('')
+  const isHistoryView = viewMode === 'history'
+  const toggleHistory = () => {
+    setViewMode(isHistoryView ? 'all' : 'history')
+    setFocusedHistoryId(null)
   }
 
-  const handleCancelAdd = () => {
-    setIsAdding(false)
-    setNewTruckName('')
-    setAddError('')
+  const handleDeploy = truckName => {
+    const active = activeByTruck[truckName]
+    const loadout = truckLoadouts[truckName] || []
+    const meta = loadoutMeta[truckName] || {}
+    if (active || loadout.length === 0) return
+    if (!meta.isLoadoutPrinted) return
+    setDeployingTruck(truckName)
   }
 
-  const handleAddTruck = e => {
-    e.preventDefault()
-    setAddError('')
-    const ok = addTruck(newTruckName)
-    if (!ok) {
-      setAddError('Name is empty or already taken.')
-      return
+  const handleEditLoadout = truckName => {
+    setEditLoadoutTruck(truckName)
+  }
+
+  const handleReload = truckName => {
+    const active = activeByTruck[truckName]
+    if (!active) return
+    setReloadingTruck(truckName)
+  }
+
+  const handleReturn = truckName => {
+    setReturningTruck(truckName)
+  }
+
+  const handlePrint = async truckName => {
+    if (printingTruck) return
+    const loadout = truckLoadouts[truckName] || []
+    if (loadout.length === 0) return
+
+    setPrintingTruck(truckName)
+    try {
+      await printLoadoutSheet({ truck: truckName, loadout, stocks })
+      await markLoadoutPrinted(truckName)
+    } catch (err) {
+      console.error('Print failed:', err)
+    } finally {
+      setPrintingTruck(null)
     }
-    handleCancelAdd()
   }
 
-  const handleRemoveTruck = truck => {
-    const isOut = !!activeByTruck[truck]
-    if (isOut) {
-      alert('Return the truck first before removing it.')
-      return
-    }
-    if (trucks.length <= 1) {
-      alert('You must keep at least one truck.')
-      return
-    }
-    if (!confirm(`Remove "${truck}"? This clears its loadout and agent.`))
-      return
-    const ok = removeTruck(truck)
-    if (ok && viewMode === truck) setViewMode('all')
+  const confirmDeploy = async () => {
+    const truckName = deployingTruck
+    const loadout = truckLoadouts[truckName] || []
+    const ok = await deployTruck(truckName, loadout)
+    if (ok !== false) setDeployingTruck(null)
+  }
+
+  const saveLoadout = async (truckName, items) => {
+    const ok = await updateTruckLoadout(truckName, items)
+    if (ok !== false) setEditLoadoutTruck(null)
+    return ok
+  }
+
+  const submitReload = async (deploymentId, items) => {
+    const ok = await reloadTruck(deploymentId, items)
+    if (ok !== false) setReloadingTruck(null)
+    return ok
+  }
+
+  const submitReturn = async (
+    deploymentId,
+    returnItems,
+    remit,
+    emptiesReceived
+  ) => {
+    const ok = await returnTruck(
+      deploymentId,
+      returnItems,
+      remit,
+      emptiesReceived
+    )
+    if (ok !== false) setReturningTruck(null)
+    return ok
+  }
+
+  if (!trucksLoading && trucks.length === 0) {
+    return (
+      <div className='bg-zinc-900 flex-1 outline outline-zinc-800 rounded-lg p-4 flex flex-col items-center justify-center text-center shadow-lg shadow-black/40'>
+        <div className='w-14 h-14 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 mb-4'>
+          <TbUsers size={26} />
+        </div>
+        <div className='uppercase font-medium text-lg mb-1'>No Trucks Yet</div>
+        <p className='text-sm text-zinc-500 max-w-sm mb-5'>
+          Trucks appear here automatically when you create a{' '}
+          <span className='text-blue-400 font-medium'>Sales Agent</span>{' '}
+          account.
+        </p>
+        {isAdmin && (
+          <Link
+            to='/users'
+            className='flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 transition text-sm font-medium px-4 py-2 rounded-md shadow-md shadow-blue-600/30'
+          >
+            <TbUsers size={16} />
+            Go to Users
+          </Link>
+        )}
+      </div>
+    )
   }
 
   return (
-    <div className='bg-zinc-900 flex-1 outline outline-zinc-800 rounded-lg p-2 flex flex-col overflow-hidden shadow-lg shadow-black/40'>
-      <div className='flex justify-between items-center pb-2 border-b border-zinc-800 shrink-0'>
-        <div className='uppercase font-medium text-lg'>Deployments</div>
+    <>
+      <div className='bg-zinc-900 flex-1 outline outline-zinc-800 rounded-lg p-2 flex flex-col overflow-hidden shadow-lg shadow-black/40'>
+        {/* PAGE HEADER */}
+        <div className='flex justify-between items-center gap-3 pb-2 border-b border-zinc-800 shrink-0'>
+          <div className='uppercase font-medium text-lg'>Deployments</div>
 
-        <div className='flex items-center gap-5'>
-          <HeaderStat
-            label='Trucks Out'
-            value={formatNumber(stats.trucksOut)}
-            color='text-blue-400'
-          />
-          <HeaderStat
-            label='Cases Sold'
-            value={formatNumber(stats.casesSold)}
-            color='text-zinc-300'
-          />
-          <HeaderStat
-            label='Price'
-            value={formatMoney(stats.valueSold)}
-            color='text-emerald-400'
-          />
-          <HeaderStat
-            label='Empties'
-            value={formatMoney(stats.emptiesSold)}
-            color='text-amber-400'
-          />
-        </div>
-      </div>
-
-      <div className='flex-1 flex gap-3 mt-2 min-h-0'>
-        <div className='flex-[3] min-w-0 flex flex-col min-h-0'>
-          {/* View tabs */}
-          <div className='flex items-center gap-2 pb-2 shrink-0 border-b border-zinc-800/60'>
-            <div className='flex items-center gap-1 flex-wrap'>
-              <button
-                onClick={() => setViewMode('all')}
-                className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition tabular-nums ${
-                  viewMode === 'all'
-                    ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
-                    : 'text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100'
-                }`}
-              >
-                All
-              </button>
-
-              {trucks.map(truck => {
-                const isActive = viewMode === truck
-                const isOut = !!activeByTruck[truck]
-                return (
-                  <button
-                    key={truck}
-                    onClick={() => setViewMode(truck)}
-                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium transition ${
-                      isActive
-                        ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
-                        : 'text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100'
-                    }`}
-                  >
-                    {truck}
-                    {isOut && (
-                      <span
-                        className={`w-1.5 h-1.5 rounded-full ${
-                          isActive ? 'bg-white' : 'bg-blue-400'
-                        }`}
-                      />
-                    )}
-                  </button>
-                )
-              })}
-
-              {isAdding ? (
-                <form
-                  onSubmit={handleAddTruck}
-                  className='flex items-center gap-1'
-                >
-                  <input
-                    autoFocus
-                    type='text'
-                    value={newTruckName}
-                    onChange={e => setNewTruckName(e.target.value)}
-                    onKeyDown={e => {
-                      if (e.key === 'Escape') handleCancelAdd()
-                    }}
-                    placeholder='Truck name'
-                    className={`w-28 bg-zinc-900 border rounded-md px-2 py-1 text-[11px] text-zinc-100 placeholder-zinc-600 focus:outline-none transition ${
-                      addError
-                        ? 'border-rose-700 focus:border-rose-500'
-                        : 'border-zinc-700 focus:border-blue-500'
-                    }`}
-                  />
-                  <button
-                    type='submit'
-                    className='p-1 text-emerald-400 hover:text-emerald-300 transition'
-                    title='Add'
-                  >
-                    <TbCheck size={14} />
-                  </button>
-                  <button
-                    type='button'
-                    onClick={handleCancelAdd}
-                    className='p-1 text-zinc-500 hover:text-zinc-300 transition'
-                    title='Cancel'
-                  >
-                    <TbX size={14} />
-                  </button>
-                </form>
-              ) : (
-                <button
-                  onClick={handleOpenAdd}
-                  className='flex items-center justify-center w-7 h-7 rounded-md text-zinc-400 hover:bg-zinc-800 hover:text-blue-400 transition'
-                  title='Add truck'
-                >
-                  <TbPlus size={14} />
-                </button>
-              )}
-            </div>
-
-            <span className='text-[10px] text-zinc-600 ml-auto tabular-nums'>
-              {viewMode === 'all'
-                ? `${trucks.length} truck${trucks.length === 1 ? '' : 's'}`
-                : 'Single view'}
-            </span>
-          </div>
-
-          {addError && (
-            <div className='text-[10px] text-rose-400 bg-rose-500/10 border border-rose-800/50 rounded-md px-2 py-1 mt-2 shrink-0'>
-              {addError}
-            </div>
-          )}
-
-          {/* Body */}
-          <div className='flex-1 min-h-0 flex flex-col pt-2'>
-            {viewMode === 'all' ? (
+          <button
+            onClick={toggleHistory}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[11px] font-medium transition ${
+              isHistoryView
+                ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
+                : 'text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100 border border-zinc-700'
+            }`}
+          >
+            {isHistoryView ? (
               <>
-                <div className='shrink-0 grid grid-cols-2 md:grid-cols-4 gap-2 pb-3 mb-2 border-b border-zinc-800/60'>
-                  <CombinedStat
-                    label='Trucks Out'
-                    value={`${combinedStats.trucksOut} / ${trucks.length}`}
-                    color='text-blue-400'
-                  />
-                  <CombinedStat
-                    label='Loadout Value'
-                    value={formatMoney(combinedStats.loadoutValue)}
-                    color='text-blue-400'
-                  />
-                  <CombinedStat
-                    label='Loadout Cases'
-                    value={formatNumber(combinedStats.loadoutCases)}
-                    color='text-blue-400'
-                  />
-                  <CombinedStat
-                    label='Loadout Empties'
-                    value={formatMoney(combinedStats.loadoutEmpties)}
-                    color='text-amber-400'
-                  />
-                </div>
-
-                <div className='flex-1 min-h-0 overflow-auto'>
-                  <div className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 auto-rows-fr gap-3 min-h-0'>
-                    {trucks.map(truck => (
-                      <TruckOverviewCard
-                        key={truck}
-                        truck={truck}
-                        activeDeployment={activeByTruck[truck] || null}
-                        loadout={truckLoadouts[truck] || []}
-                        agent={truckAgents[truck]}
-                        stocks={stocks}
-                      />
-                    ))}
-                  </div>
-                </div>
+                <TbArrowLeft size={12} />
+                All Trucks
               </>
             ) : (
-              <div className='flex-1 min-h-0'>
-                <FocusedTruckView {...truckProps(viewMode)} />
-              </div>
+              <>
+                <TbHistory size={12} />
+                History
+                {history.length > 0 && (
+                  <span className='text-[9px] bg-white/15 px-1.5 py-0.5 rounded tabular-nums'>
+                    {history.length}
+                  </span>
+                )}
+              </>
             )}
-          </div>
+          </button>
         </div>
 
-        {/* History */}
-        <div className='w-72 shrink-0 flex flex-col min-h-0 border-l border-zinc-800 pl-3'>
-          <div className='flex items-center justify-between mb-2 shrink-0'>
-            <div className='text-[11px] uppercase tracking-wide text-zinc-500'>
-              History
-            </div>
-            {history.length > 0 && (
-              <span className='text-[10px] bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded'>
-                {history.length}
-              </span>
-            )}
-          </div>
+        {/* BODY */}
+        <div className='flex-1 min-h-0 flex gap-3 mt-2'>
+          <div className='flex-1 min-w-0 flex flex-col min-h-0'>
+            <div className='flex-1 min-h-0 flex flex-col'>
+              {/* History detail */}
+              {focusedHistory && (
+                <div className='flex-1 min-h-0'>
+                  <FocusedHistoryView
+                    deployment={focusedHistory}
+                    onBack={() => setFocusedHistoryId(null)}
+                    onMarkCreditPaid={
+                      isAdmin
+                        ? paid => markCreditPaid(focusedHistory._id, paid)
+                        : undefined
+                    }
+                  />
+                </div>
+              )}
 
-          <div className='flex-1 overflow-auto min-h-0'>
-            {history.length === 0 ? (
-              <div className='px-3 py-12 text-center text-zinc-600 text-sm'>
-                No completed deployments yet.
-              </div>
-            ) : (
-              <div className='space-y-2'>
-                {history.map(d => (
-                  <DeploymentHistoryCard key={d.id} deployment={d} />
-                ))}
-              </div>
-            )}
+              {/* History list */}
+              {!focusedHistory && isHistoryView && (
+                <>
+                  {history.length === 0 ? (
+                    <div className='flex-1 flex flex-col items-center justify-center text-center px-4'>
+                      <div className='w-14 h-14 rounded-xl bg-zinc-800/60 flex items-center justify-center text-zinc-500 mb-3'>
+                        <TbHistory size={24} />
+                      </div>
+                      <div className='text-sm text-zinc-400 font-medium mb-1'>
+                        No completed deployments yet
+                      </div>
+                      <p className='text-xs text-zinc-600 max-w-sm'>
+                        Returned trucks will show up here.
+                      </p>
+                    </div>
+                  ) : (
+                    <>
+                      <div className='shrink-0 mb-2'>
+                        <HistorySummary deployments={history} />
+                      </div>
+
+                      <div className='flex-1 min-h-0 overflow-auto'>
+                        <HistoryTable
+                          deployments={history}
+                          onRowClick={handleOpenHistory}
+                        />
+                      </div>
+                    </>
+                  )}
+                </>
+              )}
+
+              {/* All view */}
+              {!focusedHistory && !isHistoryView && (
+                <>
+                  <div className='shrink-0 grid grid-cols-2 md:grid-cols-4 gap-2 pb-3 mb-2 border-b border-zinc-800/60'>
+                    <CombinedStat
+                      label='Trucks Out'
+                      value={`${combinedStats.trucksOut} / ${trucks.length}`}
+                      color='text-blue-400'
+                    />
+                    <CombinedStat
+                      label='Loadout Value'
+                      value={formatMoney(combinedStats.loadoutValue)}
+                      color='text-blue-400'
+                    />
+                    <CombinedStat
+                      label='Loadout Cases'
+                      value={formatNumber(combinedStats.loadoutCases)}
+                      color='text-blue-400'
+                    />
+                    <CombinedStat
+                      label='Loadout Empties'
+                      value={formatMoney(combinedStats.loadoutEmpties)}
+                      color='text-amber-400'
+                    />
+                  </div>
+
+                  <div className='flex-1 min-h-0 overflow-hidden'>
+                    <div className='h-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 auto-rows-fr gap-3'>
+                      {trucks.map(t => (
+                        <TruckOverviewCard
+                          key={t._id}
+                          truck={t.name}
+                          activeDeployment={activeByTruck[t.name] || null}
+                          loadout={truckLoadouts[t.name] || []}
+                          isLoadoutPrinted={
+                            !!loadoutMeta[t.name]?.isLoadoutPrinted
+                          }
+                          isPrinting={printingTruck === t.name}
+                          stocks={stocks}
+                          canManage={isAdmin}
+                          onDeploy={() => handleDeploy(t.name)}
+                          onEditLoadout={() => handleEditLoadout(t.name)}
+                          onReload={() => handleReload(t.name)}
+                          onReturn={() => handleReturn(t.name)}
+                          onPrint={() => handlePrint(t.name)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+
+      {/* Modals — admin only */}
+      {isAdmin && (
+        <>
+          <EditLoadoutModal
+            isOpen={!!editLoadoutTruck}
+            onClose={() => setEditLoadoutTruck(null)}
+            truck={editLoadoutTruck}
+            loadout={
+              editLoadoutTruck ? truckLoadouts[editLoadoutTruck] || [] : []
+            }
+            stocks={stocks}
+            onSave={items => saveLoadout(editLoadoutTruck, items)}
+          />
+
+          <DeployConfirmModal
+            isOpen={!!deployingTruck}
+            onClose={() => setDeployingTruck(null)}
+            onConfirm={confirmDeploy}
+            truck={deployingTruck}
+            loadout={deployingTruck ? truckLoadouts[deployingTruck] || [] : []}
+            stocks={stocks}
+          />
+
+          <ReloadTruckModal
+            isOpen={!!reloadingTruck}
+            onClose={() => setReloadingTruck(null)}
+            deployment={
+              reloadingTruck ? activeByTruck[reloadingTruck] || null : null
+            }
+            stocks={stocks}
+            onReload={submitReload}
+          />
+
+          <ReturnTruckModal
+            isOpen={!!returningTruck}
+            onClose={() => setReturningTruck(null)}
+            deployment={
+              returningTruck ? activeByTruck[returningTruck] || null : null
+            }
+            onReturn={submitReturn}
+          />
+        </>
+      )}
+    </>
   )
 }

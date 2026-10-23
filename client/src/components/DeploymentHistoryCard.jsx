@@ -1,172 +1,210 @@
-import { TbTruck } from 'react-icons/tb'
-import { formatDate, formatMoney, formatNumber } from '../utils/inventory'
+import { formatDate, formatMoney } from '../utils/inventory'
 
-export default function DeploymentHistoryCard ({ deployment }) {
+function Dashed ({ className = '' }) {
+  return (
+    <div className={`border-t border-dashed border-zinc-700/60 ${className}`} />
+  )
+}
+
+function Solid ({ className = '' }) {
+  return <div className={`border-t border-zinc-700 ${className}`} />
+}
+
+function Row ({ label, value, color = 'text-zinc-300' }) {
+  return (
+    <div className='flex justify-between items-baseline gap-3'>
+      <span className='text-[11px] text-zinc-500'>{label}</span>
+      <span className={`text-xs tabular-nums ${color}`}>{value}</span>
+    </div>
+  )
+}
+
+function TearEdge ({ position = 'top' }) {
+  const isTop = position === 'top'
+  return (
+    <div
+      className='h-2 shrink-0'
+      style={{
+        backgroundImage: `radial-gradient(circle at 4px ${
+          isTop ? '0%' : '100%'
+        }, #09090b 3.5px, transparent 3.5px)`,
+        backgroundSize: '8px 100%',
+        backgroundRepeat: 'repeat-x'
+      }}
+    />
+  )
+}
+
+export default function DeploymentHistoryCard ({ deployment, onClick }) {
   const items = deployment.returnItems || []
+  const remit = deployment.remit || {
+    cash: 0,
+    gcash: 0,
+    credit: 0,
+    case_remit: 0
+  }
 
-  const totalDeployed = deployment.items.reduce(
-    (s, i) => s + (Number(i.cases) || 0),
+  const totalValue = items.reduce((s, i) => s + (Number(i.value_sold) || 0), 0)
+  const totalEmpties = items.reduce(
+    (s, i) => s + (Number(i.empties_sold) || 0),
     0
   )
-  const totalReturned = items.reduce(
-    (s, i) => s + (Number(i.cases_returned) || 0),
-    0
-  )
-  const totalSold = items.reduce((s, i) => s + (Number(i.cases_sold) || 0), 0)
-  const totalBottles = items.reduce(
-    (s, i) => s + (Number(i.cases_sold) || 0) * (Number(i.unit) || 0),
-    0
-  )
-  const totalValue = items.reduce((s, i) => {
-    const stored = Number(i.value_sold)
-    if (!Number.isNaN(stored) && i.value_sold !== undefined) return s + stored
-    return s + (Number(i.cases_sold) || 0) * (Number(i.price_per_case) || 0)
-  }, 0)
-  const totalEmpties = items.reduce((s, i) => {
-    const stored = Number(i.empties_sold)
-    if (!Number.isNaN(stored) && i.empties_sold !== undefined) return s + stored
-    return s + (Number(i.cases_sold) || 0) * (Number(i.empties_per_case) || 0)
-  }, 0)
+
+  const caseRemit = Number(remit.case_remit) || 0
+  const totalRemit =
+    (Number(remit.cash) || 0) +
+    (Number(remit.gcash) || 0) +
+    (Number(remit.credit) || 0) +
+    caseRemit
+
+  const expectedCollect = totalValue + totalEmpties
+  const remitDiff = totalRemit - expectedCollect
+
+  const isExact = Math.abs(remitDiff) < 0.01
+  const isOver = remitDiff > 0.01
+
+  const clickable = typeof onClick === 'function'
 
   return (
-    <div className='border border-zinc-800 bg-zinc-950/60 rounded-lg overflow-hidden hover:border-zinc-700 transition shadow-lg shadow-black/30'>
-      <div className='flex justify-between items-center px-3 py-2 border-b border-zinc-800 bg-zinc-900/70 gap-2'>
-        <div className='flex items-center gap-2 min-w-0'>
-          <TbTruck className='text-zinc-500 shrink-0' size={14} />
-          <span className='font-medium text-xs text-zinc-200 truncate uppercase'>
+    <div
+      onClick={clickable ? () => onClick(deployment) : undefined}
+      className={`flex flex-col items-stretch ${
+        clickable ? 'cursor-pointer' : ''
+      }`}
+    >
+      <TearEdge position='top' />
+
+      <div
+        className={`bg-zinc-950 border-x border-zinc-800 px-3.5 py-3 font-mono transition ${
+          clickable ? 'group-hover:border-blue-600/60' : ''
+        }`}
+      >
+        <div className='text-center'>
+          <div className='font-semibold text-[13px] text-zinc-100 uppercase tracking-[0.18em] truncate'>
             {deployment.truck}
-          </span>
-          <span className='text-[9px] uppercase px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 font-medium shrink-0 tracking-wide'>
-            Returned
-          </span>
+          </div>
+          <div className='text-[10px] text-zinc-500 mt-1 tabular-nums'>
+            {formatDate(deployment.returned_at)}
+          </div>
         </div>
-        {deployment.agent && (
-          <span className='text-[10px] font-semibold text-zinc-400 uppercase shrink-0 truncate max-w-[80px]'>
-            {deployment.agent}
-          </span>
+
+        <Dashed className='my-3' />
+
+        {items.length > 0 ? (
+          <div className='space-y-2'>
+            {items.map((item, i) => {
+              const sold = Number(item.cases_sold) || 0
+              const returned = Number(item.cases_returned) || 0
+              const value = Number(item.value_sold) || 0
+
+              return (
+                <div key={i}>
+                  <div className='flex justify-between items-baseline gap-2'>
+                    <span className='text-[12px] text-zinc-100 truncate'>
+                      {item.product_name}
+                    </span>
+                    <span className='text-[12px] text-zinc-100 tabular-nums shrink-0'>
+                      {formatMoney(value)}
+                    </span>
+                  </div>
+                  <div className='text-[10px] text-zinc-500 tabular-nums pl-0.5 mt-0.5'>
+                    {sold} sold
+                    {returned > 0 && ` · ${returned} back`}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        ) : (
+          <div className='text-center text-[11px] text-zinc-600 py-2'>
+            No items
+          </div>
         )}
-      </div>
 
-      <div className='px-3 py-1.5 border-b border-zinc-800/60 bg-zinc-900/30'>
-        <span className='text-[10px] text-zinc-500'>
-          {formatDate(deployment.returned_at)}
-        </span>
-      </div>
+        <Dashed className='my-3' />
 
-      <div className='divide-y divide-zinc-800/60'>
-        {items.map((item, i) => {
-          const sold = Number(item.cases_sold) || 0
-          const returned = Number(item.cases_returned) || 0
-          const unit = Number(item.unit) || 0
-          const price = Number(item.price_per_case) || 0
-          const emptiesPer = Number(item.empties_per_case) || 0
-          const value = Number(item.value_sold) || sold * price
-          const empties = Number(item.empties_sold) || sold * emptiesPer
-          const bottles = sold * unit
+        <div className='space-y-1'>
+          <Row
+            label='Sub-total'
+            value={formatMoney(totalValue)}
+            color='text-zinc-200'
+          />
+          <Row
+            label='Empties'
+            value={formatMoney(totalEmpties)}
+            color='text-amber-400'
+          />
+        </div>
 
-          return (
-            <div
-              key={i}
-              className='px-3 py-2 flex justify-between items-start gap-3'
-            >
-              <div className='min-w-0 flex-1'>
-                <div className='text-xs font-medium text-zinc-100 truncate mb-0.5'>
-                  {item.product_name}
-                </div>
-                <div className='flex items-center gap-1.5 text-[10px] flex-wrap'>
-                  <span className='text-emerald-400/80 tabular-nums'>
-                    {formatNumber(sold)} sold
-                  </span>
-                  <span className='text-zinc-700'>·</span>
-                  <span className='text-amber-400/80 tabular-nums'>
-                    {formatNumber(returned)} back
-                  </span>
-                  {bottles > 0 && (
-                    <>
-                      <span className='text-zinc-700'>·</span>
-                      <span className='text-zinc-500 tabular-nums'>
-                        {formatNumber(bottles)} btls
-                      </span>
-                    </>
-                  )}
-                </div>
-              </div>
+        <Solid className='my-2' />
 
-              <div className='shrink-0 text-right space-y-0.5'>
-                <div className='text-xs font-semibold text-emerald-400 tabular-nums'>
-                  {formatMoney(value)}
-                </div>
-                {empties > 0 && (
-                  <div className='text-xs font-semibold text-amber-400 tabular-nums'>
-                    +{formatMoney(empties)}
-                  </div>
-                )}
-                {price > 0 && (
-                  <div className='text-[10px] text-zinc-500 tabular-nums'>
-                    {formatMoney(price)}/c
-                  </div>
-                )}
-              </div>
+        <div className='flex justify-between items-baseline gap-2'>
+          <span className='text-[11px] uppercase tracking-[0.12em] text-zinc-300 font-semibold'>
+            Total
+          </span>
+          <span className='text-sm font-bold text-zinc-100 tabular-nums'>
+            {formatMoney(expectedCollect)}
+          </span>
+        </div>
+
+        <Dashed className='my-3' />
+
+        <div className='text-[10px] uppercase tracking-[0.14em] text-teal-400/80 font-semibold mb-2'>
+          Remit
+        </div>
+
+        <div className='space-y-1'>
+          <Row label='Cash' value={formatMoney(remit.cash)} />
+          <Row label='G-Cash' value={formatMoney(remit.gcash)} />
+          <Row label='Credit' value={formatMoney(remit.credit)} />
+          <Row
+            label='Case'
+            value={formatMoney(caseRemit)}
+            color='text-teal-400'
+          />
+        </div>
+
+        <Solid className='my-2' />
+
+        <div className='flex justify-between items-baseline gap-2'>
+          <span className='text-[11px] uppercase tracking-[0.12em] text-zinc-300 font-semibold'>
+            Remitted
+          </span>
+          <span className='text-sm font-bold text-teal-400 tabular-nums'>
+            {formatMoney(totalRemit)}
+          </span>
+        </div>
+
+        <Dashed className='my-3' />
+
+        <div className='text-center'>
+          {isExact ? (
+            <div className='text-[11px] uppercase tracking-[0.18em] text-zinc-400 font-semibold'>
+              ✓ Exact
             </div>
-          )
-        })}
-      </div>
-
-      <div className='px-3 py-2 border-t border-zinc-800 bg-zinc-900/50'>
-        <div className='grid grid-cols-2 gap-x-4 gap-y-1 text-[10px] mb-2'>
-          <div className='flex justify-between'>
-            <span className='text-zinc-500'>Out</span>
-            <span className='text-zinc-300 font-medium tabular-nums'>
-              {formatNumber(totalDeployed)}
-            </span>
-          </div>
-          <div className='flex justify-between'>
-            <span className='text-zinc-500'>Back</span>
-            <span className='text-amber-400 font-medium tabular-nums'>
-              {formatNumber(totalReturned)}
-            </span>
-          </div>
-          <div className='flex justify-between'>
-            <span className='text-zinc-500'>Sold</span>
-            <span className='text-emerald-400 font-medium tabular-nums'>
-              {formatNumber(totalSold)}
-            </span>
-          </div>
-          <div className='flex justify-between'>
-            <span className='text-zinc-500'>Bottles</span>
-            <span className='text-sky-400 font-medium tabular-nums'>
-              {formatNumber(totalBottles)}
-            </span>
-          </div>
-        </div>
-
-        <div className='space-y-1 pt-2 border-t border-zinc-800'>
-          <div className='flex justify-between items-center'>
-            <span className='text-[10px] uppercase tracking-wide text-zinc-500'>
-              Price
-            </span>
-            <span className='text-sm font-semibold text-emerald-400 tabular-nums'>
-              {formatMoney(totalValue)}
-            </span>
-          </div>
-          <div className='flex justify-between items-center'>
-            <span className='text-[10px] uppercase tracking-wide text-zinc-500'>
-              Empties
-            </span>
-            <span className='text-sm font-semibold text-amber-400 tabular-nums'>
-              {formatMoney(totalEmpties)}
-            </span>
-          </div>
-          <div className='flex justify-between items-center pt-2 border-t border-zinc-800'>
-            <span className='text-[10px] uppercase tracking-wide text-zinc-400 font-medium'>
-              Total Collect
-            </span>
-            <span className='text-sm font-semibold text-zinc-100 tabular-nums'>
-              {formatMoney(totalValue + totalEmpties)}
-            </span>
-          </div>
+          ) : isOver ? (
+            <>
+              <div className='text-[10px] uppercase tracking-[0.16em] text-emerald-400 font-semibold'>
+                Over
+              </div>
+              <div className='text-sm font-bold tabular-nums mt-0.5 text-emerald-400'>
+                +{formatMoney(remitDiff)}
+              </div>
+            </>
+          ) : (
+            <>
+              <div className='text-[10px] uppercase tracking-[0.16em] text-rose-400 font-semibold'>
+                Short
+              </div>
+              <div className='text-sm font-bold tabular-nums mt-0.5 text-rose-400'>
+                -{formatMoney(Math.abs(remitDiff))}
+              </div>
+            </>
+          )}
         </div>
       </div>
+
+      <TearEdge position='bottom' />
     </div>
   )
 }

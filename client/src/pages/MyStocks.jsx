@@ -4,6 +4,7 @@ import { TbPlus } from 'react-icons/tb'
 import StockTable from '../components/StockTable'
 import RecentEntries from '../components/RecentEntries'
 import NewEntryModal from '../components/NewEntryModal'
+import { useAuth } from '../context/AuthContext'
 import { calcStockStats, formatMoney, formatNumber } from '../utils/inventory'
 
 function HeaderStat ({ label, value, color }) {
@@ -16,6 +17,7 @@ function HeaderStat ({ label, value, color }) {
 }
 
 export default function MyStocks () {
+  const { isAdmin } = useAuth()
   const { products, stocks, entries, deployments, truckLoadouts, addEntry } =
     useOutletContext()
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -40,29 +42,25 @@ export default function MyStocks () {
               color='text-blue-400'
             />
             <HeaderStat
-              label='Total Bottles'
-              value={formatNumber(stats.totalBottles)}
-              color='text-sky-400'
-            />
-            <HeaderStat
               label='Total Value'
               value={formatMoney(stats.totalValue)}
               color='text-emerald-400'
             />
 
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className='flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 transition text-sm font-medium px-3 py-1.5 rounded-md shadow-md shadow-blue-600/30'
-            >
-              <TbPlus size={16} />
-              New Entry
-            </button>
+            {isAdmin && (
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className='flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 transition text-sm font-medium px-3 py-1.5 rounded-md shadow-md shadow-blue-600/30'
+              >
+                <TbPlus size={16} />
+                New Entry
+              </button>
+            )}
           </div>
         </div>
 
-        {/* BODY: left = stocks, right = entries */}
+        {/* BODY */}
         <div className='flex-1 flex gap-3 mt-2 min-h-0'>
-          {/* LEFT: fixed filter bar + scrollable table */}
           <div className='flex-[2] min-w-0 flex flex-col min-h-0'>
             <StockTable
               stocks={stocks}
@@ -71,7 +69,6 @@ export default function MyStocks () {
             />
           </div>
 
-          {/* RIGHT: recent entries — independent scroll */}
           <div className='w-80 shrink-0 flex flex-col min-h-0 border-l border-zinc-800 pl-3'>
             <div className='flex-1 overflow-auto min-h-0'>
               <RecentEntries entries={entries} />
@@ -80,12 +77,14 @@ export default function MyStocks () {
         </div>
       </div>
 
-      <NewEntryModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSave={addEntry}
-        products={products}
-      />
+      {isAdmin && (
+        <NewEntryModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSave={addEntry}
+          products={products}
+        />
+      )}
     </>
   )
 }

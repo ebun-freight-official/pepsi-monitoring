@@ -1,12 +1,4 @@
-export const DEFAULT_TRUCKS = ['Truck 1', 'Truck 2', 'Truck 3']
-
-// Given a truck name, derive its default agent name.
-// Uses the first number found in the name (e.g. "Truck 4" → "agent4").
-export const defaultAgentFor = truckName => {
-  const match = String(truckName || '').match(/(\d+)/)
-  return match ? `agent${match[1]}` : 'agent'
-}
-
+// ── Formatters ────────────────────────────────────────────────────────
 export const formatMoney = n => {
   const num = Number(n) || 0
   return `₱${num.toLocaleString(undefined, {
@@ -44,15 +36,19 @@ export const formatDate = value => {
   )}, ${d.getFullYear()}`
 }
 
+// ── Empty shapes ──────────────────────────────────────────────────────
 export const createEmptyDeployItem = () => ({
   product_name: '',
   cases: 1
 })
 
+// ── Calculation helpers ───────────────────────────────────────────────
 export const calcEntryTotal = items =>
   items.reduce(
     (sum, item) =>
-      sum + (Number(item.quantity) || 0) * (Number(item.price_per_case) || 0),
+      sum +
+      (Number(item.quantity) || 0) * (Number(item.price_per_case) || 0) -
+      (Number(item.discount) || 0),
     0
   )
 

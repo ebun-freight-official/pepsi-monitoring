@@ -18,10 +18,18 @@ export const BOTTLE_SIZES = [
   {
     id: '1l',
     label: '1L',
-    defaultUnit: 24,
+    defaultUnit: 12,
     bottleDeposit: 6,
     caseDeposit: 52,
     isPlastic: false
+  },
+  {
+    id: '195ml',
+    label: '195ml',
+    defaultUnit: 12,
+    bottleDeposit: 0,
+    caseDeposit: 0,
+    isPlastic: true
   },
   {
     id: '290ml',
@@ -82,3 +90,55 @@ export const calcEmptiesPerCase = (bottleSizeId, unit) => {
   const u = Number(unit) || 0
   return u * bs.bottleDeposit + bs.caseDeposit
 }
+
+// ═══════════════════════════════════════════════════════════════════════
+//  Derived empties rates — single source of truth is BOTTLE_SIZES above
+// ═══════════════════════════════════════════════════════════════════════
+
+const RETURNABLE_SIZES = BOTTLE_SIZES.filter(bs => !bs.isPlastic)
+
+export const EMPTIES_GROUPS = ['fullCase', 'caseOnly', 'bottlesOnly']
+
+export const EMPTIES_GROUP_LABELS = {
+  fullCase: 'Full Case',
+  caseOnly: 'Case Only',
+  bottlesOnly: 'Bottles Only'
+}
+
+export const EMPTIES_RATES = {
+  fullCase: RETURNABLE_SIZES.map(bs => ({
+    id: bs.id,
+    label: bs.label,
+    price: bs.defaultUnit * bs.bottleDeposit + bs.caseDeposit
+  })),
+  caseOnly: RETURNABLE_SIZES.map(bs => ({
+    id: bs.id,
+    label: bs.label,
+    price: bs.caseDeposit
+  })),
+  bottlesOnly: RETURNABLE_SIZES.map(bs => ({
+    id: bs.id,
+    label: bs.label,
+    price: bs.bottleDeposit
+  }))
+}
+
+export const EMPTY_EMPTIES = { fullCase: {}, caseOnly: {}, bottlesOnly: {} }
+
+export const calcEmptiesGroupSubtotal = (group, quantities = {}) =>
+  (EMPTIES_RATES[group] || []).reduce((sum, r) => {
+    const qty = Number(quantities?.[r.id]) || 0
+    return sum + qty * r.price
+  }, 0)
+
+export const calcEmptiesTotal = (empties = {}) =>
+  EMPTIES_GROUPS.reduce(
+    (sum, g) => sum + calcEmptiesGroupSubtotal(g, empties[g] || {}),
+    0
+  )
+
+export const calcEmptiesQuantity = (empties = {}) =>
+  EMPTIES_GROUPS.reduce((sum, g) => {
+    const group = empties[g] || {}
+    return sum + Object.values(group).reduce((s, v) => s + (Number(v) || 0), 0)
+  }, 0)

@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { TbX, TbPlus, TbTrash } from 'react-icons/tb'
 import { calcEntryTotal, formatMoney } from '../utils/inventory'
+import ProductCombobox from './ProductCombobox'
 
 // Local helper — keeps this modal self-contained
 const blankItem = () => ({
@@ -10,7 +11,8 @@ const blankItem = () => ({
   quantity: 1,
   promo: 0,
   price_per_case: 0,
-  empties_per_case: 0
+  empties_per_case: 0,
+  discount: 0
 })
 
 const inputClass =
@@ -36,6 +38,16 @@ export default function NewEntryModal ({
       setNetAmount('0.00')
     }
   }, [isOpen])
+
+  const productOptions = useMemo(
+    () =>
+      products.map(p => ({
+        value: p.product_name,
+        label: p.product_name,
+        meta: `${p.unit} btls · ${formatMoney(p.price_per_case)}`
+      })),
+    [products]
+  )
 
   if (!isOpen) return null
 
@@ -105,9 +117,11 @@ export default function NewEntryModal ({
             )}
 
             {items.map((item, index) => {
-              const total =
+              const subtotal =
                 (Number(item.quantity) || 0) *
                 (Number(item.price_per_case) || 0)
+              const discount = Number(item.discount) || 0
+              const total = subtotal - discount
 
               return (
                 <div
@@ -131,25 +145,20 @@ export default function NewEntryModal ({
                     )}
                   </div>
 
+                  {/* Row 1: Product | Cases | Free */}
                   <div className='grid grid-cols-12 gap-2'>
-                    <div className='col-span-4'>
+                    <div className='col-span-6'>
                       <label className={labelClass}>Product</label>
-                      <select
+                      <ProductCombobox
                         value={item.product_name}
-                        onChange={e => applyProduct(index, e.target.value)}
-                        className={inputClass}
-                        required
-                      >
-                        <option value=''>— Select —</option>
-                        {products.map(p => (
-                          <option key={p.id} value={p.product_name}>
-                            {p.product_name}
-                          </option>
-                        ))}
-                      </select>
+                        options={productOptions}
+                        onChange={name => applyProduct(index, name)}
+                        disabled={products.length === 0}
+                        placeholder='— Search product —'
+                      />
                     </div>
 
-                    <div className='col-span-2'>
+                    <div className='col-span-3'>
                       <label className={labelClass}>Cases</label>
                       <input
                         type='number'
@@ -163,7 +172,7 @@ export default function NewEntryModal ({
                       />
                     </div>
 
-                    <div className='col-span-2'>
+                    <div className='col-span-3'>
                       <label className={labelClass}>Free</label>
                       <input
                         type='number'
@@ -177,8 +186,11 @@ export default function NewEntryModal ({
                         className={inputClass}
                       />
                     </div>
+                  </div>
 
-                    <div className='col-span-2'>
+                  {/* Row 2: Price/Case | Discount | Total */}
+                  <div className='grid grid-cols-12 gap-2 mt-2'>
+                    <div className='col-span-4'>
                       <label className={labelClass}>Price / Case</label>
                       <input
                         type='text'
@@ -193,7 +205,22 @@ export default function NewEntryModal ({
                       />
                     </div>
 
-                    <div className='col-span-2'>
+                    <div className='col-span-4'>
+                      <label className={labelClass}>Discount</label>
+                      <input
+                        type='number'
+                        min='0'
+                        step='0.01'
+                        value={item.discount}
+                        onChange={e =>
+                          updateItem(index, 'discount', e.target.value)
+                        }
+                        placeholder='0.00'
+                        className={inputClass}
+                      />
+                    </div>
+
+                    <div className='col-span-4'>
                       <label className={labelClass}>Total</label>
                       <input
                         type='text'
@@ -204,6 +231,13 @@ export default function NewEntryModal ({
                       />
                     </div>
                   </div>
+
+                  {discount > 0 && (
+                    <div className='flex justify-end text-[10px] text-rose-400/80 mt-1 tabular-nums'>
+                      Subtotal {formatMoney(subtotal)} − Discount{' '}
+                      {formatMoney(discount)}
+                    </div>
+                  )}
                 </div>
               )
             })}

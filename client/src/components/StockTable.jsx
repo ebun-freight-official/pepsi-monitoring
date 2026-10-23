@@ -1,10 +1,9 @@
 import { useState } from 'react'
-import { TbSearch, TbAlertTriangle } from 'react-icons/tb'
+import { TbSearch } from 'react-icons/tb'
 import {
   calcOnTruckByProduct,
   calcSoldDetailsByProduct,
-  formatMoney,
-  formatNumber
+  formatMoney
 } from '../utils/inventory'
 
 const LOW_STOCK_THRESHOLD = 30
@@ -14,22 +13,20 @@ const formatCases = n => {
   return Number.isInteger(num) ? num.toString() : num.toFixed(1)
 }
 
-function CaseBottleCell ({ cases, unit, colorClass, value, valueColor }) {
-  const total = (Number(cases) || 0) * (Number(unit) || 0)
+function StackCell ({
+  primary,
+  primaryClass,
+  secondary,
+  secondaryClass = 'text-zinc-500'
+}) {
   return (
     <div className='flex flex-col leading-tight'>
-      <span className={`font-medium ${colorClass}`}>
-        {formatCases(cases)}{' '}
-        <span className='text-[10px] uppercase tracking-wide opacity-70'>
-          {Number(cases) === 1 ? 'case' : 'cases'}
-        </span>
+      <span className={`font-medium tabular-nums ${primaryClass}`}>
+        {primary}
       </span>
-      <span className='text-[10px] text-zinc-500'>
-        {formatNumber(total)} {total === 1 ? 'btl' : 'btls'}
-      </span>
-      {value !== undefined && Number(value) > 0 && (
-        <span className={`text-[10px] ${valueColor || 'text-emerald-400/70'}`}>
-          {formatMoney(value)}
+      {secondary !== undefined && (
+        <span className={`text-[11px] tabular-nums mt-0.5 ${secondaryClass}`}>
+          {secondary}
         </span>
       )}
     </div>
@@ -42,8 +39,11 @@ const SORT_OPTIONS = [
   { value: 'inhouse_desc', label: 'In-House (High → Low)' },
   { value: 'inhouse_asc', label: 'In-House (Low → High)' },
   { value: 'sold_desc', label: 'Sold (High → Low)' },
-  { value: 'value_desc', label: 'Value (High → Low)' },
-  { value: 'truck_desc', label: 'On Truck (High → Low)' }
+  { value: 'stock_value_desc', label: 'Stock Value (High → Low)' },
+  { value: 'sold_value_desc', label: 'Sold Value (High → Low)' },
+  { value: 'truck_desc', label: 'On Truck (High → Low)' },
+  { value: 'empties_desc', label: 'Has Empties → Plastic' },
+  { value: 'empties_asc', label: 'Plastic → Has Empties' }
 ]
 
 const FILTER_OPTIONS = [
@@ -52,11 +52,14 @@ const FILTER_OPTIONS = [
   { value: 'low_stock', label: `Low stock (≤ ${LOW_STOCK_THRESHOLD})` },
   { value: 'out_stock', label: 'Out of stock' },
   { value: 'on_truck', label: 'On Truck' },
-  { value: 'has_sales', label: 'Has sales' }
+  { value: 'has_sales', label: 'Has sales' },
+  { value: 'has_empties', label: 'Has empties' }
 ]
 
 const selectClass =
   'bg-zinc-900 border border-zinc-700 rounded-md px-2 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-blue-500 transition'
+
+const COL_DIVIDER = 'border-l border-zinc-800'
 
 export default function StockTable ({
   stocks,
@@ -84,8 +87,9 @@ export default function StockTable ({
     const unit = Number(stock.unit) || 0
     const price = Number(stock.price_per_case) || 0
     const emptiesPer = Number(stock.empties_per_case) || 0
-    const totalCases = inHouse + free + onTruck
-    const inHouseValue = inHouse * price
+
+    const stockValue = (inHouse + onTruck) * price
+    const totalOwned = inHouse + onTruck
 
     const isOut = inHouse === 0
     const isLow = !isOut && inHouse <= LOW_STOCK_THRESHOLD
@@ -95,13 +99,13 @@ export default function StockTable ({
       inHouse,
       free,
       onTruck,
+      totalOwned,
       sold,
       soldValue,
       unit,
       price,
       emptiesPer,
-      totalCases,
-      inHouseValue,
+      stockValue,
       isOut,
       isLow
     }
@@ -109,9 +113,7 @@ export default function StockTable ({
 
   const q = search.trim().toLowerCase()
   let list = decorated
-  if (q) {
-    list = list.filter(r => r.stock.product_name.toLowerCase().includes(q))
-  }
+  if (q) list = list.filter(r => r.stock.product_name.toLowerCase().includes(q))
 
   switch (filterBy) {
     case 'in_stock':
@@ -129,6 +131,9 @@ export default function StockTable ({
     case 'has_sales':
       list = list.filter(r => r.sold > 0)
       break
+    case 'has_empties':
+      list = list.filter(r => r.emptiesPer > 0)
+      break
     default:
       break
   }
@@ -143,10 +148,24 @@ export default function StockTable ({
         return a.inHouse - b.inHouse
       case 'sold_desc':
         return b.sold - a.sold
-      case 'value_desc':
-        return b.inHouseValue - a.inHouseValue
+      case 'stock_value_desc':
+        return b.stockValue - a.stockValue
+      case 'sold_value_desc':
+        return b.soldValue - a.soldValue
       case 'truck_desc':
         return b.onTruck - a.onTruck
+      case 'empties_desc': {
+        const aGroup = a.emptiesPer > 0 ? 0 : 1
+        const bGroup = b.emptiesPer > 0 ? 0 : 1
+        if (aGroup !== bGroup) return aGroup - bGroup
+        return a.stock.product_name.localeCompare(b.stock.product_name)
+      }
+      case 'empties_asc': {
+        const aGroup = a.emptiesPer > 0 ? 1 : 0
+        const bGroup = b.emptiesPer > 0 ? 1 : 0
+        if (aGroup !== bGroup) return aGroup - bGroup
+        return a.stock.product_name.localeCompare(b.stock.product_name)
+      }
       case 'name_asc':
       default:
         return a.stock.product_name.localeCompare(b.stock.product_name)
@@ -166,18 +185,16 @@ export default function StockTable ({
   const outOfStockCount = decorated.filter(r => r.isOut).length
 
   const rowClassFor = r => {
-    if (r.isOut) {
+    if (r.isOut)
       return 'bg-rose-500/10 border-l-2 border-l-rose-500 hover:bg-rose-500/15'
-    }
-    if (r.isLow) {
+    if (r.isLow)
       return 'bg-amber-500/10 border-l-2 border-l-amber-500 hover:bg-amber-500/15'
-    }
     return 'border-l-2 border-l-transparent hover:bg-zinc-800/40'
   }
 
   return (
     <div className='flex flex-col h-full min-h-0'>
-      {/* FIXED FILTER BAR */}
+      {/* FILTER BAR */}
       <div className='flex flex-wrap items-center gap-2 mb-2 pb-2 border-b border-zinc-800 shrink-0'>
         <div className='relative flex-1 min-w-[140px]'>
           <TbSearch
@@ -228,14 +245,13 @@ export default function StockTable ({
 
         {outOfStockCount > 0 && (
           <span className='flex items-center gap-1 text-[10px] text-rose-400 bg-rose-500/10 border border-rose-800/50 px-2 py-0.5 rounded tabular-nums'>
-            <TbAlertTriangle size={11} />
+            <span className='w-1.5 h-1.5 rounded-full bg-rose-500' />
             {outOfStockCount} out
           </span>
         )}
-
         {lowStockCount > 0 && (
           <span className='flex items-center gap-1 text-[10px] text-amber-400 bg-amber-500/10 border border-amber-800/50 px-2 py-0.5 rounded tabular-nums'>
-            <TbAlertTriangle size={11} />
+            <span className='w-1.5 h-1.5 rounded-full bg-amber-500' />
             {lowStockCount} low
           </span>
         )}
@@ -245,28 +261,29 @@ export default function StockTable ({
         </span>
       </div>
 
-      {/* SCROLLABLE TABLE */}
+      {/* TABLE */}
       <div className='flex-1 min-h-0 overflow-auto'>
         <table className='w-full text-sm border-collapse'>
           <thead className='sticky top-0 bg-zinc-900 z-10'>
-            <tr className='text-left text-[11px] uppercase tracking-wide text-zinc-500'>
-              <th className='px-3 py-2 font-medium'>Product</th>
-              <th className='px-3 py-2 font-medium'>Unit</th>
-              <th className='px-3 py-2 font-medium'>In-House</th>
-              <th className='px-3 py-2 font-medium'>Free</th>
-              <th className='px-3 py-2 font-medium'>On Truck</th>
-              <th className='px-3 py-2 font-medium'>Sold</th>
-              <th className='px-3 py-2 font-medium'>Total</th>
-              <th className='px-3 py-2 font-medium text-right'>
-                Price / Empties
+            <tr className='text-left text-[11px] uppercase tracking-wider text-zinc-500'>
+              <th className='px-3 py-2.5 font-medium'>Price</th>
+              <th className='px-3 py-2.5 font-medium'>Product</th>
+              <th className='px-3 py-2.5 font-medium text-center'>Unit</th>
+              <th className='px-3 py-2.5 font-medium'>In-House</th>
+              <th className='px-3 py-2.5 font-medium'>On Truck</th>
+              <th className='px-3 py-2.5 font-medium'>Total Stock</th>
+              <th className='px-3 py-2.5 font-medium text-right'>
+                Stock Value
               </th>
+              <th className={`px-3 py-2.5 font-medium ${COL_DIVIDER}`}>Sold</th>
+              <th className='px-3 py-2.5 font-medium text-right'>Sold Value</th>
             </tr>
           </thead>
 
           <tbody>
             {rows.length === 0 && (
               <tr>
-                <td colSpan={8} className='px-3 py-8 text-center text-zinc-600'>
+                <td colSpan={9} className='px-3 py-8 text-center text-zinc-600'>
                   {stocks.length === 0
                     ? 'No stocks yet. Click “New Entry” to add products.'
                     : 'No products match your filter.'}
@@ -276,86 +293,105 @@ export default function StockTable ({
 
             {rows.map(r => (
               <tr
-                key={r.stock.id}
+                key={r.stock._id}
                 className={`border-t border-zinc-800 transition align-top ${rowClassFor(
                   r
                 )}`}
               >
-                <td className='px-3 py-2 font-medium truncate'>
-                  {r.stock.product_name}
-                </td>
-                <td className='px-3 py-2 text-zinc-400'>{r.stock.unit}</td>
-
-                <td className='px-3 py-2'>
-                  <CaseBottleCell
-                    cases={r.inHouse}
-                    unit={r.unit}
-                    colorClass={
-                      r.isOut
-                        ? 'text-rose-400'
-                        : r.isLow
-                        ? 'text-amber-400'
-                        : 'text-blue-400'
+                {/* Price */}
+                <td className='px-3 py-3'>
+                  <StackCell
+                    primary={formatMoney(r.price)}
+                    primaryClass='text-zinc-100'
+                    secondary={
+                      r.emptiesPer > 0
+                        ? `${formatMoney(r.emptiesPer)} empties`
+                        : undefined
                     }
-                    value={r.inHouseValue}
+                    secondaryClass='text-amber-300'
                   />
                 </td>
 
-                <td className='px-3 py-2'>
-                  {r.free > 0 ? (
-                    <CaseBottleCell
-                      cases={r.free}
-                      unit={r.unit}
-                      colorClass='text-amber-400'
-                    />
-                  ) : (
-                    <span className='text-zinc-700'>—</span>
-                  )}
+                {/* Product */}
+                <td className='px-3 py-3'>
+                  <span className='text-sm text-zinc-100 font-medium truncate block'>
+                    {r.stock.product_name}
+                  </span>
                 </td>
 
-                <td className='px-3 py-2'>
-                  {r.onTruck > 0 ? (
-                    <CaseBottleCell
-                      cases={r.onTruck}
-                      unit={r.unit}
-                      colorClass='text-violet-400'
-                    />
-                  ) : (
-                    <span className='text-zinc-700'>—</span>
-                  )}
+                {/* Unit — zinc-100 */}
+                <td className='px-3 py-3 text-center'>
+                  <span className='text-sm text-zinc-100 font-medium tabular-nums'>
+                    {r.unit}
+                  </span>
                 </td>
 
-                <td className='px-3 py-2'>
-                  {r.sold > 0 ? (
-                    <CaseBottleCell
-                      cases={r.sold}
-                      unit={r.unit}
-                      colorClass='text-emerald-400'
-                      value={r.soldValue}
-                    />
-                  ) : (
-                    <span className='text-zinc-700'>—</span>
-                  )}
-                </td>
-
-                <td className='px-3 py-2'>
-                  <CaseBottleCell
-                    cases={r.totalCases}
-                    unit={r.unit}
-                    colorClass='text-zinc-100'
-                  />
-                </td>
-
-                <td className='px-3 py-2 text-right leading-tight'>
-                  <div className='text-emerald-400 font-medium tabular-nums'>
-                    {formatMoney(r.price)}
+                {/* In-House */}
+                <td className='px-3 py-3'>
+                  <div className='flex items-baseline gap-1.5 flex-wrap'>
+                    <span
+                      className={`text-sm font-medium tabular-nums ${
+                        r.isOut
+                          ? 'text-rose-400'
+                          : r.isLow
+                          ? 'text-amber-400'
+                          : 'text-zinc-100'
+                      }`}
+                    >
+                      {formatCases(r.inHouse)}
+                    </span>
+                    {r.free > 0 && (
+                      <span className='text-[11px] text-amber-300 font-medium tabular-nums'>
+                        +{formatCases(r.free)} free
+                      </span>
+                    )}
                   </div>
-                  {r.emptiesPer > 0 ? (
-                    <div className='text-[10px] text-amber-400 tabular-nums'>
-                      {formatMoney(r.emptiesPer)} empties
-                    </div>
+                </td>
+
+                {/* On Truck */}
+                <td className='px-3 py-3'>
+                  {r.onTruck > 0 ? (
+                    <span className='text-sm text-zinc-300 font-medium tabular-nums'>
+                      {formatCases(r.onTruck)}
+                    </span>
                   ) : (
-                    <div className='text-[10px] text-amber-400'>—</div>
+                    <span className='text-sm text-zinc-600'>—</span>
+                  )}
+                </td>
+
+                {/* Total Stock — zinc-100 */}
+                <td className='px-3 py-3'>
+                  <span className='text-sm text-zinc-100 font-semibold tabular-nums'>
+                    {formatCases(r.totalOwned)}
+                  </span>
+                </td>
+
+                {/* Stock Value */}
+                <td className='px-3 py-3 text-right'>
+                  <span className='text-sm text-zinc-100 font-semibold tabular-nums'>
+                    {formatMoney(r.stockValue)}
+                  </span>
+                </td>
+
+                {/* Sold */}
+                <td className={`px-3 py-3 ${COL_DIVIDER}`}>
+                  {r.sold > 0 ? (
+                    <span className='text-sm text-emerald-400 font-medium tabular-nums'>
+                      {formatCases(r.sold)}
+                    </span>
+                  ) : (
+                    <span className='text-sm text-zinc-600'>—</span>
+                  )}
+                </td>
+
+                {/* Sold Value */}
+                <td className='px-3 py-3 text-right'>
+                  {r.soldValue > 0 ? (
+                    <span className='text-sm text-emerald-400 font-semibold tabular-nums'>
+                      {formatMoney(r.soldValue)}
+                    </span>
+                  ) : (
+                    <span className='text-sm text-zinc-600'>—</span>
                   )}
                 </td>
               </tr>

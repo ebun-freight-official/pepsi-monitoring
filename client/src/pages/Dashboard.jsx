@@ -68,16 +68,33 @@ const chartTheme = {
 const baseGrid = { top: 20, right: 16, bottom: 30, left: 50 }
 
 function tooltipStyle () {
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 640
+  const isMobile =
+    typeof window !== 'undefined' &&
+    window.matchMedia('(max-width: 639px)').matches
+
+  const shadow = 'box-shadow: 0 10px 30px rgba(0,0,0,0.6);'
 
   return {
     backgroundColor: chartTheme.tooltipBg,
     borderColor: chartTheme.tooltipBorder,
     borderWidth: 1,
     textStyle: { color: '#fafafa', fontSize: 12 },
+    appendToBody: true,
+    confine: true,
+    transitionDuration: 0,
     extraCssText: isMobile
-      ? 'position: fixed !important; top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) !important; z-index: 9999 !important; box-shadow: 0 10px 30px rgba(0,0,0,0.6);'
-      : 'box-shadow: 0 10px 30px rgba(0,0,0,0.6);'
+      ? `position: fixed !important;
+         left: 50% !important;
+         top: 50% !important;
+         right: auto !important;
+         bottom: auto !important;
+         transform: translate(-50%, -50%) !important;
+         transition: none !important;
+         max-width: 90vw;
+         pointer-events: none;
+         z-index: 9999 !important;
+         ${shadow}`
+      : shadow
   }
 }
 

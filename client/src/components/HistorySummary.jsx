@@ -18,24 +18,24 @@ function Stat ({
   iconBg = 'bg-zinc-800/60'
 }) {
   return (
-    <div className='flex items-start gap-2.5 min-w-0 px-3 py-2.5'>
+    <div className='flex items-start gap-2 sm:gap-2.5 min-w-0 px-2 sm:px-3 py-2 sm:py-2.5'>
       <div
-        className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${iconBg} ${accent}`}
+        className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center shrink-0 ${iconBg} ${accent}`}
       >
         {icon}
       </div>
       <div className='min-w-0 flex-1'>
-        <div className='text-[10px] uppercase tracking-wider text-zinc-500 truncate'>
+        <div className='text-[9px] sm:text-[10px] uppercase tracking-wider text-zinc-500 truncate'>
           {label}
         </div>
         <div
-          className={`text-base font-semibold tabular-nums truncate leading-tight mt-0.5 ${accent}`}
+          className={`text-sm sm:text-base font-semibold tabular-nums truncate leading-tight mt-0.5 ${accent}`}
         >
           {valueNode || value}
         </div>
         {sub && (
           <div
-            className={`text-[10px] tabular-nums truncate mt-0.5 ${subColor}`}
+            className={`text-[9px] sm:text-[10px] tabular-nums truncate mt-0.5 ${subColor}`}
           >
             {sub}
           </div>
@@ -126,7 +126,7 @@ export default function HistorySummary ({ deployments }) {
   return (
     <div className='grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 divide-x divide-zinc-800/60 rounded-md border border-zinc-800 bg-zinc-950/60'>
       <Stat
-        icon={<TbTruck size={16} />}
+        icon={<TbTruck size={14} />}
         label='Trips'
         value={formatNumber(summary.trips)}
         sub='completed returns'
@@ -135,7 +135,7 @@ export default function HistorySummary ({ deployments }) {
       />
 
       <Stat
-        icon={<TbCurrencyPeso size={16} />}
+        icon={<TbCurrencyPeso size={14} />}
         label='Sales → Cash Remit'
         valueNode={
           <ArrowValue
@@ -152,7 +152,7 @@ export default function HistorySummary ({ deployments }) {
       />
 
       <Stat
-        icon={<TbCurrencyPeso size={16} />}
+        icon={<TbCurrencyPeso size={14} />}
         label='Empties → Case Remit'
         valueNode={
           <ArrowValue
@@ -169,7 +169,7 @@ export default function HistorySummary ({ deployments }) {
       />
 
       <Stat
-        icon={<TbTrendingUp size={16} />}
+        icon={<TbTrendingUp size={14} />}
         label='Net Difference'
         value={
           Math.abs(netDiff) < 0.01
@@ -183,9 +183,9 @@ export default function HistorySummary ({ deployments }) {
       <Stat
         icon={
           summary.unpaidCreditCount > 0 ? (
-            <TbAlertTriangle size={16} />
+            <TbAlertTriangle size={14} />
           ) : (
-            <TbClock size={16} />
+            <TbClock size={14} />
           )
         }
         label='Credit Outstanding'

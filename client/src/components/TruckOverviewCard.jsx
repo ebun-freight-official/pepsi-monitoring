@@ -85,11 +85,13 @@ export default function TruckOverviewCard ({
   return (
     <div className='border border-zinc-800 bg-zinc-950/60 rounded-lg flex flex-col h-full min-h-0 overflow-hidden shadow-lg shadow-black/40'>
       {/* HEADER */}
-      <div className='shrink-0 flex items-center gap-2 px-3 py-2 border-b border-zinc-800 bg-zinc-900/70'>
-        <TbTruck className='text-blue-400 shrink-0' size={16} />
-        <span className='font-medium text-sm truncate uppercase'>{truck}</span>
+      <div className='shrink-0 flex items-center gap-2 px-2.5 sm:px-3 py-1.5 sm:py-2 border-b border-zinc-800 bg-zinc-900/70'>
+        <TbTruck className='text-blue-400 shrink-0' size={14} />
+        <span className='font-medium text-xs sm:text-sm truncate uppercase'>
+          {truck}
+        </span>
         <span
-          className={`text-[9px] uppercase tracking-wider px-2 py-0.5 rounded font-semibold shrink-0 ml-auto whitespace-nowrap ${badge.cls}`}
+          className={`text-[8px] sm:text-[9px] uppercase tracking-wider px-1.5 sm:px-2 py-0.5 rounded font-semibold shrink-0 ml-auto whitespace-nowrap ${badge.cls}`}
         >
           {badge.text}
         </span>
@@ -98,7 +100,7 @@ export default function TruckOverviewCard ({
       {/* BODY */}
       <div className='flex-1 min-h-0 overflow-y-auto'>
         {enriched.length === 0 ? (
-          <div className='h-full flex items-center justify-center p-4 text-zinc-600 text-xs'>
+          <div className='h-full flex items-center justify-center p-3 sm:p-4 text-zinc-600 text-[11px] sm:text-xs'>
             No loadout set
           </div>
         ) : (
@@ -106,12 +108,12 @@ export default function TruckOverviewCard ({
             {enriched.map((item, i) => (
               <div
                 key={i}
-                className='flex items-center justify-between gap-2 px-3 py-1.5 transition-colors hover:bg-zinc-800/40'
+                className='flex items-center justify-between gap-2 px-2.5 sm:px-3 py-1.5 transition-colors hover:bg-zinc-800/40'
               >
-                <span className='text-xs text-zinc-200 truncate'>
+                <span className='text-[11px] sm:text-xs text-zinc-200 truncate'>
                   {item.product_name}
                 </span>
-                <span className='text-xs text-blue-400 font-medium tabular-nums shrink-0'>
+                <span className='text-[11px] sm:text-xs text-blue-400 font-medium tabular-nums shrink-0'>
                   {formatNumber(item.cases)}
                 </span>
               </div>
@@ -124,27 +126,27 @@ export default function TruckOverviewCard ({
       {(hasLoadout || isDeployed) && (
         <div className='shrink-0 border-t border-zinc-800 bg-zinc-900/40'>
           <div className='grid grid-cols-3 divide-x divide-zinc-800/60'>
-            <div className='px-2 py-2 flex flex-col items-center min-w-0'>
-              <span className='text-[9px] uppercase tracking-wider text-zinc-600'>
+            <div className='px-1.5 sm:px-2 py-1.5 sm:py-2 flex flex-col items-center min-w-0'>
+              <span className='text-[8px] sm:text-[9px] uppercase tracking-wider text-zinc-600'>
                 Price
               </span>
-              <span className='text-xs font-semibold text-blue-400 tabular-nums truncate w-full text-center'>
+              <span className='text-[11px] sm:text-xs font-semibold text-blue-400 tabular-nums truncate w-full text-center'>
                 {formatMoney(totalValue)}
               </span>
             </div>
-            <div className='px-2 py-2 flex flex-col items-center min-w-0'>
-              <span className='text-[9px] uppercase tracking-wider text-zinc-600'>
+            <div className='px-1.5 sm:px-2 py-1.5 sm:py-2 flex flex-col items-center min-w-0'>
+              <span className='text-[8px] sm:text-[9px] uppercase tracking-wider text-zinc-600'>
                 Cases
               </span>
-              <span className='text-xs font-semibold text-blue-400 tabular-nums truncate w-full text-center'>
+              <span className='text-[11px] sm:text-xs font-semibold text-blue-400 tabular-nums truncate w-full text-center'>
                 {formatNumber(totalCases)}
               </span>
             </div>
-            <div className='px-2 py-2 flex flex-col items-center min-w-0'>
-              <span className='text-[9px] uppercase tracking-wider text-zinc-600'>
+            <div className='px-1.5 sm:px-2 py-1.5 sm:py-2 flex flex-col items-center min-w-0'>
+              <span className='text-[8px] sm:text-[9px] uppercase tracking-wider text-zinc-600'>
                 Empties
               </span>
-              <span className='text-xs font-semibold text-amber-400 tabular-nums truncate w-full text-center'>
+              <span className='text-[11px] sm:text-xs font-semibold text-amber-400 tabular-nums truncate w-full text-center'>
                 {formatMoney(totalEmpties)}
               </span>
             </div>
@@ -154,32 +156,32 @@ export default function TruckOverviewCard ({
 
       {/* ACTIONS */}
       {showActions && (
-        <div className='shrink-0 border-t border-zinc-800 bg-zinc-950/80 p-2'>
+        <div className='shrink-0 border-t border-zinc-800 bg-zinc-950/80 p-1.5 sm:p-2'>
           {isDeployed && (
-            <div className='flex gap-2'>
+            <div className='flex gap-1.5 sm:gap-2'>
               <button
                 onClick={onReload}
-                className='flex-1 flex items-center justify-center gap-1.5 border border-zinc-700 hover:bg-zinc-800 hover:border-zinc-600 text-xs font-medium py-2 rounded-md transition text-zinc-300'
+                className='flex-1 flex items-center justify-center gap-1 sm:gap-1.5 border border-zinc-700 hover:bg-zinc-800 hover:border-zinc-600 text-[10px] sm:text-xs font-medium py-1.5 sm:py-2 rounded-md transition text-zinc-300'
               >
-                <TbRefresh size={12} />
+                <TbRefresh size={11} />
                 Reload
               </button>
               <button
                 onClick={onReturn}
-                className='flex-1 flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-xs font-medium py-2 rounded-md transition shadow-md shadow-emerald-600/20'
+                className='flex-1 flex items-center justify-center gap-1 sm:gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-[10px] sm:text-xs font-medium py-1.5 sm:py-2 rounded-md transition shadow-md shadow-emerald-600/20'
               >
-                <TbArrowDown size={12} />
+                <TbArrowDown size={11} />
                 Return
               </button>
             </div>
           )}
 
           {!isDeployed && hasLoadout && (
-            <div className='flex gap-2'>
+            <div className='flex gap-1.5 sm:gap-2'>
               <button
                 onClick={onPrint}
                 disabled={isPrinting}
-                className={`flex items-center justify-center px-2.5 rounded-md transition border disabled:opacity-40 disabled:cursor-not-allowed ${
+                className={`flex items-center justify-center px-2 sm:px-2.5 rounded-md transition border disabled:opacity-40 disabled:cursor-not-allowed ${
                   isLoadoutPrinted
                     ? 'border-zinc-700 hover:bg-zinc-800 text-zinc-300'
                     : 'border-rose-700/60 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400'
@@ -187,16 +189,16 @@ export default function TruckOverviewCard ({
                 title={isLoadoutPrinted ? 'Reprint loadout' : 'Print loadout'}
               >
                 {isPrinting ? (
-                  <TbLoader2 size={14} className='animate-spin' />
+                  <TbLoader2 size={12} className='animate-spin' />
                 ) : (
-                  <TbPrinter size={14} />
+                  <TbPrinter size={12} />
                 )}
               </button>
               <button
                 onClick={onEditLoadout}
-                className='flex-1 flex items-center justify-center gap-1.5 border border-zinc-700 hover:bg-zinc-800 hover:border-zinc-600 text-xs font-medium py-2 rounded-md transition text-zinc-300'
+                className='flex-1 flex items-center justify-center gap-1 sm:gap-1.5 border border-zinc-700 hover:bg-zinc-800 hover:border-zinc-600 text-[10px] sm:text-xs font-medium py-1.5 sm:py-2 rounded-md transition text-zinc-300'
               >
-                <TbPencil size={12} />
+                <TbPencil size={11} />
                 Edit
               </button>
               <button
@@ -207,12 +209,12 @@ export default function TruckOverviewCard ({
                     ? 'Deploy this truck'
                     : 'Print the loadout sheet first'
                 }
-                className='flex-1 flex items-center justify-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-xs font-medium py-2 rounded-md transition shadow-md shadow-blue-600/30 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-blue-600'
+                className='flex-1 flex items-center justify-center gap-1 sm:gap-1.5 bg-blue-600 hover:bg-blue-500 text-[10px] sm:text-xs font-medium py-1.5 sm:py-2 rounded-md transition shadow-md shadow-blue-600/30 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-blue-600'
               >
                 {canDeploy ? (
-                  <TbArrowUp size={12} />
+                  <TbArrowUp size={11} />
                 ) : (
-                  <TbAlertTriangle size={12} />
+                  <TbAlertTriangle size={11} />
                 )}
                 Deploy
               </button>
@@ -222,7 +224,7 @@ export default function TruckOverviewCard ({
           {!isDeployed && !hasLoadout && (
             <button
               onClick={onEditLoadout}
-              className='w-full flex items-center justify-center gap-1.5 border border-dashed border-zinc-700 hover:border-blue-500 hover:text-blue-400 text-zinc-400 text-xs font-medium py-2 rounded-md transition'
+              className='w-full flex items-center justify-center gap-1 sm:gap-1.5 border border-dashed border-zinc-700 hover:border-blue-500 hover:text-blue-400 text-zinc-400 text-[11px] sm:text-xs font-medium py-1.5 sm:py-2 rounded-md transition'
             >
               + Set Loadout
             </button>

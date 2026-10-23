@@ -16,12 +16,12 @@ import { api } from '../lib/api'
 
 function CombinedStat ({ label, value, color }) {
   return (
-    <div className='rounded-md border border-zinc-800 bg-zinc-900/40 px-3 py-2 min-w-0'>
-      <div className='text-[9px] uppercase tracking-wider text-zinc-500 truncate'>
+    <div className='rounded-md border border-zinc-800 bg-zinc-900/40 px-2 sm:px-3 py-1.5 sm:py-2 min-w-0'>
+      <div className='text-[8px] sm:text-[9px] uppercase tracking-wider text-zinc-500 truncate'>
         {label}
       </div>
       <div
-        className={`text-base font-semibold tabular-nums truncate leading-tight ${color}`}
+        className={`text-xs sm:text-base font-semibold tabular-nums truncate leading-tight ${color}`}
       >
         {value}
       </div>
@@ -48,6 +48,7 @@ export default function Deployments () {
   const [trucksLoading, setTrucksLoading] = useState(true)
   const [viewMode, setViewMode] = useState('all')
   const [focusedHistoryId, setFocusedHistoryId] = useState(null)
+  const [activeTruckMobile, setActiveTruckMobile] = useState(null)
 
   const [editLoadoutTruck, setEditLoadoutTruck] = useState(null)
   const [deployingTruck, setDeployingTruck] = useState(null)
@@ -71,6 +72,15 @@ export default function Deployments () {
   useEffect(() => {
     loadTrucks()
   }, [])
+
+  // Keep the mobile tab selection valid
+  useEffect(() => {
+    if (trucks.length === 0) return
+    setActiveTruckMobile(prev => {
+      if (prev && trucks.some(t => t.name === prev)) return prev
+      return trucks[0].name
+    })
+  }, [trucks])
 
   const history = deployments.filter(d => d.status === 'returned')
 
@@ -204,12 +214,14 @@ export default function Deployments () {
 
   if (!trucksLoading && trucks.length === 0) {
     return (
-      <div className='bg-zinc-900 flex-1 outline outline-zinc-800 rounded-lg p-4 flex flex-col items-center justify-center text-center shadow-lg shadow-black/40'>
-        <div className='w-14 h-14 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 mb-4'>
-          <TbUsers size={26} />
+      <div className='bg-zinc-900 flex-1 outline outline-zinc-800 rounded-lg p-3 sm:p-4 flex flex-col items-center justify-center text-center shadow-lg shadow-black/40'>
+        <div className='w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-400 mb-3 sm:mb-4'>
+          <TbUsers size={22} />
         </div>
-        <div className='uppercase font-medium text-lg mb-1'>No Trucks Yet</div>
-        <p className='text-sm text-zinc-500 max-w-sm mb-5'>
+        <div className='uppercase font-medium text-base sm:text-lg mb-1'>
+          No Trucks Yet
+        </div>
+        <p className='text-xs sm:text-sm text-zinc-500 max-w-sm mb-4 sm:mb-5'>
           Trucks appear here automatically when you create a{' '}
           <span className='text-blue-400 font-medium'>Sales Agent</span>{' '}
           account.
@@ -217,9 +229,9 @@ export default function Deployments () {
         {isAdmin && (
           <Link
             to='/users'
-            className='flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 transition text-sm font-medium px-4 py-2 rounded-md shadow-md shadow-blue-600/30'
+            className='flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 transition text-xs sm:text-sm font-medium px-3 sm:px-4 py-2 rounded-md shadow-md shadow-blue-600/30'
           >
-            <TbUsers size={16} />
+            <TbUsers size={14} />
             Go to Users
           </Link>
         )}
@@ -229,14 +241,16 @@ export default function Deployments () {
 
   return (
     <>
-      <div className='bg-zinc-900 flex-1 outline outline-zinc-800 rounded-lg p-2 flex flex-col overflow-hidden shadow-lg shadow-black/40'>
+      <div className='bg-zinc-900 flex-1 outline outline-zinc-800 rounded-lg p-1.5 sm:p-2 flex flex-col overflow-hidden shadow-lg shadow-black/40'>
         {/* PAGE HEADER */}
-        <div className='flex justify-between items-center gap-3 pb-2 border-b border-zinc-800 shrink-0'>
-          <div className='uppercase font-medium text-lg'>Deployments</div>
+        <div className='flex justify-between items-center gap-2 sm:gap-3 pb-1.5 sm:pb-2 border-b border-zinc-800 shrink-0'>
+          <div className='uppercase font-medium text-sm sm:text-lg truncate'>
+            Deployments
+          </div>
 
           <button
             onClick={toggleHistory}
-            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[11px] font-medium transition ${
+            className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-[11px] font-medium transition shrink-0 whitespace-nowrap ${
               isHistoryView
                 ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
                 : 'text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100 border border-zinc-700'
@@ -244,15 +258,15 @@ export default function Deployments () {
           >
             {isHistoryView ? (
               <>
-                <TbArrowLeft size={12} />
+                <TbArrowLeft size={11} />
                 All Trucks
               </>
             ) : (
               <>
-                <TbHistory size={12} />
+                <TbHistory size={11} />
                 History
                 {history.length > 0 && (
-                  <span className='text-[9px] bg-white/15 px-1.5 py-0.5 rounded tabular-nums'>
+                  <span className='text-[8px] sm:text-[9px] bg-white/15 px-1 sm:px-1.5 py-0.5 rounded tabular-nums'>
                     {history.length}
                   </span>
                 )}
@@ -262,7 +276,7 @@ export default function Deployments () {
         </div>
 
         {/* BODY */}
-        <div className='flex-1 min-h-0 flex gap-3 mt-2'>
+        <div className='flex-1 min-h-0 flex gap-2 sm:gap-3 mt-1.5 sm:mt-2'>
           <div className='flex-1 min-w-0 flex flex-col min-h-0'>
             <div className='flex-1 min-h-0 flex flex-col'>
               {/* History detail */}
@@ -284,20 +298,20 @@ export default function Deployments () {
               {!focusedHistory && isHistoryView && (
                 <>
                   {history.length === 0 ? (
-                    <div className='flex-1 flex flex-col items-center justify-center text-center px-4'>
-                      <div className='w-14 h-14 rounded-xl bg-zinc-800/60 flex items-center justify-center text-zinc-500 mb-3'>
-                        <TbHistory size={24} />
+                    <div className='flex-1 flex flex-col items-center justify-center text-center px-3 sm:px-4'>
+                      <div className='w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-zinc-800/60 flex items-center justify-center text-zinc-500 mb-2.5 sm:mb-3'>
+                        <TbHistory size={20} />
                       </div>
-                      <div className='text-sm text-zinc-400 font-medium mb-1'>
+                      <div className='text-xs sm:text-sm text-zinc-400 font-medium mb-1'>
                         No completed deployments yet
                       </div>
-                      <p className='text-xs text-zinc-600 max-w-sm'>
+                      <p className='text-[11px] sm:text-xs text-zinc-600 max-w-sm'>
                         Returned trucks will show up here.
                       </p>
                     </div>
                   ) : (
                     <>
-                      <div className='shrink-0 mb-2'>
+                      <div className='shrink-0 mb-1.5 sm:mb-2'>
                         <HistorySummary deployments={history} />
                       </div>
 
@@ -315,7 +329,8 @@ export default function Deployments () {
               {/* All view */}
               {!focusedHistory && !isHistoryView && (
                 <>
-                  <div className='shrink-0 grid grid-cols-2 md:grid-cols-4 gap-2 pb-3 mb-2 border-b border-zinc-800/60'>
+                  {/* Summary */}
+                  <div className='shrink-0 grid grid-cols-2 md:grid-cols-4 gap-1.5 sm:gap-2 pb-2 sm:pb-3 mb-1.5 sm:mb-2 border-b border-zinc-800/60'>
                     <CombinedStat
                       label='Trucks Out'
                       value={`${combinedStats.trucksOut} / ${trucks.length}`}
@@ -338,27 +353,71 @@ export default function Deployments () {
                     />
                   </div>
 
+                  {/* Mobile truck tabs */}
+                  <div className='md:hidden shrink-0 overflow-x-auto pb-2 mb-1.5 border-b border-zinc-800/60'>
+                    <div className='flex items-center gap-1 w-max'>
+                      {trucks.map(t => {
+                        const isActive = activeTruckMobile === t.name
+                        const isOut = !!activeByTruck[t.name]
+                        return (
+                          <button
+                            key={t._id}
+                            onClick={() => setActiveTruckMobile(t.name)}
+                            className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-medium whitespace-nowrap transition ${
+                              isActive
+                                ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
+                                : 'text-zinc-400 bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 hover:text-zinc-100'
+                            }`}
+                          >
+                            <span className='max-w-[100px] truncate uppercase'>
+                              {t.name}
+                            </span>
+                            {isOut && (
+                              <span
+                                className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                                  isActive ? 'bg-white' : 'bg-blue-400'
+                                }`}
+                              />
+                            )}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Cards */}
                   <div className='flex-1 min-h-0 overflow-hidden'>
-                    <div className='h-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 auto-rows-fr gap-3'>
-                      {trucks.map(t => (
-                        <TruckOverviewCard
-                          key={t._id}
-                          truck={t.name}
-                          activeDeployment={activeByTruck[t.name] || null}
-                          loadout={truckLoadouts[t.name] || []}
-                          isLoadoutPrinted={
-                            !!loadoutMeta[t.name]?.isLoadoutPrinted
-                          }
-                          isPrinting={printingTruck === t.name}
-                          stocks={stocks}
-                          canManage={isAdmin}
-                          onDeploy={() => handleDeploy(t.name)}
-                          onEditLoadout={() => handleEditLoadout(t.name)}
-                          onReload={() => handleReload(t.name)}
-                          onReturn={() => handleReturn(t.name)}
-                          onPrint={() => handlePrint(t.name)}
-                        />
-                      ))}
+                    <div className='h-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 auto-rows-fr gap-2 sm:gap-3'>
+                      {trucks.map(t => {
+                        const isActiveMobile = activeTruckMobile === t.name
+                        return (
+                          <div
+                            key={t._id}
+                            className={
+                              isActiveMobile
+                                ? 'min-h-0'
+                                : 'hidden md:block min-h-0'
+                            }
+                          >
+                            <TruckOverviewCard
+                              truck={t.name}
+                              activeDeployment={activeByTruck[t.name] || null}
+                              loadout={truckLoadouts[t.name] || []}
+                              isLoadoutPrinted={
+                                !!loadoutMeta[t.name]?.isLoadoutPrinted
+                              }
+                              isPrinting={printingTruck === t.name}
+                              stocks={stocks}
+                              canManage={isAdmin}
+                              onDeploy={() => handleDeploy(t.name)}
+                              onEditLoadout={() => handleEditLoadout(t.name)}
+                              onReload={() => handleReload(t.name)}
+                              onReturn={() => handleReturn(t.name)}
+                              onPrint={() => handlePrint(t.name)}
+                            />
+                          </div>
+                        )
+                      })}
                     </div>
                   </div>
                 </>

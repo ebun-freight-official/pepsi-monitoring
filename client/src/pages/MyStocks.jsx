@@ -29,8 +29,8 @@ export default function MyStocks () {
 
   return (
     <>
-      <div className='bg-zinc-900 flex-1 outline outline-zinc-800 rounded-lg p-2 flex flex-col overflow-auto lg:overflow-hidden shadow-lg shadow-black/40'>
-        {/* HEADER */}
+      <div className='bg-zinc-900 flex-1 outline outline-zinc-800 rounded-lg p-2 flex flex-col overflow-hidden shadow-lg shadow-black/40'>
+        {/* HEADER — fixed */}
         <div className='flex justify-between items-center gap-2 pb-2 border-b border-zinc-800 shrink-0'>
           <div className='uppercase font-medium text-sm sm:text-lg truncate'>
             My Stocks
@@ -65,9 +65,10 @@ export default function MyStocks () {
           </div>
         </div>
 
-        {/* BODY */}
-        <div className='flex flex-col lg:flex-row gap-3 mt-2 lg:flex-1 lg:min-h-0'>
-          <div className='min-w-0 flex flex-col lg:flex-[2] lg:min-h-0'>
+        {/* BODY — fills remaining height, no page scroll */}
+        <div className='flex-1 min-h-0 flex flex-col lg:flex-row gap-3 mt-2'>
+          {/* Table column — takes all remaining space on mobile, 2/3 on desktop */}
+          <div className='min-w-0 flex flex-col flex-1 min-h-0 lg:flex-[2]'>
             <StockTable
               stocks={stocks}
               deployments={deployments}
@@ -75,7 +76,8 @@ export default function MyStocks () {
             />
           </div>
 
-          <div className='flex flex-col border-t lg:border-t-0 lg:border-l border-zinc-800 pt-3 lg:pt-0 lg:pl-3 lg:w-80 lg:shrink-0 lg:min-h-0'>
+          {/* Recent Entries — hidden on mobile, fixed sidebar on desktop */}
+          <div className='hidden lg:flex flex-col border-l border-zinc-800 pl-3 w-80 shrink-0 min-h-0'>
             <div className='flex-1 overflow-auto min-h-0'>
               <RecentEntries entries={entries} />
             </div>

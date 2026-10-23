@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { TbX, TbPlus, TbTrash } from 'react-icons/tb'
+import { TbX, TbPlus, TbTrash, TbLoader2 } from 'react-icons/tb'
 import { calcEntryTotal, formatMoney } from '../utils/inventory'
 import ProductCombobox from './ProductCombobox'
 
@@ -15,7 +15,7 @@ const blankItem = () => ({
 })
 
 const inputClass =
-  'w-full bg-zinc-900 border border-zinc-700 rounded-md px-2 sm:px-3 py-1.5 text-sm text-zinc-100 placeholder-zinc-600 uppercase focus:outline-none focus:border-blue-500 transition'
+  'w-full bg-zinc-900 border border-zinc-700 rounded-md px-2 sm:px-3 py-1.5 text-sm text-zinc-100 placeholder-zinc-600 uppercase focus:outline-none focus:border-blue-500 transition disabled:opacity-60 disabled:cursor-not-allowed'
 
 const lockedClass =
   'w-full bg-zinc-950/60 border border-zinc-800 rounded-md px-2 sm:px-3 py-1.5 text-sm text-zinc-400 uppercase cursor-not-allowed'
@@ -31,11 +31,15 @@ export default function NewEntryModal ({
 }) {
   const [items, setItems] = useState([blankItem()])
   const [netAmount, setNetAmount] = useState('0.00')
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     if (isOpen) {
       setItems([blankItem()])
       setNetAmount('0.00')
+      setBusy(false)
+      setError('')
     }
   }, [isOpen])
 
@@ -87,9 +91,23 @@ export default function NewEntryModal ({
     setNetAmount(calcEntryTotal(next).toFixed(2))
   }
 
-  const handleSubmit = event => {
+  const handleSubmit = async event => {
     event.preventDefault()
-    if (onSave(items, netAmount)) onClose()
+    if (busy) return
+    setBusy(true)
+    setError('')
+    try {
+      const ok = await onSave(items, netAmount)
+      if (ok === false) {
+        setError('Failed to save entry. Please try again.')
+        setBusy(false)
+        return
+      }
+      onClose()
+    } catch (err) {
+      setError(err.message || 'Failed to save entry.')
+      setBusy(false)
+    }
   }
 
   return (
@@ -103,7 +121,8 @@ export default function NewEntryModal ({
           <button
             type='button'
             onClick={onClose}
-            className='p-1 -m-1 text-zinc-500 hover:text-zinc-100 transition'
+            disabled={busy}
+            className='p-1 -m-1 text-zinc-500 hover:text-zinc-100 transition disabled:opacity-40'
             aria-label='Close'
           >
             <TbX size={20} />
@@ -144,7 +163,8 @@ export default function NewEntryModal ({
                       <button
                         type='button'
                         onClick={() => removeItem(index)}
-                        className='p-1 -m-1 text-zinc-500 hover:text-rose-400 transition'
+                        disabled={busy}
+                        className='p-1 -m-1 text-zinc-500 hover:text-rose-400 transition disabled:opacity-40'
                         title='Remove product'
                         aria-label='Remove product'
                       >
@@ -153,7 +173,7 @@ export default function NewEntryModal ({
                     )}
                   </div>
 
-                  {/* Row 1: Product (full on mobile) | Cases | Free */}
+                  {/* Row 1 */}
                   <div className='grid grid-cols-12 gap-2'>
                     <div className='col-span-12 sm:col-span-6 min-w-0'>
                       <label className={labelClass}>Product</label>
@@ -161,7 +181,7 @@ export default function NewEntryModal ({
                         value={item.product_name}
                         options={productOptions}
                         onChange={name => applyProduct(index, name)}
-                        disabled={products.length === 0}
+                        disabled={products.length === 0 || busy}
                         placeholder='— Search product —'
                       />
                     </div>
@@ -176,6 +196,7 @@ export default function NewEntryModal ({
                         onChange={e =>
                           updateItem(index, 'quantity', e.target.value)
                         }
+                        disabled={busy}
                         className={inputClass}
                       />
                     </div>
@@ -190,13 +211,14 @@ export default function NewEntryModal ({
                         onChange={e =>
                           updateItem(index, 'promo', e.target.value)
                         }
+                        disabled={busy}
                         placeholder='0'
                         className={inputClass}
                       />
                     </div>
                   </div>
 
-                  {/* Row 2: Price | Discount (half) + Total (full on mobile) */}
+                  {/* Row 2 */}
                   <div className='grid grid-cols-12 gap-2 mt-2'>
                     <div className='col-span-6 sm:col-span-4 min-w-0'>
                       <label className={labelClass}>Price / Case</label>
@@ -223,6 +245,7 @@ export default function NewEntryModal ({
                         onChange={e =>
                           updateItem(index, 'discount', e.target.value)
                         }
+                        disabled={busy}
                         placeholder='0.00'
                         className={inputClass}
                       />
@@ -253,12 +276,18 @@ export default function NewEntryModal ({
             <button
               type='button'
               onClick={addItem}
-              disabled={products.length === 0}
+              disabled={products.length === 0 || busy}
               className='w-full flex items-center justify-center gap-1.5 border border-dashed border-zinc-700 hover:border-blue-500 hover:text-blue-400 text-zinc-400 text-xs sm:text-sm py-2 rounded-lg transition disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-zinc-700 disabled:hover:text-zinc-400'
             >
               <TbPlus size={14} />
               Add another product
             </button>
+
+            {error && (
+              <div className='text-xs text-rose-400 bg-rose-500/10 border border-rose-800/50 rounded-md px-3 py-2'>
+                {error}
+              </div>
+            )}
           </div>
 
           {/* FOOTER */}
@@ -272,7 +301,8 @@ export default function NewEntryModal ({
                   step='0.01'
                   value={netAmount}
                   onChange={e => setNetAmount(e.target.value)}
-                  className='w-full sm:w-40 bg-zinc-950 border border-zinc-700 rounded-md px-2 py-1.5 text-sm font-semibold text-emerald-400 uppercase focus:outline-none focus:border-blue-500 transition'
+                  disabled={busy}
+                  className='w-full sm:w-40 bg-zinc-950 border border-zinc-700 rounded-md px-2 py-1.5 text-sm font-semibold text-emerald-400 uppercase focus:outline-none focus:border-blue-500 transition disabled:opacity-60'
                 />
               </div>
             </div>
@@ -281,16 +311,24 @@ export default function NewEntryModal ({
               <button
                 type='button'
                 onClick={onClose}
-                className='flex-1 sm:flex-none px-4 py-2 text-sm rounded-md border border-zinc-700 text-zinc-300 hover:bg-zinc-800 transition'
+                disabled={busy}
+                className='flex-1 sm:flex-none px-4 py-2 text-sm rounded-md border border-zinc-700 text-zinc-300 hover:bg-zinc-800 transition disabled:opacity-40 disabled:cursor-not-allowed'
               >
                 Cancel
               </button>
               <button
                 type='submit'
-                disabled={products.length === 0}
-                className='flex-1 sm:flex-none px-4 py-2 text-sm rounded-md bg-blue-600 hover:bg-blue-500 font-medium transition shadow-md shadow-blue-600/30 disabled:opacity-40 disabled:cursor-not-allowed'
+                disabled={products.length === 0 || busy}
+                className='flex-1 sm:flex-none px-4 py-2 text-sm rounded-md bg-blue-600 hover:bg-blue-500 font-medium transition shadow-md shadow-blue-600/30 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5'
               >
-                Save Entry
+                {busy ? (
+                  <>
+                    <TbLoader2 size={14} className='animate-spin' />
+                    Saving…
+                  </>
+                ) : (
+                  'Save Entry'
+                )}
               </button>
             </div>
           </div>

@@ -53,11 +53,11 @@ function HeadCell ({ label, value, color, align = 'center' }) {
       : 'items-center text-center'
   return (
     <div className={`flex flex-col ${alignCls} min-w-0`}>
-      <span className='text-[10px] uppercase tracking-wider text-zinc-500 truncate'>
+      <span className='text-[9px] sm:text-[10px] uppercase tracking-wider text-zinc-500 truncate'>
         {label}
       </span>
       <span
-        className={`text-sm font-semibold tabular-nums mt-0.5 truncate ${color}`}
+        className={`text-xs sm:text-sm font-semibold tabular-nums mt-0.5 truncate ${color}`}
       >
         {value}
       </span>
@@ -68,78 +68,82 @@ function HeadCell ({ label, value, color, align = 'center' }) {
 function ProductTable ({ items, totals }) {
   return (
     <div className='rounded-md border border-zinc-800 bg-zinc-900/40 overflow-hidden flex flex-col h-full min-h-0'>
-      <div
-        className={`${GRID_HISTORY} px-3 py-2 border-b border-zinc-800 bg-zinc-900/60 shrink-0`}
-      >
-        <div className='min-w-0'>
-          <div className='text-[10px] uppercase tracking-wider text-zinc-500 truncate'>
-            Product
-          </div>
-          <div className='text-sm font-semibold text-zinc-300 tabular-nums mt-0.5 truncate'>
-            {items.length} {items.length === 1 ? 'item' : 'items'}
-          </div>
-        </div>
-        <HeadCell
-          label='Loaded'
-          value={formatNumber(totals.deployed)}
-          color='text-blue-400'
-        />
-        <HeadCell
-          label='Returned'
-          value={formatNumber(totals.returned)}
-          color='text-amber-400'
-        />
-        <HeadCell
-          label='Sold'
-          value={formatNumber(totals.sold)}
-          color='text-emerald-400'
-        />
-        <HeadCell
-          label='Sold ₱'
-          value={formatMoney(totals.value)}
-          color='text-emerald-400'
-          align='right'
-        />
-        <HeadCell
-          label='Empties ₱'
-          value={formatMoney(totals.empties)}
-          color='text-amber-400'
-          align='right'
-        />
-      </div>
-
-      <div className='flex-1 min-h-0 overflow-y-auto divide-y divide-zinc-800/50'>
-        {items.map((item, i) => (
+      <div className='flex-1 min-h-0 overflow-auto'>
+        <div className='min-w-[640px]'>
           <div
-            key={i}
-            className={`${GRID_HISTORY} px-3 py-2.5 transition-colors hover:bg-zinc-800/40`}
+            className={`${GRID_HISTORY} px-2 sm:px-3 py-2 border-b border-zinc-800 bg-zinc-900/60 sticky top-0 z-10`}
           >
             <div className='min-w-0'>
-              <div className='text-sm text-zinc-100 font-medium truncate'>
-                {item.product_name}
+              <div className='text-[9px] sm:text-[10px] uppercase tracking-wider text-zinc-500 truncate'>
+                Product
               </div>
-              <div className='text-[10px] text-zinc-500 tabular-nums mt-0.5'>
-                {formatMoney(item.price_per_case)}/case ·{' '}
-                {formatNumber(item.unit)} btls
+              <div className='text-xs sm:text-sm font-semibold text-zinc-300 tabular-nums mt-0.5 truncate'>
+                {items.length} {items.length === 1 ? 'item' : 'items'}
               </div>
             </div>
-            <div className='text-sm text-blue-400 font-medium text-center tabular-nums'>
-              {formatNumber(item.cases_deployed)}
-            </div>
-            <div className='text-sm text-amber-400 font-medium text-center tabular-nums'>
-              {formatNumber(item.cases_returned)}
-            </div>
-            <div className='text-sm text-emerald-400 font-medium text-center tabular-nums'>
-              {formatNumber(item.cases_sold)}
-            </div>
-            <div className='text-sm text-emerald-400 font-semibold text-right tabular-nums'>
-              {formatMoney(item.value_sold)}
-            </div>
-            <div className='text-sm text-amber-400 font-semibold text-right tabular-nums'>
-              {formatMoney(item.empties_sold)}
-            </div>
+            <HeadCell
+              label='Loaded'
+              value={formatNumber(totals.deployed)}
+              color='text-blue-400'
+            />
+            <HeadCell
+              label='Returned'
+              value={formatNumber(totals.returned)}
+              color='text-amber-400'
+            />
+            <HeadCell
+              label='Sold'
+              value={formatNumber(totals.sold)}
+              color='text-emerald-400'
+            />
+            <HeadCell
+              label='Sold ₱'
+              value={formatMoney(totals.value)}
+              color='text-emerald-400'
+              align='right'
+            />
+            <HeadCell
+              label='Empties ₱'
+              value={formatMoney(totals.empties)}
+              color='text-amber-400'
+              align='right'
+            />
           </div>
-        ))}
+
+          <div className='divide-y divide-zinc-800/50'>
+            {items.map((item, i) => (
+              <div
+                key={i}
+                className={`${GRID_HISTORY} px-2 sm:px-3 py-2 sm:py-2.5 transition-colors hover:bg-zinc-800/40`}
+              >
+                <div className='min-w-0'>
+                  <div className='text-xs sm:text-sm text-zinc-100 font-medium truncate'>
+                    {item.product_name}
+                  </div>
+                  <div className='text-[9px] sm:text-[10px] text-zinc-500 tabular-nums mt-0.5'>
+                    {formatMoney(item.price_per_case)}/case ·{' '}
+                    {formatNumber(item.unit)} btls
+                  </div>
+                </div>
+                <div className='text-xs sm:text-sm text-blue-400 font-medium text-center tabular-nums'>
+                  {formatNumber(item.cases_deployed)}
+                </div>
+                <div className='text-xs sm:text-sm text-amber-400 font-medium text-center tabular-nums'>
+                  {formatNumber(item.cases_returned)}
+                </div>
+                <div className='text-xs sm:text-sm text-emerald-400 font-medium text-center tabular-nums'>
+                  {formatNumber(item.cases_sold)}
+                </div>
+                <div className='text-xs sm:text-sm text-emerald-400 font-semibold text-right tabular-nums'>
+                  {formatMoney(item.value_sold)}
+                </div>
+                <div className='text-xs sm:text-sm text-amber-400 font-semibold text-right tabular-nums'>
+                  {formatMoney(item.empties_sold)}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   )
@@ -148,15 +152,15 @@ function ProductTable ({ items, totals }) {
 function BucketCard ({ title, accent, right, children }) {
   return (
     <div className='rounded-md border border-zinc-800 bg-zinc-950/60 overflow-hidden'>
-      <div className='flex justify-between items-center px-3 py-2 border-b border-zinc-800 bg-zinc-900/60'>
+      <div className='flex justify-between items-center gap-2 px-2 sm:px-3 py-1.5 sm:py-2 border-b border-zinc-800 bg-zinc-900/60'>
         <span
-          className={`text-[10px] uppercase tracking-wider font-semibold ${accent}`}
+          className={`text-[9px] sm:text-[10px] uppercase tracking-wider font-semibold truncate ${accent}`}
         >
           {title}
         </span>
         {right}
       </div>
-      <div className='p-3 space-y-2'>{children}</div>
+      <div className='p-2 sm:p-3 space-y-1.5 sm:space-y-2'>{children}</div>
     </div>
   )
 }
@@ -164,7 +168,7 @@ function BucketCard ({ title, accent, right, children }) {
 function InlineRemitRow ({ remit }) {
   return (
     <div className='mt-1 border-t border-zinc-800/60'>
-      <div className='flex items-center gap-2 bg-black/50'>
+      <div className='flex items-center gap-1 sm:gap-2 bg-black/50'>
         {[
           { key: 'cash', label: 'Cash' },
           { key: 'gcash', label: 'G-Cash' },
@@ -172,12 +176,12 @@ function InlineRemitRow ({ remit }) {
         ].map(f => (
           <div
             key={f.key}
-            className='flex items-center gap-1.5 flex-1 min-w-0 py-2 px-1'
+            className='flex items-center gap-1 flex-1 min-w-0 py-1.5 sm:py-2 px-1'
           >
-            <label className='text-[10px] uppercase tracking-wide text-zinc-500 shrink-0'>
+            <label className='text-[9px] sm:text-[10px] uppercase tracking-wide text-zinc-500 shrink-0'>
               {f.label}:
             </label>
-            <span className='flex-1 min-w-0 text-[11px] text-right text-zinc-100 tabular-nums truncate'>
+            <span className='flex-1 min-w-0 text-[10px] sm:text-[11px] text-right text-zinc-100 tabular-nums truncate'>
               {formatMoney(remit[f.key])}
             </span>
           </div>
@@ -251,20 +255,20 @@ export default function FocusedHistoryView ({
     if (combinedMeta.isExact) {
       return {
         label: 'Exact',
-        icon: <TbCheck size={12} />,
+        icon: <TbCheck size={11} />,
         cls: 'text-zinc-300 bg-zinc-800/60 border-zinc-700'
       }
     }
     if (combinedMeta.isOver) {
       return {
         label: `+${formatMoney(remitDiff)} Over`,
-        icon: <TbTrendingUp size={12} />,
+        icon: <TbTrendingUp size={11} />,
         cls: 'text-emerald-400 bg-emerald-500/10 border-emerald-800/50'
       }
     }
     return {
       label: `${formatMoney(Math.abs(remitDiff))} Short`,
-      icon: <TbAlertTriangle size={12} />,
+      icon: <TbAlertTriangle size={11} />,
       cls: 'text-rose-400 bg-rose-500/10 border-rose-800/50'
     }
   })()
@@ -292,36 +296,40 @@ export default function FocusedHistoryView ({
   return (
     <div className='flex flex-col h-full min-h-0 border border-zinc-800 bg-zinc-950/60 rounded-lg overflow-hidden shadow-lg shadow-black/40'>
       {/* HEADER */}
-      <div className='shrink-0 flex items-center gap-3 px-4 py-3 border-b border-zinc-800 bg-zinc-900/70'>
+      <div className='shrink-0 flex items-center gap-1.5 sm:gap-3 px-2.5 sm:px-4 py-2 sm:py-3 border-b border-zinc-800 bg-zinc-900/70'>
         <button
           onClick={onBack}
-          className='flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-100 px-2 py-1 rounded-md hover:bg-zinc-800 transition shrink-0'
+          className='flex items-center gap-1 sm:gap-1.5 text-[11px] sm:text-xs text-zinc-400 hover:text-zinc-100 px-1.5 sm:px-2 py-1 rounded-md hover:bg-zinc-800 transition shrink-0'
+          aria-label='Back'
         >
-          <TbArrowLeft size={14} />
-          Back
+          <TbArrowLeft size={13} />
+          <span className='hidden sm:inline'>Back</span>
         </button>
 
-        <div className='flex items-center gap-2 min-w-0'>
-          <TbTruck className='text-blue-400 shrink-0' size={18} />
-          <span className='font-semibold text-base truncate uppercase'>
+        <div className='flex items-center gap-1.5 sm:gap-2 min-w-0'>
+          <TbTruck className='text-blue-400 shrink-0' size={15} />
+          <span className='font-semibold text-sm sm:text-base truncate uppercase'>
             {deployment.truck}
           </span>
         </div>
 
-        <div className='ml-auto flex items-center gap-3 shrink-0'>
-          <span className='text-[11px] text-zinc-500 tabular-nums hidden sm:block'>
+        <div className='ml-auto flex items-center gap-1.5 sm:gap-3 shrink-0'>
+          <span className='text-[10px] sm:text-[11px] text-zinc-500 tabular-nums hidden md:block'>
             {formatDate(deployment.returned_at)}
           </span>
 
           {creditUnpaid && (
-            <span className='flex items-center gap-1.5 text-[10px] uppercase tracking-wider px-2 py-1 rounded font-medium border text-amber-400 bg-amber-500/10 border-amber-800/50'>
-              <TbAlertTriangle size={12} />
-              Credit Unpaid
+            <span
+              title='Credit Unpaid'
+              className='flex items-center gap-1 text-[9px] sm:text-[10px] uppercase tracking-wider px-1.5 sm:px-2 py-0.5 sm:py-1 rounded font-medium border text-amber-400 bg-amber-500/10 border-amber-800/50'
+            >
+              <TbAlertTriangle size={11} />
+              <span className='hidden sm:inline'>Credit Unpaid</span>
             </span>
           )}
 
           <span
-            className={`flex items-center gap-1.5 text-[10px] uppercase tracking-wider px-2 py-1 rounded font-medium border ${statusBadge.cls}`}
+            className={`flex items-center gap-1 sm:gap-1.5 text-[9px] sm:text-[10px] uppercase tracking-wider px-1.5 sm:px-2 py-0.5 sm:py-1 rounded font-medium border whitespace-nowrap ${statusBadge.cls}`}
           >
             {statusBadge.icon}
             {statusBadge.label}
@@ -329,163 +337,169 @@ export default function FocusedHistoryView ({
         </div>
       </div>
 
-      {/* PRODUCT TABLE */}
-      <div className='flex-1 min-h-0 p-4'>
-        <ProductTable items={items} totals={totals} />
-      </div>
+      {/* CONTENT — scrolls as one on mobile, split on desktop */}
+      <div className='flex-1 min-h-0 flex flex-col overflow-y-auto lg:overflow-hidden'>
+        {/* PRODUCT TABLE */}
+        <div className='shrink-0 lg:flex-1 lg:min-h-0 p-2.5 sm:p-4'>
+          <ProductTable items={items} totals={totals} />
+        </div>
 
-      {/* SUMMARY */}
-      <div className='shrink-0 border-t border-zinc-800 bg-zinc-950/95 backdrop-blur-sm p-4'>
-        <div className='grid grid-cols-1 lg:grid-cols-2 gap-3'>
-          {/* Card A: Sales → Cash Remit */}
-          <BucketCard
-            title='Sales → Cash Remit'
-            accent='text-emerald-400'
-            right={
-              <span
-                className={`text-[10px] font-medium tabular-nums ${cashMeta.color}`}
-              >
-                {cashMeta.label} · {cashMeta.display}
-              </span>
-            }
-          >
-            <div className='flex justify-between items-baseline gap-2'>
-              <span className='text-[11px] text-zinc-500'>Sales Value</span>
-              <span className='text-xs font-semibold text-emerald-400 tabular-nums'>
-                {formatMoney(totalValue)}
-              </span>
-            </div>
-
-            <InlineRemitRow remit={remit} />
-
-            {hasCredit && (
-              <div className='flex items-center gap-1.5'>
-                {creditUnpaid && (
-                  <span className='text-[9px] uppercase tracking-wider text-amber-400 bg-amber-500/10 border border-amber-800/50 px-1.5 py-0.5 rounded font-medium'>
-                    Credit Unpaid
-                  </span>
-                )}
-                {creditPaid && (
-                  <span className='text-[9px] uppercase tracking-wider text-emerald-400 bg-emerald-500/10 border border-emerald-800/50 px-1.5 py-0.5 rounded font-medium'>
-                    Credit Paid
-                  </span>
-                )}
-              </div>
-            )}
-
-            <div className='pt-2 -mt-2 border-t border-zinc-800/60 space-y-1'>
-              <div className='flex justify-between items-baseline gap-2'>
-                <span className='text-[10px] uppercase tracking-wider text-zinc-400 font-semibold'>
-                  Total Cash Remit
-                </span>
-                <span className='text-sm font-semibold text-teal-400 tabular-nums'>
-                  {formatMoney(cashRemit)}
-                </span>
-              </div>
-              <div className='flex justify-between items-baseline gap-2'>
-                <span className='text-[11px] text-zinc-500'>
-                  {cashMeta.label}
-                </span>
+        {/* SUMMARY */}
+        <div className='shrink-0 border-t border-zinc-800 bg-zinc-950/95 p-2.5 sm:p-4'>
+          <div className='grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-3'>
+            {/* Card A: Sales → Cash Remit */}
+            <BucketCard
+              title='Sales → Cash Remit'
+              accent='text-emerald-400'
+              right={
                 <span
-                  className={`text-xs font-medium tabular-nums ${cashMeta.color}`}
+                  className={`text-[9px] sm:text-[10px] font-medium tabular-nums shrink-0 ${cashMeta.color}`}
                 >
-                  {cashMeta.display}
+                  {cashMeta.label} · {cashMeta.display}
+                </span>
+              }
+            >
+              <div className='flex justify-between items-baseline gap-2'>
+                <span className='text-[10px] sm:text-[11px] text-zinc-500'>
+                  Sales Value
+                </span>
+                <span className='text-[11px] sm:text-xs font-semibold text-emerald-400 tabular-nums'>
+                  {formatMoney(totalValue)}
                 </span>
               </div>
-            </div>
 
-            {/* Credit action — hidden if not admin (no onMarkCreditPaid prop) */}
-            {hasCredit && onMarkCreditPaid && (
-              <div className='pt-3 mt-1 border-t border-zinc-800/60'>
-                {creditUnpaid ? (
-                  <button
-                    onClick={handleMarkPaid}
-                    disabled={busy}
-                    className='w-full flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-500 text-xs font-medium py-2.5 rounded-md transition shadow-md shadow-amber-600/20 disabled:opacity-40 disabled:cursor-not-allowed'
+              <InlineRemitRow remit={remit} />
+
+              {hasCredit && (
+                <div className='flex items-center gap-1.5'>
+                  {creditUnpaid && (
+                    <span className='text-[8px] sm:text-[9px] uppercase tracking-wider text-amber-400 bg-amber-500/10 border border-amber-800/50 px-1.5 py-0.5 rounded font-medium'>
+                      Credit Unpaid
+                    </span>
+                  )}
+                  {creditPaid && (
+                    <span className='text-[8px] sm:text-[9px] uppercase tracking-wider text-emerald-400 bg-emerald-500/10 border border-emerald-800/50 px-1.5 py-0.5 rounded font-medium'>
+                      Credit Paid
+                    </span>
+                  )}
+                </div>
+              )}
+
+              <div className='pt-1.5 sm:pt-2 -mt-2 border-t border-zinc-800/60 space-y-1'>
+                <div className='flex justify-between items-baseline gap-2'>
+                  <span className='text-[9px] sm:text-[10px] uppercase tracking-wider text-zinc-400 font-semibold'>
+                    Total Cash Remit
+                  </span>
+                  <span className='text-xs sm:text-sm font-semibold text-teal-400 tabular-nums'>
+                    {formatMoney(cashRemit)}
+                  </span>
+                </div>
+                <div className='flex justify-between items-baseline gap-2'>
+                  <span className='text-[10px] sm:text-[11px] text-zinc-500'>
+                    {cashMeta.label}
+                  </span>
+                  <span
+                    className={`text-[11px] sm:text-xs font-medium tabular-nums ${cashMeta.color}`}
                   >
-                    {busy ? (
-                      <>
-                        <TbLoader2 size={14} className='animate-spin' />
-                        Marking…
-                      </>
-                    ) : (
-                      <>
-                        <TbCircleCheck size={14} />
-                        Mark {formatMoney(credit)} Credit as Paid
-                      </>
-                    )}
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleUnmarkPaid}
-                    disabled={busy}
-                    className='w-full flex items-center justify-center gap-2 text-xs text-zinc-500 hover:text-zinc-200 py-2 rounded-md hover:bg-zinc-800/60 transition disabled:opacity-40'
-                  >
-                    {busy ? (
-                      <>
-                        <TbLoader2 size={14} className='animate-spin' />
-                        Updating…
-                      </>
-                    ) : (
-                      'Mark credit as unpaid'
-                    )}
-                  </button>
-                )}
+                    {cashMeta.display}
+                  </span>
+                </div>
               </div>
-            )}
-          </BucketCard>
 
-          {/* Card B: Empties → Case Remit */}
-          <BucketCard
-            title='Empties → Case Remit'
-            accent='text-amber-400'
-            right={
-              <span
-                className={`text-[10px] font-medium tabular-nums ${caseMeta.color}`}
-              >
-                {caseMeta.label} · {caseMeta.display}
-              </span>
-            }
-          >
-            <div className='flex justify-between items-baseline gap-2'>
-              <span className='text-[11px] text-zinc-500'>Empties Value</span>
-              <span className='text-xs font-semibold text-amber-400 tabular-nums'>
-                {formatMoney(totalEmpties)}
-              </span>
-            </div>
+              {hasCredit && onMarkCreditPaid && (
+                <div className='pt-2 mt-1 border-t border-zinc-800/60'>
+                  {creditUnpaid ? (
+                    <button
+                      onClick={handleMarkPaid}
+                      disabled={busy}
+                      className='w-full flex items-center justify-center gap-1.5 bg-amber-600 hover:bg-amber-500 text-[11px] sm:text-xs font-medium py-1.5 sm:py-2.5 rounded-md transition shadow-md shadow-amber-600/20 disabled:opacity-40 disabled:cursor-not-allowed'
+                    >
+                      {busy ? (
+                        <>
+                          <TbLoader2 size={12} className='animate-spin' />
+                          Marking…
+                        </>
+                      ) : (
+                        <>
+                          <TbCircleCheck size={12} />
+                          Mark {formatMoney(credit)} Credit as Paid
+                        </>
+                      )}
+                    </button>
+                  ) : (
+                    <button
+                      onClick={handleUnmarkPaid}
+                      disabled={busy}
+                      className='w-full flex items-center justify-center gap-1.5 text-[10px] sm:text-xs text-zinc-500 hover:text-zinc-200 py-1.5 sm:py-2 rounded-md hover:bg-zinc-800/60 transition disabled:opacity-40'
+                    >
+                      {busy ? (
+                        <>
+                          <TbLoader2 size={12} className='animate-spin' />
+                          Updating…
+                        </>
+                      ) : (
+                        'Mark credit as unpaid'
+                      )}
+                    </button>
+                  )}
+                </div>
+              )}
+            </BucketCard>
 
-            <div className='pt-2 mt-1 border-t border-zinc-800/60 space-y-1.5'>
-              <div className='flex justify-between items-baseline gap-2'>
-                <span className='text-[10px] uppercase tracking-wider text-amber-400/80 font-semibold'>
-                  Case Remit
-                </span>
-                <span className='text-xs text-amber-400 font-medium tabular-nums'>
-                  {formatMoney(caseRemit)}
-                </span>
-              </div>
-            </div>
-
-            <div className='pt-2 mt-1 border-t border-zinc-800/60 space-y-1'>
-              <div className='flex justify-between items-baseline gap-2'>
-                <span className='text-[10px] uppercase tracking-wider text-zinc-400 font-semibold'>
-                  Total Case Remit
-                </span>
-                <span className='text-sm font-semibold text-teal-400 tabular-nums'>
-                  {formatMoney(caseRemit)}
-                </span>
-              </div>
-              <div className='flex justify-between items-baseline gap-2'>
-                <span className='text-[11px] text-zinc-500'>
-                  {caseMeta.label}
-                </span>
+            {/* Card B: Empties → Case Remit */}
+            <BucketCard
+              title='Empties → Case Remit'
+              accent='text-amber-400'
+              right={
                 <span
-                  className={`text-xs font-medium tabular-nums ${caseMeta.color}`}
+                  className={`text-[9px] sm:text-[10px] font-medium tabular-nums shrink-0 ${caseMeta.color}`}
                 >
-                  {caseMeta.display}
+                  {caseMeta.label} · {caseMeta.display}
+                </span>
+              }
+            >
+              <div className='flex justify-between items-baseline gap-2'>
+                <span className='text-[10px] sm:text-[11px] text-zinc-500'>
+                  Empties Value
+                </span>
+                <span className='text-[11px] sm:text-xs font-semibold text-amber-400 tabular-nums'>
+                  {formatMoney(totalEmpties)}
                 </span>
               </div>
-            </div>
-          </BucketCard>
+
+              <div className='pt-1.5 sm:pt-2 mt-1 border-t border-zinc-800/60 space-y-1'>
+                <div className='flex justify-between items-baseline gap-2'>
+                  <span className='text-[9px] sm:text-[10px] uppercase tracking-wider text-amber-400/80 font-semibold'>
+                    Case Remit
+                  </span>
+                  <span className='text-[11px] sm:text-xs text-amber-400 font-medium tabular-nums'>
+                    {formatMoney(caseRemit)}
+                  </span>
+                </div>
+              </div>
+
+              <div className='pt-1.5 sm:pt-2 mt-1 border-t border-zinc-800/60 space-y-1'>
+                <div className='flex justify-between items-baseline gap-2'>
+                  <span className='text-[9px] sm:text-[10px] uppercase tracking-wider text-zinc-400 font-semibold'>
+                    Total Case Remit
+                  </span>
+                  <span className='text-xs sm:text-sm font-semibold text-teal-400 tabular-nums'>
+                    {formatMoney(caseRemit)}
+                  </span>
+                </div>
+                <div className='flex justify-between items-baseline gap-2'>
+                  <span className='text-[10px] sm:text-[11px] text-zinc-500'>
+                    {caseMeta.label}
+                  </span>
+                  <span
+                    className={`text-[11px] sm:text-xs font-medium tabular-nums ${caseMeta.color}`}
+                  >
+                    {caseMeta.display}
+                  </span>
+                </div>
+              </div>
+            </BucketCard>
+          </div>
         </div>
       </div>
     </div>

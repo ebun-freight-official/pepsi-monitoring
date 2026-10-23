@@ -18,38 +18,38 @@ const diffMeta = diff => {
 
 export default function HistoryTable ({ deployments, onRowClick }) {
   return (
-    <div className='rounded-md border border-zinc-800 bg-zinc-950/60 overflow-x-auto'>
+    <div className='rounded-md border border-zinc-800 bg-zinc-950/60 overflow-auto h-full'>
       <table className='w-full min-w-[840px] text-xs sm:text-sm border-collapse'>
-        <thead className='bg-zinc-900/80'>
+        <thead>
           <tr className='text-left text-[9px] sm:text-[10px] uppercase tracking-wider text-zinc-500'>
-            <th className='px-2 sm:px-3 py-2 font-medium whitespace-nowrap'>
+            <th className='sticky top-0 z-10 bg-zinc-900 px-2 sm:px-3 py-2 font-medium whitespace-nowrap'>
               Date
             </th>
-            <th className='px-2 sm:px-3 py-2 font-medium whitespace-nowrap'>
+            <th className='sticky top-0 z-10 bg-zinc-900 px-2 sm:px-3 py-2 font-medium whitespace-nowrap'>
               Truck
             </th>
-            <th className='px-2 sm:px-3 py-2 font-medium text-center whitespace-nowrap'>
+            <th className='sticky top-0 z-10 bg-zinc-900 px-2 sm:px-3 py-2 font-medium text-center whitespace-nowrap'>
               Loaded
             </th>
-            <th className='px-2 sm:px-3 py-2 font-medium text-center whitespace-nowrap'>
+            <th className='sticky top-0 z-10 bg-zinc-900 px-2 sm:px-3 py-2 font-medium text-center whitespace-nowrap'>
               Returned
             </th>
-            <th className='px-2 sm:px-3 py-2 font-medium text-center whitespace-nowrap'>
+            <th className='sticky top-0 z-10 bg-zinc-900 px-2 sm:px-3 py-2 font-medium text-center whitespace-nowrap'>
               Sold
             </th>
-            <th className='px-2 sm:px-3 py-2 font-medium text-right whitespace-nowrap'>
+            <th className='sticky top-0 z-10 bg-zinc-900 px-2 sm:px-3 py-2 font-medium text-right whitespace-nowrap'>
               Sales ₱
             </th>
-            <th className='px-2 sm:px-3 py-2 font-medium text-right whitespace-nowrap'>
+            <th className='sticky top-0 z-10 bg-zinc-900 px-2 sm:px-3 py-2 font-medium text-right whitespace-nowrap'>
               Cash Remit
             </th>
-            <th className='px-2 sm:px-3 py-2 font-medium text-right whitespace-nowrap'>
+            <th className='sticky top-0 z-10 bg-zinc-900 px-2 sm:px-3 py-2 font-medium text-right whitespace-nowrap'>
               Empties ₱
             </th>
-            <th className='px-2 sm:px-3 py-2 font-medium text-right whitespace-nowrap'>
+            <th className='sticky top-0 z-10 bg-zinc-900 px-2 sm:px-3 py-2 font-medium text-right whitespace-nowrap'>
               Case Remit
             </th>
-            <th className='w-8' />
+            <th className='sticky top-0 z-10 bg-zinc-900 w-8' />
           </tr>
         </thead>
         <tbody>

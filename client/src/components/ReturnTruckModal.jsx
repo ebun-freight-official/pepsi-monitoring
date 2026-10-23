@@ -84,12 +84,6 @@ export default function ReturnTruckModal ({
     a.product_name.localeCompare(b.product_name)
   )
 
-  const totalDeployed = deployment.items.reduce((s, i) => s + i.cases, 0)
-  const totalReturned = deployment.items.reduce(
-    (s, i) => s + (returns[i.product_name] ?? i.cases),
-    0
-  )
-
   const soldTotals = deployment.items.reduce(
     (acc, item) => {
       const remaining = returns[item.product_name] ?? item.cases
@@ -160,7 +154,7 @@ export default function ReturnTruckModal ({
 
   return (
     <div className='fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4'>
-      <div className='bg-zinc-900 outline outline-zinc-800 rounded-xl w-full max-w-5xl max-h-[80dvh] sm:max-h-[90vh] flex flex-col shadow-2xl shadow-black/60'>
+      <div className='bg-zinc-900 outline outline-zinc-800 rounded-xl w-full max-w-5xl max-h-[80dvh] sm:max-h-[85vh] flex flex-col shadow-2xl shadow-black/60'>
         {/* Header */}
         <div className='flex justify-between items-center px-3 sm:px-4 py-2.5 sm:py-3 border-b border-zinc-800 shrink-0'>
           <div className='flex items-center gap-2 min-w-0'>

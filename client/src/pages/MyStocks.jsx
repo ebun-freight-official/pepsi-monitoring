@@ -10,8 +10,12 @@ import { calcStockStats, formatMoney, formatNumber } from '../utils/inventory'
 function HeaderStat ({ label, value, color }) {
   return (
     <div className='text-right hidden sm:block'>
-      <div className='text-[10px] uppercase text-zinc-500'>{label}</div>
-      <div className={`text-sm font-medium tabular-nums ${color}`}>{value}</div>
+      <div className='text-[9px] sm:text-[10px] uppercase text-zinc-500'>
+        {label}
+      </div>
+      <div className={`text-xs sm:text-sm font-medium tabular-nums ${color}`}>
+        {value}
+      </div>
     </div>
   )
 }
@@ -25,12 +29,14 @@ export default function MyStocks () {
 
   return (
     <>
-      <div className='bg-zinc-900 flex-1 outline outline-zinc-800 rounded-lg p-2 flex flex-col overflow-hidden shadow-lg shadow-black/40'>
-        {/* FIXED HEADER */}
-        <div className='flex justify-between items-center pb-2 border-b border-zinc-800 shrink-0'>
-          <div className='uppercase font-medium text-lg'>My Stocks</div>
+      <div className='bg-zinc-900 flex-1 outline outline-zinc-800 rounded-lg p-2 flex flex-col overflow-auto lg:overflow-hidden shadow-lg shadow-black/40'>
+        {/* HEADER */}
+        <div className='flex justify-between items-center gap-2 pb-2 border-b border-zinc-800 shrink-0'>
+          <div className='uppercase font-medium text-sm sm:text-lg truncate'>
+            My Stocks
+          </div>
 
-          <div className='flex items-center gap-5'>
+          <div className='flex items-center gap-2 sm:gap-5 shrink-0'>
             <HeaderStat
               label='Free Cases'
               value={formatNumber(stats.totalFreeCases)}
@@ -50,9 +56,9 @@ export default function MyStocks () {
             {isAdmin && (
               <button
                 onClick={() => setIsModalOpen(true)}
-                className='flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 transition text-sm font-medium px-3 py-1.5 rounded-md shadow-md shadow-blue-600/30'
+                className='flex items-center gap-1 sm:gap-1.5 bg-blue-600 hover:bg-blue-500 transition text-xs sm:text-sm font-medium px-2 sm:px-3 py-2 sm:py-1.5 rounded-md shadow-md shadow-blue-600/30 whitespace-nowrap'
               >
-                <TbPlus size={16} />
+                <TbPlus size={14} />
                 New Entry
               </button>
             )}
@@ -60,8 +66,8 @@ export default function MyStocks () {
         </div>
 
         {/* BODY */}
-        <div className='flex-1 flex gap-3 mt-2 min-h-0'>
-          <div className='flex-[2] min-w-0 flex flex-col min-h-0'>
+        <div className='flex flex-col lg:flex-row gap-3 mt-2 lg:flex-1 lg:min-h-0'>
+          <div className='min-w-0 flex flex-col lg:flex-[2] lg:min-h-0'>
             <StockTable
               stocks={stocks}
               deployments={deployments}
@@ -69,7 +75,7 @@ export default function MyStocks () {
             />
           </div>
 
-          <div className='w-80 shrink-0 flex flex-col min-h-0 border-l border-zinc-800 pl-3'>
+          <div className='flex flex-col border-t lg:border-t-0 lg:border-l border-zinc-800 pt-3 lg:pt-0 lg:pl-3 lg:w-80 lg:shrink-0 lg:min-h-0'>
             <div className='flex-1 overflow-auto min-h-0'>
               <RecentEntries entries={entries} />
             </div>

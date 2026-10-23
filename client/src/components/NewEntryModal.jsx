@@ -3,7 +3,6 @@ import { TbX, TbPlus, TbTrash } from 'react-icons/tb'
 import { calcEntryTotal, formatMoney } from '../utils/inventory'
 import ProductCombobox from './ProductCombobox'
 
-// Local helper — keeps this modal self-contained
 const blankItem = () => ({
   product_name: '',
   bottle_size: '',
@@ -16,12 +15,13 @@ const blankItem = () => ({
 })
 
 const inputClass =
-  'w-full bg-zinc-900 border border-zinc-700 rounded-md px-3 py-1.5 text-sm text-zinc-100 placeholder-zinc-600 uppercase focus:outline-none focus:border-blue-500 transition'
+  'w-full bg-zinc-900 border border-zinc-700 rounded-md px-2 sm:px-3 py-1.5 text-sm text-zinc-100 placeholder-zinc-600 uppercase focus:outline-none focus:border-blue-500 transition'
 
 const lockedClass =
-  'w-full bg-zinc-950/60 border border-zinc-800 rounded-md px-3 py-1.5 text-sm text-zinc-400 uppercase cursor-not-allowed'
+  'w-full bg-zinc-950/60 border border-zinc-800 rounded-md px-2 sm:px-3 py-1.5 text-sm text-zinc-400 uppercase cursor-not-allowed'
 
-const labelClass = 'block text-xs uppercase tracking-wide text-zinc-500 mb-1'
+const labelClass =
+  'block text-[10px] sm:text-xs uppercase tracking-wide text-zinc-500 mb-1'
 
 export default function NewEntryModal ({
   isOpen,
@@ -93,22 +93,29 @@ export default function NewEntryModal ({
   }
 
   return (
-    <div className='fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50'>
-      <div className='bg-zinc-900 outline outline-zinc-800 rounded-xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl shadow-black/60'>
-        <div className='flex justify-between items-center px-4 py-3 border-b border-zinc-800'>
+    <div className='fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 z-50'>
+      <div className='bg-zinc-900 outline outline-zinc-800 rounded-xl w-full max-w-3xl max-h-[80dvh] sm:max-h-[90vh] flex flex-col shadow-2xl shadow-black/60'>
+        {/* HEADER */}
+        <div className='flex justify-between items-center px-3 sm:px-4 py-2.5 sm:py-3 border-b border-zinc-800 shrink-0'>
           <div className='uppercase font-medium text-sm tracking-wide'>
             New Entry
           </div>
           <button
+            type='button'
             onClick={onClose}
-            className='text-zinc-500 hover:text-zinc-100 transition'
+            className='p-1 -m-1 text-zinc-500 hover:text-zinc-100 transition'
+            aria-label='Close'
           >
             <TbX size={20} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className='flex flex-col overflow-hidden'>
-          <div className='p-4 overflow-auto space-y-2'>
+        <form
+          onSubmit={handleSubmit}
+          className='flex flex-col flex-1 min-h-0 overflow-hidden'
+        >
+          {/* BODY */}
+          <div className='flex-1 min-h-0 overflow-y-auto p-2.5 sm:p-4 space-y-2'>
             {products.length === 0 && (
               <div className='bg-amber-500/10 border border-amber-800/50 text-amber-400 rounded-md px-3 py-2 text-xs'>
                 No products defined yet. Go to <b>Products</b> page to add
@@ -126,10 +133,10 @@ export default function NewEntryModal ({
               return (
                 <div
                   key={index}
-                  className='bg-zinc-950/60 border border-zinc-800 rounded-lg p-3'
+                  className='bg-zinc-950/60 border border-zinc-800 rounded-lg p-2.5 sm:p-3'
                 >
                   <div className='flex justify-between items-center mb-2'>
-                    <span className='text-[11px] uppercase tracking-wide text-zinc-500'>
+                    <span className='text-[10px] sm:text-[11px] uppercase tracking-wide text-zinc-500'>
                       Product {index + 1}
                     </span>
 
@@ -137,17 +144,18 @@ export default function NewEntryModal ({
                       <button
                         type='button'
                         onClick={() => removeItem(index)}
-                        className='text-zinc-500 hover:text-rose-400 transition'
+                        className='p-1 -m-1 text-zinc-500 hover:text-rose-400 transition'
                         title='Remove product'
+                        aria-label='Remove product'
                       >
-                        <TbTrash size={16} />
+                        <TbTrash size={15} />
                       </button>
                     )}
                   </div>
 
-                  {/* Row 1: Product | Cases | Free */}
+                  {/* Row 1: Product (full on mobile) | Cases | Free */}
                   <div className='grid grid-cols-12 gap-2'>
-                    <div className='col-span-6'>
+                    <div className='col-span-12 sm:col-span-6 min-w-0'>
                       <label className={labelClass}>Product</label>
                       <ProductCombobox
                         value={item.product_name}
@@ -158,7 +166,7 @@ export default function NewEntryModal ({
                       />
                     </div>
 
-                    <div className='col-span-3'>
+                    <div className='col-span-6 sm:col-span-3 min-w-0'>
                       <label className={labelClass}>Cases</label>
                       <input
                         type='number'
@@ -172,7 +180,7 @@ export default function NewEntryModal ({
                       />
                     </div>
 
-                    <div className='col-span-3'>
+                    <div className='col-span-6 sm:col-span-3 min-w-0'>
                       <label className={labelClass}>Free</label>
                       <input
                         type='number'
@@ -188,9 +196,9 @@ export default function NewEntryModal ({
                     </div>
                   </div>
 
-                  {/* Row 2: Price/Case | Discount | Total */}
+                  {/* Row 2: Price | Discount (half) + Total (full on mobile) */}
                   <div className='grid grid-cols-12 gap-2 mt-2'>
-                    <div className='col-span-4'>
+                    <div className='col-span-6 sm:col-span-4 min-w-0'>
                       <label className={labelClass}>Price / Case</label>
                       <input
                         type='text'
@@ -205,7 +213,7 @@ export default function NewEntryModal ({
                       />
                     </div>
 
-                    <div className='col-span-4'>
+                    <div className='col-span-6 sm:col-span-4 min-w-0'>
                       <label className={labelClass}>Discount</label>
                       <input
                         type='number'
@@ -220,7 +228,7 @@ export default function NewEntryModal ({
                       />
                     </div>
 
-                    <div className='col-span-4'>
+                    <div className='col-span-12 sm:col-span-4 min-w-0'>
                       <label className={labelClass}>Total</label>
                       <input
                         type='text'
@@ -246,29 +254,30 @@ export default function NewEntryModal ({
               type='button'
               onClick={addItem}
               disabled={products.length === 0}
-              className='w-full flex items-center justify-center gap-1.5 border border-dashed border-zinc-700 hover:border-blue-500 hover:text-blue-400 text-zinc-400 text-sm py-2 rounded-lg transition disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-zinc-700 disabled:hover:text-zinc-400'
+              className='w-full flex items-center justify-center gap-1.5 border border-dashed border-zinc-700 hover:border-blue-500 hover:text-blue-400 text-zinc-400 text-xs sm:text-sm py-2 rounded-lg transition disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-zinc-700 disabled:hover:text-zinc-400'
             >
-              <TbPlus size={16} />
+              <TbPlus size={14} />
               Add another product
             </button>
           </div>
 
-          <div className='px-4 py-3 border-t border-zinc-800 flex flex-col sm:flex-row justify-between items-center gap-3'>
-            <div>
+          {/* FOOTER */}
+          <div className='shrink-0 px-2.5 sm:px-4 py-2.5 sm:py-3 border-t border-zinc-800 flex flex-col sm:flex-row justify-between items-stretch sm:items-end gap-2 sm:gap-3'>
+            <div className='min-w-0 sm:w-auto'>
               <label className={labelClass}>Net Amount</label>
               <div className='flex items-center gap-1'>
-                <span className='text-zinc-400 text-sm'>₱</span>
+                <span className='text-zinc-400 text-sm shrink-0'>₱</span>
                 <input
                   type='number'
                   step='0.01'
                   value={netAmount}
                   onChange={e => setNetAmount(e.target.value)}
-                  className='w-40 bg-zinc-950 border border-zinc-700 rounded-md px-2 py-1 text-sm font-semibold text-emerald-400 uppercase focus:outline-none focus:border-blue-500 transition'
+                  className='w-full sm:w-40 bg-zinc-950 border border-zinc-700 rounded-md px-2 py-1.5 text-sm font-semibold text-emerald-400 uppercase focus:outline-none focus:border-blue-500 transition'
                 />
               </div>
             </div>
 
-            <div className='flex gap-2 w-full sm:w-auto'>
+            <div className='flex gap-2'>
               <button
                 type='button'
                 onClick={onClose}

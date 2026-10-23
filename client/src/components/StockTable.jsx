@@ -25,7 +25,9 @@ function StackCell ({
         {primary}
       </span>
       {secondary !== undefined && (
-        <span className={`text-[11px] tabular-nums mt-0.5 ${secondaryClass}`}>
+        <span
+          className={`text-[10px] sm:text-[11px] tabular-nums mt-0.5 ${secondaryClass}`}
+        >
           {secondary}
         </span>
       )}
@@ -57,9 +59,12 @@ const FILTER_OPTIONS = [
 ]
 
 const selectClass =
-  'bg-zinc-900 border border-zinc-700 rounded-md px-2 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-blue-500 transition'
+  'bg-zinc-900 border border-zinc-700 rounded-md px-2 py-1 sm:py-1.5 text-[11px] sm:text-xs text-zinc-200 focus:outline-none focus:border-blue-500 transition'
 
 const COL_DIVIDER = 'border-l border-zinc-800'
+
+const CELL = 'px-2 sm:px-3 py-2 sm:py-3'
+const HEAD_CELL = 'px-2 sm:px-3 py-2 sm:py-2.5 font-medium whitespace-nowrap'
 
 export default function StockTable ({
   stocks,
@@ -195,10 +200,10 @@ export default function StockTable ({
   return (
     <div className='flex flex-col h-full min-h-0'>
       {/* FILTER BAR */}
-      <div className='flex flex-wrap items-center gap-2 mb-2 pb-2 border-b border-zinc-800 shrink-0'>
-        <div className='relative flex-1 min-w-[140px]'>
+      <div className='flex flex-wrap items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2 pb-1.5 sm:pb-2 border-b border-zinc-800 shrink-0'>
+        <div className='relative w-full sm:w-auto sm:flex-1 sm:min-w-[140px]'>
           <TbSearch
-            size={14}
+            size={13}
             className='absolute left-2 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none'
           />
           <input
@@ -206,14 +211,14 @@ export default function StockTable ({
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder='Search product…'
-            className='w-full bg-zinc-900 border border-zinc-700 rounded-md pl-7 pr-2 py-1.5 text-xs text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-blue-500 transition'
+            className='w-full bg-zinc-900 border border-zinc-700 rounded-md pl-7 pr-2 py-1 sm:py-1.5 text-[11px] sm:text-xs text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-blue-500 transition'
           />
         </div>
 
         <select
           value={filterBy}
           onChange={e => setFilterBy(e.target.value)}
-          className={selectClass}
+          className={`${selectClass} flex-1 sm:flex-none`}
         >
           {FILTER_OPTIONS.map(o => (
             <option key={o.value} value={o.value}>
@@ -225,7 +230,7 @@ export default function StockTable ({
         <select
           value={sortBy}
           onChange={e => setSortBy(e.target.value)}
-          className={selectClass}
+          className={`${selectClass} flex-1 sm:flex-none`}
         >
           {SORT_OPTIONS.map(o => (
             <option key={o.value} value={o.value}>
@@ -237,53 +242,54 @@ export default function StockTable ({
         {hasActiveFilter && (
           <button
             onClick={resetFilters}
-            className='text-[11px] text-zinc-500 hover:text-zinc-200 transition'
+            className='text-[10px] sm:text-[11px] text-zinc-500 hover:text-zinc-200 transition'
           >
             Reset
           </button>
         )}
 
         {outOfStockCount > 0 && (
-          <span className='flex items-center gap-1 text-[10px] text-rose-400 bg-rose-500/10 border border-rose-800/50 px-2 py-0.5 rounded tabular-nums'>
+          <span className='flex items-center gap-1 text-[9px] sm:text-[10px] text-rose-400 bg-rose-500/10 border border-rose-800/50 px-1.5 sm:px-2 py-0.5 rounded tabular-nums'>
             <span className='w-1.5 h-1.5 rounded-full bg-rose-500' />
             {outOfStockCount} out
           </span>
         )}
         {lowStockCount > 0 && (
-          <span className='flex items-center gap-1 text-[10px] text-amber-400 bg-amber-500/10 border border-amber-800/50 px-2 py-0.5 rounded tabular-nums'>
+          <span className='flex items-center gap-1 text-[9px] sm:text-[10px] text-amber-400 bg-amber-500/10 border border-amber-800/50 px-1.5 sm:px-2 py-0.5 rounded tabular-nums'>
             <span className='w-1.5 h-1.5 rounded-full bg-amber-500' />
             {lowStockCount} low
           </span>
         )}
 
-        <span className='text-[10px] text-zinc-600 ml-auto tabular-nums'>
+        <span className='text-[9px] sm:text-[10px] text-zinc-600 ml-auto tabular-nums'>
           {rows.length} of {stocks.length}
         </span>
       </div>
 
       {/* TABLE */}
       <div className='flex-1 min-h-0 overflow-auto'>
-        <table className='w-full text-sm border-collapse'>
+        <table className='w-full min-w-[760px] text-xs sm:text-sm border-collapse'>
           <thead className='sticky top-0 bg-zinc-900 z-10'>
-            <tr className='text-left text-[11px] uppercase tracking-wider text-zinc-500'>
-              <th className='px-3 py-2.5 font-medium'>Price</th>
-              <th className='px-3 py-2.5 font-medium'>Product</th>
-              <th className='px-3 py-2.5 font-medium text-center'>Unit</th>
-              <th className='px-3 py-2.5 font-medium'>In-House</th>
-              <th className='px-3 py-2.5 font-medium'>On Truck</th>
-              <th className='px-3 py-2.5 font-medium'>Total Stock</th>
-              <th className='px-3 py-2.5 font-medium text-right'>
-                Stock Value
-              </th>
-              <th className={`px-3 py-2.5 font-medium ${COL_DIVIDER}`}>Sold</th>
-              <th className='px-3 py-2.5 font-medium text-right'>Sold Value</th>
+            <tr className='text-left text-[9px] sm:text-[11px] uppercase tracking-wider text-zinc-500'>
+              <th className={HEAD_CELL}>Price</th>
+              <th className={HEAD_CELL}>Product</th>
+              <th className={`${HEAD_CELL} text-center`}>Unit</th>
+              <th className={HEAD_CELL}>In-House</th>
+              <th className={HEAD_CELL}>On Truck</th>
+              <th className={HEAD_CELL}>Total Stock</th>
+              <th className={`${HEAD_CELL} text-right`}>Stock Value</th>
+              <th className={`${HEAD_CELL} ${COL_DIVIDER}`}>Sold</th>
+              <th className={`${HEAD_CELL} text-right`}>Sold Value</th>
             </tr>
           </thead>
 
           <tbody>
             {rows.length === 0 && (
               <tr>
-                <td colSpan={9} className='px-3 py-8 text-center text-zinc-600'>
+                <td
+                  colSpan={9}
+                  className='px-3 py-6 sm:py-8 text-center text-zinc-600 text-xs sm:text-sm'
+                >
                   {stocks.length === 0
                     ? 'No stocks yet. Click “New Entry” to add products.'
                     : 'No products match your filter.'}
@@ -298,8 +304,7 @@ export default function StockTable ({
                   r
                 )}`}
               >
-                {/* Price */}
-                <td className='px-3 py-3'>
+                <td className={CELL}>
                   <StackCell
                     primary={formatMoney(r.price)}
                     primaryClass='text-zinc-100'
@@ -312,25 +317,22 @@ export default function StockTable ({
                   />
                 </td>
 
-                {/* Product */}
-                <td className='px-3 py-3'>
-                  <span className='text-sm text-zinc-100 font-medium truncate block'>
+                <td className={CELL}>
+                  <span className='text-xs sm:text-sm text-zinc-100 font-medium truncate block'>
                     {r.stock.product_name}
                   </span>
                 </td>
 
-                {/* Unit — zinc-100 */}
-                <td className='px-3 py-3 text-center'>
-                  <span className='text-sm text-zinc-100 font-medium tabular-nums'>
+                <td className={`${CELL} text-center`}>
+                  <span className='text-xs sm:text-sm text-zinc-100 font-medium tabular-nums'>
                     {r.unit}
                   </span>
                 </td>
 
-                {/* In-House */}
-                <td className='px-3 py-3'>
-                  <div className='flex items-baseline gap-1.5 flex-wrap'>
+                <td className={CELL}>
+                  <div className='flex items-baseline gap-1 sm:gap-1.5 flex-wrap'>
                     <span
-                      className={`text-sm font-medium tabular-nums ${
+                      className={`text-xs sm:text-sm font-medium tabular-nums ${
                         r.isOut
                           ? 'text-rose-400'
                           : r.isLow
@@ -341,57 +343,52 @@ export default function StockTable ({
                       {formatCases(r.inHouse)}
                     </span>
                     {r.free > 0 && (
-                      <span className='text-[11px] text-amber-300 font-medium tabular-nums'>
+                      <span className='text-[10px] sm:text-[11px] text-amber-300 font-medium tabular-nums'>
                         +{formatCases(r.free)} free
                       </span>
                     )}
                   </div>
                 </td>
 
-                {/* On Truck */}
-                <td className='px-3 py-3'>
+                <td className={CELL}>
                   {r.onTruck > 0 ? (
-                    <span className='text-sm text-zinc-300 font-medium tabular-nums'>
+                    <span className='text-xs sm:text-sm text-zinc-300 font-medium tabular-nums'>
                       {formatCases(r.onTruck)}
                     </span>
                   ) : (
-                    <span className='text-sm text-zinc-600'>—</span>
+                    <span className='text-xs sm:text-sm text-zinc-600'>—</span>
                   )}
                 </td>
 
-                {/* Total Stock — zinc-100 */}
-                <td className='px-3 py-3'>
-                  <span className='text-sm text-zinc-100 font-semibold tabular-nums'>
+                <td className={CELL}>
+                  <span className='text-xs sm:text-sm text-zinc-100 font-semibold tabular-nums'>
                     {formatCases(r.totalOwned)}
                   </span>
                 </td>
 
-                {/* Stock Value */}
-                <td className='px-3 py-3 text-right'>
-                  <span className='text-sm text-zinc-100 font-semibold tabular-nums'>
+                <td className={`${CELL} text-right`}>
+                  <span className='text-xs sm:text-sm text-zinc-100 font-semibold tabular-nums'>
                     {formatMoney(r.stockValue)}
                   </span>
                 </td>
 
-                {/* Sold */}
-                <td className={`px-3 py-3 ${COL_DIVIDER}`}>
+                <td className={`${CELL} ${COL_DIVIDER}`}>
                   {r.sold > 0 ? (
-                    <span className='text-sm text-emerald-400 font-medium tabular-nums'>
+                    <span className='text-xs sm:text-sm text-emerald-400 font-medium tabular-nums'>
                       {formatCases(r.sold)}
                     </span>
                   ) : (
-                    <span className='text-sm text-zinc-600'>—</span>
+                    <span className='text-xs sm:text-sm text-zinc-600'>—</span>
                   )}
                 </td>
 
-                {/* Sold Value */}
-                <td className='px-3 py-3 text-right'>
+                <td className={`${CELL} text-right`}>
                   {r.soldValue > 0 ? (
-                    <span className='text-sm text-emerald-400 font-semibold tabular-nums'>
+                    <span className='text-xs sm:text-sm text-emerald-400 font-semibold tabular-nums'>
                       {formatMoney(r.soldValue)}
                     </span>
                   ) : (
-                    <span className='text-sm text-zinc-600'>—</span>
+                    <span className='text-xs sm:text-sm text-zinc-600'>—</span>
                   )}
                 </td>
               </tr>

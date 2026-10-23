@@ -4,7 +4,8 @@ import { useOutletContext } from 'react-router'
 import ReactECharts from 'echarts-for-react'
 import {
   TbCurrencyPeso,
-  TbTrendingUp,
+  TbCashBanknote,
+  TbCircleArrowUp,
   TbTruck,
   TbAlertTriangle,
   TbChevronLeft,
@@ -2545,9 +2546,8 @@ export default function Dashboard () {
 
     let totalSales = 0
     let totalEmpties = 0
-    let totalRemit = 0
-    let over = 0
-    let short = 0
+    let totalCashRemit = 0
+    let totalCaseRemit = 0
     let creditOutstanding = 0
 
     returned.forEach(d => {
@@ -2558,19 +2558,14 @@ export default function Dashboard () {
         0
       )
       const r = d.remit || {}
-      const remit =
-        (Number(r.cash) || 0) +
-        (Number(r.gcash) || 0) +
-        (Number(r.credit) || 0) +
-        (Number(r.case_remit) || 0)
+      const cashRemit =
+        (Number(r.cash) || 0) + (Number(r.gcash) || 0) + (Number(r.credit) || 0)
+      const caseRemit = Number(r.case_remit) || 0
 
       totalSales += value
       totalEmpties += empties
-      totalRemit += remit
-
-      const diff = remit - (value + empties)
-      if (diff > 0.01) over += diff
-      if (diff < -0.01) short += Math.abs(diff)
+      totalCashRemit += cashRemit
+      totalCaseRemit += caseRemit
 
       if (Number(r.credit) > 0 && !r.credit_paid) {
         creditOutstanding += Number(r.credit) || 0
@@ -2590,10 +2585,8 @@ export default function Dashboard () {
       active: active.length,
       totalSales,
       totalEmpties,
-      totalRemit,
-      expectedCollect: totalSales + totalEmpties,
-      over,
-      short,
+      totalCashRemit,
+      totalCaseRemit,
       creditOutstanding,
       lowStock,
       outOfStock,
@@ -2632,24 +2625,20 @@ export default function Dashboard () {
           iconBg='bg-amber-500/10'
         />
         <KpiCard
-          icon={<TbTrendingUp size={18} />}
-          label='Total Remit'
-          value={formatMoney(stats.totalRemit)}
-          sub={`of ${formatMoney(stats.expectedCollect)} expected`}
+          icon={<TbCashBanknote size={18} />}
+          label='Total Cash Remit'
+          value={formatMoney(stats.totalCashRemit)}
+          sub={`of ${formatMoney(stats.totalSales)} sales`}
           accent='text-teal-400'
           iconBg='bg-teal-500/10'
         />
         <KpiCard
-          icon={<TbTrendingUp size={18} />}
-          label='Over'
-          value={formatMoney(stats.over)}
-          sub={
-            stats.short > 0
-              ? `${formatMoney(stats.short)} short`
-              : 'no shortfalls'
-          }
-          accent='text-emerald-400'
-          iconBg='bg-emerald-500/10'
+          icon={<TbPackage size={18} />}
+          label='Total Case Remit'
+          value={formatMoney(stats.totalCaseRemit)}
+          sub={`of ${formatMoney(stats.totalEmpties)} empties`}
+          accent='text-amber-400'
+          iconBg='bg-amber-500/10'
         />
         <KpiCard
           icon={<TbCreditCard size={18} />}

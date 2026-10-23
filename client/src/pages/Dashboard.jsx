@@ -192,8 +192,8 @@ function Panel ({ title, action, info, children, className = '' }) {
     <div
       className={`bg-zinc-950/60 border border-zinc-800 rounded-lg overflow-hidden flex flex-col min-h-0 ${className}`}
     >
-      <div className='flex justify-between items-center gap-2 px-4 py-2.5 border-b border-zinc-800 bg-zinc-900/60 shrink-0'>
-        <div className='text-xs uppercase tracking-wider font-semibold text-zinc-300 truncate'>
+      <div className='flex justify-between items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 border-b border-zinc-800 bg-zinc-900/60 shrink-0'>
+        <div className='text-[11px] sm:text-xs uppercase tracking-wider font-semibold text-zinc-300 truncate'>
           {title}
         </div>
         <div className='flex items-center gap-2 shrink-0'>
@@ -215,23 +215,23 @@ function KpiCard ({
   iconBg = 'bg-zinc-800/60'
 }) {
   return (
-    <div className='bg-zinc-950/60 border border-zinc-800 rounded-lg p-3.5 flex items-start gap-3 min-w-0'>
+    <div className='bg-zinc-950/60 border border-zinc-800 rounded-lg p-3 sm:p-3.5 flex items-start gap-2.5 sm:gap-3 min-w-0'>
       <div
-        className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${iconBg} ${accent}`}
+        className={`w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center shrink-0 ${iconBg} ${accent}`}
       >
         {icon}
       </div>
       <div className='min-w-0 flex-1'>
-        <div className='text-[10px] uppercase tracking-wider text-zinc-500 truncate'>
+        <div className='text-[9px] sm:text-[10px] uppercase tracking-wider text-zinc-500 truncate'>
           {label}
         </div>
         <div
-          className={`text-lg font-semibold tabular-nums truncate leading-tight mt-0.5 ${accent}`}
+          className={`text-base sm:text-lg font-semibold tabular-nums truncate leading-tight mt-0.5 ${accent}`}
         >
           {value}
         </div>
         {sub && (
-          <div className='text-[10px] text-zinc-500 tabular-nums truncate mt-0.5'>
+          <div className='text-[9px] sm:text-[10px] text-zinc-500 tabular-nums truncate mt-0.5'>
             {sub}
           </div>
         )}
@@ -333,7 +333,7 @@ function RangeTabs ({ rangeMode, setRangeMode }) {
           <button
             key={opt.value}
             onClick={() => setRangeMode(opt.value)}
-            className={`px-2.5 py-1 rounded text-[11px] font-medium transition ${
+            className={`px-2 sm:px-2.5 py-1 rounded text-[10px] sm:text-[11px] font-medium transition ${
               rangeMode === opt.value
                 ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
                 : 'text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100'
@@ -353,7 +353,7 @@ function RangeTabs ({ rangeMode, setRangeMode }) {
 
 function FooterStat ({ dotColor, label, value, valueClass }) {
   return (
-    <div className='px-4 py-3 flex flex-col items-center min-w-0'>
+    <div className='px-3 sm:px-4 py-2.5 sm:py-3 flex flex-col items-center min-w-0'>
       <div className='flex items-center gap-1.5'>
         {dotColor && (
           <span
@@ -366,7 +366,7 @@ function FooterStat ({ dotColor, label, value, valueClass }) {
         </span>
       </div>
       <div
-        className={`text-sm font-semibold tabular-nums mt-1 truncate w-full text-center ${valueClass}`}
+        className={`text-xs sm:text-sm font-semibold tabular-nums mt-1 truncate w-full text-center ${valueClass}`}
       >
         {value}
       </div>
@@ -860,7 +860,7 @@ function DailyAgentPerformance ({ deployments }) {
         </div>
       </div>
 
-      <div className='flex flex-wrap justify-center gap-x-4 gap-y-1.5 px-4 py-3 border-t border-zinc-800/60 text-xs'>
+      <div className='flex flex-wrap justify-center gap-x-3 sm:gap-x-4 gap-y-1.5 px-3 sm:px-4 py-2.5 sm:py-3 border-t border-zinc-800/60 text-[11px] sm:text-xs'>
         {data.agents.map((agent, i) => (
           <div key={agent} className='flex items-center gap-1.5'>
             <span
@@ -1183,22 +1183,24 @@ function ExpectedVsRemitted ({ deployments }) {
     : 'text-emerald-300/90'
 
   return (
-    <div className='px-4 py-5 font-mono'>
+    <div className='px-3 sm:px-4 py-4 sm:py-5 font-mono'>
       <div>
-        <div className='text-[10px] uppercase tracking-[0.14em] text-emerald-400/70 font-semibold mb-2'>
+        <div className='text-[9px] sm:text-[10px] uppercase tracking-[0.14em] text-emerald-400/70 font-semibold mb-2'>
           Expected
         </div>
 
         <div className='space-y-1.5'>
           <div className='flex justify-between items-baseline gap-2'>
-            <span className='text-xs text-zinc-500'>Sales</span>
-            <span className='text-xs text-zinc-300 tabular-nums'>
+            <span className='text-[11px] sm:text-xs text-zinc-500'>Sales</span>
+            <span className='text-[11px] sm:text-xs text-zinc-300 tabular-nums'>
               {formatMoney(data.totalSales)}
             </span>
           </div>
           <div className='flex justify-between items-baseline gap-2'>
-            <span className='text-xs text-zinc-500'>Empties</span>
-            <span className='text-xs text-zinc-300 tabular-nums'>
+            <span className='text-[11px] sm:text-xs text-zinc-500'>
+              Empties
+            </span>
+            <span className='text-[11px] sm:text-xs text-zinc-300 tabular-nums'>
               {formatMoney(data.totalEmpties)}
             </span>
           </div>
@@ -1207,10 +1209,10 @@ function ExpectedVsRemitted ({ deployments }) {
         <Dashed className='my-2.5' />
 
         <div className='flex justify-between items-baseline gap-2'>
-          <span className='text-[11px] uppercase tracking-[0.12em] text-zinc-400 font-semibold'>
+          <span className='text-[10px] sm:text-[11px] uppercase tracking-[0.12em] text-zinc-400 font-semibold'>
             Total Expected
           </span>
-          <span className='text-sm font-bold text-emerald-400/90 tabular-nums'>
+          <span className='text-xs sm:text-sm font-bold text-emerald-400/90 tabular-nums'>
             {formatMoney(data.expected)}
           </span>
         </div>
@@ -1219,20 +1221,20 @@ function ExpectedVsRemitted ({ deployments }) {
       <Dashed className='my-4' />
 
       <div>
-        <div className='text-[10px] uppercase tracking-[0.14em] text-teal-400/70 font-semibold mb-2'>
+        <div className='text-[9px] sm:text-[10px] uppercase tracking-[0.14em] text-teal-400/70 font-semibold mb-2'>
           Remitted
         </div>
 
         <div className='space-y-1.5'>
           <div className='flex justify-between items-baseline gap-2'>
-            <span className='text-xs text-zinc-500'>Cash</span>
-            <span className='text-xs text-zinc-300 tabular-nums'>
+            <span className='text-[11px] sm:text-xs text-zinc-500'>Cash</span>
+            <span className='text-[11px] sm:text-xs text-zinc-300 tabular-nums'>
               {formatMoney(data.totalCash)}
             </span>
           </div>
           <div className='flex justify-between items-baseline gap-2'>
-            <span className='text-xs text-zinc-500'>Case</span>
-            <span className='text-xs text-zinc-300 tabular-nums'>
+            <span className='text-[11px] sm:text-xs text-zinc-500'>Case</span>
+            <span className='text-[11px] sm:text-xs text-zinc-300 tabular-nums'>
               {formatMoney(data.totalCase)}
             </span>
           </div>
@@ -1241,10 +1243,10 @@ function ExpectedVsRemitted ({ deployments }) {
         <Dashed className='my-2.5' />
 
         <div className='flex justify-between items-baseline gap-2'>
-          <span className='text-[11px] uppercase tracking-[0.12em] text-zinc-400 font-semibold'>
+          <span className='text-[10px] sm:text-[11px] uppercase tracking-[0.12em] text-zinc-400 font-semibold'>
             Total Remitted
           </span>
-          <span className='text-sm font-bold text-teal-400/90 tabular-nums'>
+          <span className='text-xs sm:text-sm font-bold text-teal-400/90 tabular-nums'>
             {formatMoney(data.remitted)}
           </span>
         </div>
@@ -1254,18 +1256,18 @@ function ExpectedVsRemitted ({ deployments }) {
 
       <div className='text-center'>
         {isExact ? (
-          <div className='text-[11px] uppercase tracking-[0.18em] text-zinc-500 font-semibold'>
+          <div className='text-[10px] sm:text-[11px] uppercase tracking-[0.18em] text-zinc-500 font-semibold'>
             ✓ Exact
           </div>
         ) : (
           <>
             <div
-              className={`text-[10px] uppercase tracking-[0.16em] font-semibold ${diffColor}`}
+              className={`text-[9px] sm:text-[10px] uppercase tracking-[0.16em] font-semibold ${diffColor}`}
             >
               {diffLabel}
             </div>
             <div
-              className={`text-lg font-bold tabular-nums mt-0.5 ${diffColor}`}
+              className={`text-base sm:text-lg font-bold tabular-nums mt-0.5 ${diffColor}`}
             >
               {isShort ? '−' : '+'}
               {formatMoney(absDiff)}
@@ -1631,7 +1633,7 @@ function StockAlerts ({ stocks, deployments }) {
           return (
             <div
               key={r.name}
-              className='px-3 py-2.5 transition-colors hover:bg-zinc-800/30'
+              className='px-2.5 sm:px-3 py-2 sm:py-2.5 transition-colors hover:bg-zinc-800/30'
             >
               <div className='flex items-start justify-between gap-3 mb-1.5'>
                 <div className='flex items-center gap-2 min-w-0'>
@@ -1640,7 +1642,7 @@ function StockAlerts ({ stocks, deployments }) {
                   >
                     {meta.label}
                   </span>
-                  <span className='text-xs font-medium text-zinc-100 truncate'>
+                  <span className='text-[11px] sm:text-xs font-medium text-zinc-100 truncate'>
                     {r.name}
                   </span>
                 </div>
@@ -1933,16 +1935,24 @@ function AgentLeaderboard ({ deployments }) {
 
   return (
     <div className='overflow-x-auto'>
-      <table className='w-full text-sm border-collapse'>
+      <table className='w-full text-xs sm:text-sm border-collapse'>
         <thead className='bg-zinc-900/60'>
           <tr className='text-left text-[10px] uppercase tracking-wider text-zinc-500'>
-            <th className='px-3 py-2 font-medium w-12'>Rank</th>
-            <th className='px-3 py-2 font-medium'>Agent</th>
-            <th className='px-3 py-2 font-medium text-center'>Trips</th>
-            <th className='px-3 py-2 font-medium text-right'>Sales ₱</th>
-            <th className='px-3 py-2 font-medium text-right'>Cash Remit</th>
-            <th className='px-3 py-2 font-medium text-right'>Empties ₱</th>
-            <th className='px-3 py-2 font-medium text-right'>Case Remit</th>
+            <th className='px-2 sm:px-3 py-2 font-medium w-12'>Rank</th>
+            <th className='px-2 sm:px-3 py-2 font-medium'>Agent</th>
+            <th className='px-2 sm:px-3 py-2 font-medium text-center'>Trips</th>
+            <th className='px-2 sm:px-3 py-2 font-medium text-right'>
+              Sales ₱
+            </th>
+            <th className='px-2 sm:px-3 py-2 font-medium text-right'>
+              Cash Remit
+            </th>
+            <th className='px-2 sm:px-3 py-2 font-medium text-right'>
+              Empties ₱
+            </th>
+            <th className='px-2 sm:px-3 py-2 font-medium text-right'>
+              Case Remit
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -1958,7 +1968,7 @@ function AgentLeaderboard ({ deployments }) {
                 key={r.name}
                 className='border-t border-zinc-800/60 hover:bg-zinc-800/30 transition align-top'
               >
-                <td className='px-3 py-2.5'>
+                <td className='px-2 sm:px-3 py-2 sm:py-2.5'>
                   <div className='flex items-center gap-1.5'>
                     {isTop3 ? (
                       <span className='text-base leading-none'>
@@ -1972,44 +1982,44 @@ function AgentLeaderboard ({ deployments }) {
                   </div>
                 </td>
 
-                <td className='px-3 py-2.5'>
+                <td className='px-2 sm:px-3 py-2 sm:py-2.5'>
                   <span className='font-medium text-zinc-100 truncate'>
                     {r.name}
                   </span>
                 </td>
 
-                <td className='px-3 py-2.5 text-center text-xs text-zinc-300 tabular-nums'>
+                <td className='px-2 sm:px-3 py-2 sm:py-2.5 text-center text-[11px] sm:text-xs text-zinc-300 tabular-nums'>
                   {formatNumber(r.trips)}
                 </td>
 
-                <td className='px-3 py-2.5 text-right text-xs text-emerald-400 tabular-nums whitespace-nowrap'>
+                <td className='px-2 sm:px-3 py-2 sm:py-2.5 text-right text-[11px] sm:text-xs text-emerald-400 tabular-nums whitespace-nowrap'>
                   {formatMoney(r.sales)}
                 </td>
 
-                <td className='px-3 py-2.5 text-right tabular-nums'>
+                <td className='px-2 sm:px-3 py-2 sm:py-2.5 text-right tabular-nums'>
                   <div className='flex flex-col items-end leading-tight gap-0.5'>
-                    <span className='text-xs text-teal-400 font-medium whitespace-nowrap'>
+                    <span className='text-[11px] sm:text-xs text-teal-400 font-medium whitespace-nowrap'>
                       {formatMoney(r.cashRemit)}
                     </span>
                     <span
-                      className={`text-[10px] font-semibold whitespace-nowrap ${cashMeta.color}`}
+                      className={`text-[9px] sm:text-[10px] font-semibold whitespace-nowrap ${cashMeta.color}`}
                     >
                       {cashMeta.display}
                     </span>
                   </div>
                 </td>
 
-                <td className='px-3 py-2.5 text-right text-xs text-amber-400 tabular-nums whitespace-nowrap'>
+                <td className='px-2 sm:px-3 py-2 sm:py-2.5 text-right text-[11px] sm:text-xs text-amber-400 tabular-nums whitespace-nowrap'>
                   {formatMoney(r.empties)}
                 </td>
 
-                <td className='px-3 py-2.5 text-right tabular-nums'>
+                <td className='px-2 sm:px-3 py-2 sm:py-2.5 text-right tabular-nums'>
                   <div className='flex flex-col items-end leading-tight gap-0.5'>
-                    <span className='text-xs text-teal-400 font-medium whitespace-nowrap'>
+                    <span className='text-[11px] sm:text-xs text-teal-400 font-medium whitespace-nowrap'>
                       {formatMoney(r.caseRemit)}
                     </span>
                     <span
-                      className={`text-[10px] font-semibold whitespace-nowrap ${caseMeta.color}`}
+                      className={`text-[9px] sm:text-[10px] font-semibold whitespace-nowrap ${caseMeta.color}`}
                     >
                       {caseMeta.display}
                     </span>
@@ -2243,7 +2253,7 @@ function EmptiesReceived ({ deployments }) {
     'grid grid-cols-[minmax(0,1fr)_3rem_2rem_5.5rem] items-baseline gap-2'
 
   return (
-    <div className='p-3 space-y-2.5 h-full overflow-y-auto'>
+    <div className='p-2.5 sm:p-3 space-y-2.5 h-full overflow-y-auto'>
       {EMPTIES_GROUPS.map(g => {
         const group = data.groups[g]
         const totals = data.perGroup[g]
@@ -2252,7 +2262,7 @@ function EmptiesReceived ({ deployments }) {
             key={g}
             className='rounded-md border border-zinc-800 bg-zinc-900/40 overflow-hidden'
           >
-            <div className='flex justify-between items-center px-3 py-1.5 border-b border-zinc-800 bg-zinc-900/60'>
+            <div className='flex justify-between items-center px-2.5 sm:px-3 py-1.5 border-b border-zinc-800 bg-zinc-900/60'>
               <span className='text-[10px] uppercase tracking-wider font-semibold text-amber-400'>
                 {EMPTIES_GROUP_LABELS[g]}
               </span>
@@ -2261,17 +2271,17 @@ function EmptiesReceived ({ deployments }) {
               </span>
             </div>
 
-            <div className='px-3 py-2 space-y-1.5'>
+            <div className='px-2.5 sm:px-3 py-1.5 sm:py-2 space-y-1.5'>
               {EMPTIES_RATES[g].map(r => {
                 const qty = Number(group[r.id]) || 0
                 const value = qty * r.price
                 return (
                   <div key={r.id} className={GRID}>
-                    <span className='text-[11px] text-zinc-400 truncate'>
+                    <span className='text-[10px] sm:text-[11px] text-zinc-400 truncate'>
                       {r.label}
                     </span>
                     <span
-                      className={`text-xs text-right tabular-nums ${
+                      className={`text-[11px] sm:text-xs text-right tabular-nums ${
                         qty > 0 ? 'text-zinc-100 font-medium' : 'text-zinc-600'
                       }`}
                     >
@@ -2281,7 +2291,7 @@ function EmptiesReceived ({ deployments }) {
                       pcs
                     </span>
                     <span
-                      className={`text-xs text-right tabular-nums ${
+                      className={`text-[11px] sm:text-xs text-right tabular-nums ${
                         value > 0
                           ? 'text-amber-400 font-medium'
                           : 'text-zinc-700'
@@ -2299,13 +2309,13 @@ function EmptiesReceived ({ deployments }) {
                 <span className='text-[10px] uppercase tracking-wider text-zinc-500 font-semibold'>
                   Total
                 </span>
-                <span className='text-xs text-right text-zinc-100 font-semibold tabular-nums'>
+                <span className='text-[11px] sm:text-xs text-right text-zinc-100 font-semibold tabular-nums'>
                   {formatNumber(totals.qty)}
                 </span>
                 <span className='text-[10px] text-zinc-600 uppercase tracking-wide'>
                   pcs
                 </span>
-                <span className='text-xs text-right text-amber-400 font-semibold tabular-nums'>
+                <span className='text-[11px] sm:text-xs text-right text-amber-400 font-semibold tabular-nums'>
                   {formatMoney(totals.value)}
                 </span>
               </div>
@@ -2315,18 +2325,18 @@ function EmptiesReceived ({ deployments }) {
       })}
 
       <div className='rounded-md border border-amber-700/50 bg-amber-500/5 overflow-hidden'>
-        <div className='px-3 py-2.5'>
+        <div className='px-2.5 sm:px-3 py-2 sm:py-2.5'>
           <div className={GRID}>
             <span className='text-[10px] uppercase tracking-wider text-amber-400 font-semibold truncate'>
               Grand Total
             </span>
-            <span className='text-xs text-right text-amber-400 font-bold tabular-nums'>
+            <span className='text-[11px] sm:text-xs text-right text-amber-400 font-bold tabular-nums'>
               {formatNumber(data.grandQty)}
             </span>
             <span className='text-[10px] text-amber-400/70 uppercase tracking-wide'>
               pcs
             </span>
-            <span className='text-xs text-right text-amber-400 font-bold tabular-nums'>
+            <span className='text-[11px] sm:text-xs text-right text-amber-400 font-bold tabular-nums'>
               {formatMoney(data.grandValue)}
             </span>
           </div>
@@ -2403,7 +2413,7 @@ function DeploymentCalendar ({ deployments }) {
   )
 
   return (
-    <div className='p-3 space-y-3'>
+    <div className='p-2.5 sm:p-3 space-y-3'>
       <div className='flex justify-between items-center'>
         <button
           onClick={prevMonth}
@@ -2411,7 +2421,9 @@ function DeploymentCalendar ({ deployments }) {
         >
           <TbChevronLeft size={16} />
         </button>
-        <div className='text-sm font-semibold text-zinc-200'>{monthName}</div>
+        <div className='text-xs sm:text-sm font-semibold text-zinc-200'>
+          {monthName}
+        </div>
         <button
           onClick={nextMonth}
           className='w-7 h-7 rounded-md text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100 flex items-center justify-center transition'
@@ -2425,7 +2437,7 @@ function DeploymentCalendar ({ deployments }) {
           <span className='text-[9px] uppercase tracking-wider text-zinc-600'>
             Sales
           </span>
-          <span className='text-sm font-semibold text-emerald-400 tabular-nums'>
+          <span className='text-xs sm:text-sm font-semibold text-emerald-400 tabular-nums'>
             {formatMoney(monthSales)}
           </span>
         </div>
@@ -2433,7 +2445,7 @@ function DeploymentCalendar ({ deployments }) {
           <span className='text-[9px] uppercase tracking-wider text-zinc-600'>
             Trips
           </span>
-          <span className='text-sm font-semibold text-blue-400 tabular-nums'>
+          <span className='text-xs sm:text-sm font-semibold text-blue-400 tabular-nums'>
             {monthDeployments}
           </span>
         </div>
@@ -2627,7 +2639,9 @@ export default function Dashboard () {
     <div className='bg-zinc-900 flex-1 outline outline-zinc-800 rounded-lg p-3 overflow-auto shadow-lg shadow-black/40 space-y-3'>
       <div className='flex justify-between items-center pb-2 border-b border-zinc-800'>
         <div>
-          <div className='uppercase font-medium text-lg'>Dashboard</div>
+          <div className='uppercase font-medium text-base sm:text-lg'>
+            Dashboard
+          </div>
           <div className='text-[11px] text-zinc-500 mt-0.5'>
             {formatDate(new Date())}
           </div>

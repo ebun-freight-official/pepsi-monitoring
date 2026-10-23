@@ -295,7 +295,7 @@ export default function ReturnTruckModal ({
                               className='w-full max-w-[5.5rem] bg-zinc-950 border border-zinc-700 rounded-md px-1.5 py-1 text-xs text-center focus:outline-none focus:border-amber-500 tabular-nums'
                             />
                             <span className='text-[9px] text-zinc-600 tabular-nums'>
-                              ₱{price.toFixed(2)}
+                              {formatMoney(price)}
                             </span>
                           </div>
                         </td>

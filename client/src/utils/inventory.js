@@ -2,7 +2,7 @@
 export const formatMoney = n => {
   const num = Number(n) || 0
   return `₱${num.toLocaleString(undefined, {
-    minimumFractionDigits: 2,
+    minimumFractionDigits: 0,
     maximumFractionDigits: 2
   })}`
 }

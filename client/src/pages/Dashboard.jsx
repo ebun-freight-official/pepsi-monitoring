@@ -354,20 +354,20 @@ function RangeTabs ({ rangeMode, setRangeMode }) {
 
 function FooterStat ({ dotColor, label, value, valueClass }) {
   return (
-    <div className='px-3 sm:px-4 py-2.5 sm:py-3 flex flex-col items-center min-w-0'>
-      <div className='flex items-center gap-1.5'>
+    <div className='px-1.5 sm:px-4 py-2 sm:py-3 flex flex-col items-center min-w-0'>
+      <div className='flex items-center gap-1 sm:gap-1.5 min-w-0 max-w-full'>
         {dotColor && (
           <span
-            className='w-1.5 h-1.5 rounded-full shrink-0'
+            className='w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full shrink-0'
             style={{ background: dotColor }}
           />
         )}
-        <span className='text-[9px] uppercase tracking-wider text-zinc-500 truncate'>
+        <span className='text-[8px] sm:text-[9px] uppercase tracking-normal sm:tracking-wider text-zinc-500 truncate'>
           {label}
         </span>
       </div>
       <div
-        className={`text-xs sm:text-sm font-semibold tabular-nums mt-1 truncate w-full text-center ${valueClass}`}
+        className={`text-[11px] sm:text-sm font-semibold tabular-nums mt-0.5 sm:mt-1 truncate w-full text-center ${valueClass}`}
       >
         {value}
       </div>
@@ -861,14 +861,19 @@ function DailyAgentPerformance ({ deployments }) {
         </div>
       </div>
 
-      <div className='flex flex-wrap justify-center gap-x-3 sm:gap-x-4 gap-y-1.5 px-3 sm:px-4 py-2.5 sm:py-3 border-t border-zinc-800/60 text-[11px] sm:text-xs'>
+      <div className='flex flex-wrap justify-center gap-x-2 sm:gap-x-4 gap-y-1 sm:gap-y-1.5 px-2 sm:px-4 py-2 sm:py-3 border-t border-zinc-800/60'>
         {data.agents.map((agent, i) => (
-          <div key={agent} className='flex items-center gap-1.5'>
+          <div
+            key={agent}
+            className='flex items-center gap-1 sm:gap-1.5 min-w-0'
+          >
             <span
-              className='w-2.5 h-2.5 rounded-sm'
+              className='w-1.5 h-1.5 sm:w-2.5 sm:h-2.5 rounded-sm shrink-0'
               style={{ background: AGENT_PALETTE[i % AGENT_PALETTE.length] }}
             />
-            <span className='text-zinc-400'>{agent}</span>
+            <span className='text-[9px] sm:text-xs text-zinc-400 truncate'>
+              {agent}
+            </span>
           </div>
         ))}
       </div>

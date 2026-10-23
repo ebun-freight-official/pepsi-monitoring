@@ -1166,7 +1166,7 @@ function ExpectedVsRemitted ({ deployments }) {
 
   if (data.expected === 0 && data.remitted === 0) {
     return (
-      <div className='px-4 py-12 text-center text-zinc-600 text-sm'>
+      <div className='px-4 py-12 text-center text-zinc-600 text-xs'>
         No data yet.
       </div>
     )
@@ -1192,16 +1192,16 @@ function ExpectedVsRemitted ({ deployments }) {
 
         <div className='space-y-1.5'>
           <div className='flex justify-between items-baseline gap-2'>
-            <span className='text-[11px] sm:text-xs text-zinc-500'>Sales</span>
-            <span className='text-[11px] sm:text-xs text-zinc-300 tabular-nums'>
+            <span className='text-[10px] sm:text-xs text-zinc-500'>Sales</span>
+            <span className='text-[10px] sm:text-xs text-zinc-300 tabular-nums'>
               {formatMoney(data.totalSales)}
             </span>
           </div>
           <div className='flex justify-between items-baseline gap-2'>
-            <span className='text-[11px] sm:text-xs text-zinc-500'>
+            <span className='text-[10px] sm:text-xs text-zinc-500'>
               Empties
             </span>
-            <span className='text-[11px] sm:text-xs text-zinc-300 tabular-nums'>
+            <span className='text-[10px] sm:text-xs text-zinc-300 tabular-nums'>
               {formatMoney(data.totalEmpties)}
             </span>
           </div>
@@ -1210,10 +1210,10 @@ function ExpectedVsRemitted ({ deployments }) {
         <Dashed className='my-2.5' />
 
         <div className='flex justify-between items-baseline gap-2'>
-          <span className='text-[10px] sm:text-[11px] uppercase tracking-[0.12em] text-zinc-400 font-semibold'>
+          <span className='text-[9px] sm:text-[11px] uppercase tracking-[0.12em] text-zinc-400 font-semibold'>
             Total Expected
           </span>
-          <span className='text-xs sm:text-sm font-bold text-emerald-400/90 tabular-nums'>
+          <span className='text-[11px] sm:text-sm font-bold text-emerald-400/90 tabular-nums'>
             {formatMoney(data.expected)}
           </span>
         </div>
@@ -1228,14 +1228,14 @@ function ExpectedVsRemitted ({ deployments }) {
 
         <div className='space-y-1.5'>
           <div className='flex justify-between items-baseline gap-2'>
-            <span className='text-[11px] sm:text-xs text-zinc-500'>Cash</span>
-            <span className='text-[11px] sm:text-xs text-zinc-300 tabular-nums'>
+            <span className='text-[10px] sm:text-xs text-zinc-500'>Cash</span>
+            <span className='text-[10px] sm:text-xs text-zinc-300 tabular-nums'>
               {formatMoney(data.totalCash)}
             </span>
           </div>
           <div className='flex justify-between items-baseline gap-2'>
-            <span className='text-[11px] sm:text-xs text-zinc-500'>Case</span>
-            <span className='text-[11px] sm:text-xs text-zinc-300 tabular-nums'>
+            <span className='text-[10px] sm:text-xs text-zinc-500'>Case</span>
+            <span className='text-[10px] sm:text-xs text-zinc-300 tabular-nums'>
               {formatMoney(data.totalCase)}
             </span>
           </div>
@@ -1244,10 +1244,10 @@ function ExpectedVsRemitted ({ deployments }) {
         <Dashed className='my-2.5' />
 
         <div className='flex justify-between items-baseline gap-2'>
-          <span className='text-[10px] sm:text-[11px] uppercase tracking-[0.12em] text-zinc-400 font-semibold'>
+          <span className='text-[9px] sm:text-[11px] uppercase tracking-[0.12em] text-zinc-400 font-semibold'>
             Total Remitted
           </span>
-          <span className='text-xs sm:text-sm font-bold text-teal-400/90 tabular-nums'>
+          <span className='text-[11px] sm:text-sm font-bold text-teal-400/90 tabular-nums'>
             {formatMoney(data.remitted)}
           </span>
         </div>
@@ -1257,7 +1257,7 @@ function ExpectedVsRemitted ({ deployments }) {
 
       <div className='text-center'>
         {isExact ? (
-          <div className='text-[10px] sm:text-[11px] uppercase tracking-[0.18em] text-zinc-500 font-semibold'>
+          <div className='text-[9px] sm:text-[11px] uppercase tracking-[0.18em] text-zinc-500 font-semibold'>
             ✓ Exact
           </div>
         ) : (
@@ -1268,7 +1268,7 @@ function ExpectedVsRemitted ({ deployments }) {
               {diffLabel}
             </div>
             <div
-              className={`text-base sm:text-lg font-bold tabular-nums mt-0.5 ${diffColor}`}
+              className={`text-sm sm:text-lg font-bold tabular-nums mt-0.5 ${diffColor}`}
             >
               {isShort ? '−' : '+'}
               {formatMoney(absDiff)}
@@ -1588,10 +1588,10 @@ function StockAlerts ({ stocks, deployments }) {
         <div className='w-12 h-12 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-3'>
           <TbCheck size={22} />
         </div>
-        <div className='text-sm font-medium text-zinc-200 mb-1'>
+        <div className='text-xs font-medium text-zinc-200 mb-1'>
           All stock healthy
         </div>
-        <div className='text-xs text-zinc-500'>
+        <div className='text-[11px] text-zinc-500'>
           No products need restocking right now
         </div>
       </div>
@@ -1606,7 +1606,7 @@ function StockAlerts ({ stocks, deployments }) {
 
   return (
     <div className='flex flex-col h-full'>
-      <div className='flex flex-wrap gap-2 px-3 pt-3 pb-2 text-[10px]'>
+      <div className='flex flex-wrap gap-2 px-3 pt-3 pb-2 text-[9px] sm:text-[10px]'>
         {Object.entries(LEVEL_META).map(([key, meta]) => {
           const count = data.counts[key] || 0
           if (count === 0) return null
@@ -1643,20 +1643,20 @@ function StockAlerts ({ stocks, deployments }) {
                   >
                     {meta.label}
                   </span>
-                  <span className='text-[11px] sm:text-xs font-medium text-zinc-100 truncate'>
+                  <span className='text-[10px] sm:text-xs font-medium text-zinc-100 truncate'>
                     {r.name}
                   </span>
                 </div>
                 {!isDead && (
                   <span
-                    className={`text-[10px] tabular-nums shrink-0 ${meta.color}`}
+                    className={`text-[9px] sm:text-[10px] tabular-nums shrink-0 ${meta.color}`}
                   >
                     {isOut ? 'no stock' : `${formatDays(r.daysLeft)}d left`}
                   </span>
                 )}
               </div>
 
-              <div className='flex items-center justify-between gap-3 text-[10px] text-zinc-500 tabular-nums'>
+              <div className='flex items-center justify-between gap-3 text-[9px] sm:text-[10px] text-zinc-500 tabular-nums'>
                 <span>
                   Stock{' '}
                   <span className='text-zinc-300 font-medium'>
@@ -1928,7 +1928,7 @@ function AgentLeaderboard ({ deployments }) {
 
   if (rows.length === 0) {
     return (
-      <div className='px-4 py-12 text-center text-zinc-600 text-sm'>
+      <div className='px-4 py-12 text-center text-zinc-600 text-xs'>
         No agent data yet.
       </div>
     )
@@ -1938,7 +1938,7 @@ function AgentLeaderboard ({ deployments }) {
     <div className='overflow-x-auto'>
       <table className='w-full text-xs sm:text-sm border-collapse'>
         <thead className='bg-zinc-900/60'>
-          <tr className='text-left text-[10px] uppercase tracking-wider text-zinc-500'>
+          <tr className='text-left text-[9px] sm:text-[10px] uppercase tracking-wider text-zinc-500'>
             <th className='px-2 sm:px-3 py-2 font-medium w-12'>Rank</th>
             <th className='px-2 sm:px-3 py-2 font-medium'>Agent</th>
             <th className='px-2 sm:px-3 py-2 font-medium text-center'>Trips</th>
@@ -1976,7 +1976,7 @@ function AgentLeaderboard ({ deployments }) {
                         {MEDALS[i]}
                       </span>
                     ) : (
-                      <span className='text-xs text-zinc-600 tabular-nums w-4 text-center'>
+                      <span className='text-[11px] sm:text-xs text-zinc-600 tabular-nums w-4 text-center'>
                         {i + 1}
                       </span>
                     )}
@@ -1984,22 +1984,22 @@ function AgentLeaderboard ({ deployments }) {
                 </td>
 
                 <td className='px-2 sm:px-3 py-2 sm:py-2.5'>
-                  <span className='font-medium text-zinc-100 truncate'>
+                  <span className='text-[11px] sm:text-xs font-medium text-zinc-100 truncate'>
                     {r.name}
                   </span>
                 </td>
 
-                <td className='px-2 sm:px-3 py-2 sm:py-2.5 text-center text-[11px] sm:text-xs text-zinc-300 tabular-nums'>
+                <td className='px-2 sm:px-3 py-2 sm:py-2.5 text-center text-[10px] sm:text-xs text-zinc-300 tabular-nums'>
                   {formatNumber(r.trips)}
                 </td>
 
-                <td className='px-2 sm:px-3 py-2 sm:py-2.5 text-right text-[11px] sm:text-xs text-emerald-400 tabular-nums whitespace-nowrap'>
+                <td className='px-2 sm:px-3 py-2 sm:py-2.5 text-right text-[10px] sm:text-xs text-emerald-400 tabular-nums whitespace-nowrap'>
                   {formatMoney(r.sales)}
                 </td>
 
                 <td className='px-2 sm:px-3 py-2 sm:py-2.5 text-right tabular-nums'>
                   <div className='flex flex-col items-end leading-tight gap-0.5'>
-                    <span className='text-[11px] sm:text-xs text-teal-400 font-medium whitespace-nowrap'>
+                    <span className='text-[10px] sm:text-xs text-teal-400 font-medium whitespace-nowrap'>
                       {formatMoney(r.cashRemit)}
                     </span>
                     <span
@@ -2010,13 +2010,13 @@ function AgentLeaderboard ({ deployments }) {
                   </div>
                 </td>
 
-                <td className='px-2 sm:px-3 py-2 sm:py-2.5 text-right text-[11px] sm:text-xs text-amber-400 tabular-nums whitespace-nowrap'>
+                <td className='px-2 sm:px-3 py-2 sm:py-2.5 text-right text-[10px] sm:text-xs text-amber-400 tabular-nums whitespace-nowrap'>
                   {formatMoney(r.empties)}
                 </td>
 
                 <td className='px-2 sm:px-3 py-2 sm:py-2.5 text-right tabular-nums'>
                   <div className='flex flex-col items-end leading-tight gap-0.5'>
-                    <span className='text-[11px] sm:text-xs text-teal-400 font-medium whitespace-nowrap'>
+                    <span className='text-[10px] sm:text-xs text-teal-400 font-medium whitespace-nowrap'>
                       {formatMoney(r.caseRemit)}
                     </span>
                     <span
@@ -2244,7 +2244,7 @@ function EmptiesReceived ({ deployments }) {
 
   if (data.grandQty === 0) {
     return (
-      <div className='px-4 py-12 text-center text-zinc-600 text-sm'>
+      <div className='px-4 py-12 text-center text-zinc-600 text-xs'>
         No empties received yet.
       </div>
     )
@@ -2264,10 +2264,10 @@ function EmptiesReceived ({ deployments }) {
             className='rounded-md border border-zinc-800 bg-zinc-900/40 overflow-hidden'
           >
             <div className='flex justify-between items-center px-2.5 sm:px-3 py-1.5 border-b border-zinc-800 bg-zinc-900/60'>
-              <span className='text-[10px] uppercase tracking-wider font-semibold text-amber-400'>
+              <span className='text-[9px] sm:text-[10px] uppercase tracking-wider font-semibold text-amber-400'>
                 {EMPTIES_GROUP_LABELS[g]}
               </span>
-              <span className='text-[10px] text-zinc-500 tabular-nums'>
+              <span className='text-[9px] sm:text-[10px] text-zinc-500 tabular-nums'>
                 {formatNumber(totals.qty)} pcs
               </span>
             </div>
@@ -2278,21 +2278,21 @@ function EmptiesReceived ({ deployments }) {
                 const value = qty * r.price
                 return (
                   <div key={r.id} className={GRID}>
-                    <span className='text-[10px] sm:text-[11px] text-zinc-400 truncate'>
+                    <span className='text-[9px] sm:text-[11px] text-zinc-400 truncate'>
                       {r.label}
                     </span>
                     <span
-                      className={`text-[11px] sm:text-xs text-right tabular-nums ${
+                      className={`text-[10px] sm:text-xs text-right tabular-nums ${
                         qty > 0 ? 'text-zinc-100 font-medium' : 'text-zinc-600'
                       }`}
                     >
                       {formatNumber(qty)}
                     </span>
-                    <span className='text-[10px] text-zinc-600 uppercase tracking-wide'>
+                    <span className='text-[9px] text-zinc-600 uppercase tracking-wide'>
                       pcs
                     </span>
                     <span
-                      className={`text-[11px] sm:text-xs text-right tabular-nums ${
+                      className={`text-[10px] sm:text-xs text-right tabular-nums ${
                         value > 0
                           ? 'text-amber-400 font-medium'
                           : 'text-zinc-700'
@@ -2307,16 +2307,16 @@ function EmptiesReceived ({ deployments }) {
               <div
                 className={`${GRID} pt-1.5 mt-0.5 border-t border-zinc-800/60`}
               >
-                <span className='text-[10px] uppercase tracking-wider text-zinc-500 font-semibold'>
+                <span className='text-[9px] uppercase tracking-wider text-zinc-500 font-semibold'>
                   Total
                 </span>
-                <span className='text-[11px] sm:text-xs text-right text-zinc-100 font-semibold tabular-nums'>
+                <span className='text-[10px] sm:text-xs text-right text-zinc-100 font-semibold tabular-nums'>
                   {formatNumber(totals.qty)}
                 </span>
-                <span className='text-[10px] text-zinc-600 uppercase tracking-wide'>
+                <span className='text-[9px] text-zinc-600 uppercase tracking-wide'>
                   pcs
                 </span>
-                <span className='text-[11px] sm:text-xs text-right text-amber-400 font-semibold tabular-nums'>
+                <span className='text-[10px] sm:text-xs text-right text-amber-400 font-semibold tabular-nums'>
                   {formatMoney(totals.value)}
                 </span>
               </div>
@@ -2328,16 +2328,16 @@ function EmptiesReceived ({ deployments }) {
       <div className='rounded-md border border-amber-700/50 bg-amber-500/5 overflow-hidden'>
         <div className='px-2.5 sm:px-3 py-2 sm:py-2.5'>
           <div className={GRID}>
-            <span className='text-[10px] uppercase tracking-wider text-amber-400 font-semibold truncate'>
+            <span className='text-[9px] uppercase tracking-wider text-amber-400 font-semibold truncate'>
               Grand Total
             </span>
-            <span className='text-[11px] sm:text-xs text-right text-amber-400 font-bold tabular-nums'>
+            <span className='text-[10px] sm:text-xs text-right text-amber-400 font-bold tabular-nums'>
               {formatNumber(data.grandQty)}
             </span>
-            <span className='text-[10px] text-amber-400/70 uppercase tracking-wide'>
+            <span className='text-[9px] text-amber-400/70 uppercase tracking-wide'>
               pcs
             </span>
-            <span className='text-[11px] sm:text-xs text-right text-amber-400 font-bold tabular-nums'>
+            <span className='text-[10px] sm:text-xs text-right text-amber-400 font-bold tabular-nums'>
               {formatMoney(data.grandValue)}
             </span>
           </div>
@@ -2422,7 +2422,7 @@ function DeploymentCalendar ({ deployments }) {
         >
           <TbChevronLeft size={16} />
         </button>
-        <div className='text-xs sm:text-sm font-semibold text-zinc-200'>
+        <div className='text-[11px] sm:text-sm font-semibold text-zinc-200'>
           {monthName}
         </div>
         <button
@@ -2438,7 +2438,7 @@ function DeploymentCalendar ({ deployments }) {
           <span className='text-[9px] uppercase tracking-wider text-zinc-600'>
             Sales
           </span>
-          <span className='text-xs sm:text-sm font-semibold text-emerald-400 tabular-nums'>
+          <span className='text-[11px] sm:text-sm font-semibold text-emerald-400 tabular-nums'>
             {formatMoney(monthSales)}
           </span>
         </div>
@@ -2446,7 +2446,7 @@ function DeploymentCalendar ({ deployments }) {
           <span className='text-[9px] uppercase tracking-wider text-zinc-600'>
             Trips
           </span>
-          <span className='text-xs sm:text-sm font-semibold text-blue-400 tabular-nums'>
+          <span className='text-[11px] sm:text-sm font-semibold text-blue-400 tabular-nums'>
             {monthDeployments}
           </span>
         </div>
@@ -2456,7 +2456,7 @@ function DeploymentCalendar ({ deployments }) {
         {weekdays.map((w, i) => (
           <div
             key={i}
-            className='text-[10px] uppercase tracking-wider text-zinc-600 text-center py-1'
+            className='text-[9px] uppercase tracking-wider text-zinc-600 text-center py-1'
           >
             {w}
           </div>
@@ -2494,7 +2494,7 @@ function DeploymentCalendar ({ deployments }) {
                   : undefined
               }
               style={{ background: bgColor }}
-              className={`aspect-square rounded-md flex flex-col items-center justify-center text-[11px] relative transition cursor-default
+              className={`aspect-square rounded-md flex flex-col items-center justify-center text-[10px] relative transition cursor-default
                 ${isToday ? 'ring-1 ring-blue-500/60' : ''}
                 ${
                   activity
@@ -2503,12 +2503,12 @@ function DeploymentCalendar ({ deployments }) {
                 }`}
             >
               <span
-                className={activity ? 'font-medium text-[11px]' : 'text-[11px]'}
+                className={activity ? 'font-medium text-[10px]' : 'text-[10px]'}
               >
                 {day}
               </span>
               {hasSales && (
-                <span className='text-[10px] tabular-nums leading-none mt-0.5 text-emerald-400/90 font-medium'>
+                <span className='text-[9px] tabular-nums leading-none mt-0.5 text-emerald-400/90 font-medium'>
                   {formatCompactMoney(activity.sales)}
                 </span>
               )}
@@ -2517,7 +2517,7 @@ function DeploymentCalendar ({ deployments }) {
         })}
       </div>
 
-      <div className='flex items-center justify-center gap-4 pt-1 text-[10px] text-zinc-600'>
+      <div className='flex items-center justify-center gap-4 pt-1 text-[9px] sm:text-[10px] text-zinc-600'>
         <div className='flex items-center gap-1.5'>
           <span
             className='w-2 h-2 rounded'

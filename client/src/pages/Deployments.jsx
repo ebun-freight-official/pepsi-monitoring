@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useOutletContext, Link } from 'react-router'
-import { TbUsers, TbHistory, TbArrowLeft } from 'react-icons/tb'
+import { TbUsers, TbHistory, TbArrowLeft, TbSearch } from 'react-icons/tb'
 import TruckOverviewCard from '../components/TruckOverviewCard'
 import FocusedHistoryView from '../components/FocusedHistoryView'
 import HistoryTable from '../components/HistoryTable'
@@ -11,8 +11,30 @@ import ReloadTruckModal from '../components/ReloadTruckModal'
 import ReturnTruckModal from '../components/ReturnTruckModal'
 import { printLoadoutSheet } from '../utils/printLoadout'
 import { useAuth } from '../context/AuthContext'
-import { formatMoney, formatNumber } from '../utils/inventory'
+import { formatMoney, formatNumber, formatDate } from '../utils/inventory'
 import { api } from '../lib/api'
+
+const selectClass =
+  'bg-zinc-900 border border-zinc-700 rounded-md px-2 py-1 sm:py-1.5 text-[11px] sm:text-xs text-zinc-200 focus:outline-none focus:border-blue-500 transition'
+
+const HISTORY_FILTER_OPTIONS = [
+  { value: 'all', label: 'All returns' },
+  { value: 'exact', label: 'Exact remit' },
+  { value: 'over', label: 'Over' },
+  { value: 'short', label: 'Short' },
+  { value: 'unpaid_credit', label: 'Credit unpaid' },
+  { value: 'paid_credit', label: 'Credit paid' },
+  { value: 'with_empties', label: 'Has empties' }
+]
+
+const HISTORY_SORT_OPTIONS = [
+  { value: 'date_desc', label: 'Newest first' },
+  { value: 'date_asc', label: 'Oldest first' },
+  { value: 'sales_desc', label: 'Sales (High → Low)' },
+  { value: 'remit_desc', label: 'Remit (High → Low)' },
+  { value: 'diff_over', label: 'Over (High → Low)' },
+  { value: 'diff_short', label: 'Short (High → Low)' }
+]
 
 function CombinedStat ({ label, value, color }) {
   return (
@@ -50,6 +72,11 @@ export default function Deployments () {
   const [focusedHistoryId, setFocusedHistoryId] = useState(null)
   const [activeTruckMobile, setActiveTruckMobile] = useState(null)
 
+  // History-view filter state
+  const [histSearch, setHistSearch] = useState('')
+  const [histFilterBy, setHistFilterBy] = useState('all')
+  const [histSortBy, setHistSortBy] = useState('date_desc')
+
   const [editLoadoutTruck, setEditLoadoutTruck] = useState(null)
   const [deployingTruck, setDeployingTruck] = useState(null)
   const [reloadingTruck, setReloadingTruck] = useState(null)
@@ -73,23 +100,56 @@ export default function Deployments () {
     loadTrucks()
   }, [])
 
-  // Keep the mobile tab selection valid
-  useEffect(() => {
-    if (trucks.length === 0) return
-    setActiveTruckMobile(prev => {
-      if (prev && trucks.some(t => t.name === prev)) return prev
-      return trucks[0].name
-    })
-  }, [trucks])
+  const history = useMemo(
+    () => deployments.filter(d => d.status === 'returned'),
+    [deployments]
+  )
 
-  const history = deployments.filter(d => d.status === 'returned')
+  const activeByTruck = useMemo(() => {
+    const map = {}
+    deployments
+      .filter(d => d.status === 'out')
+      .forEach(d => {
+        map[d.truck] = d
+      })
+    return map
+  }, [deployments])
 
-  const activeByTruck = {}
-  deployments
-    .filter(d => d.status === 'out')
-    .forEach(d => {
-      activeByTruck[d.truck] = d
+  const sortedTrucks = useMemo(
+    () => [...trucks].sort((a, b) => a.name.localeCompare(b.name)),
+    [trucks]
+  )
+
+  const truckStatsMap = useMemo(() => {
+    const map = {}
+    trucks.forEach(t => {
+      const active = activeByTruck[t.name]
+      let cases = 0
+      let value = 0
+      let empties = 0
+
+      if (active) {
+        active.items.forEach(item => {
+          const c = Number(item.cases) || 0
+          cases += c
+          value += c * (Number(item.price_per_case) || 0)
+          empties += c * (Number(item.empties_per_case) || 0)
+        })
+      } else {
+        const lo = truckLoadouts[t.name] || []
+        lo.forEach(item => {
+          const c = Number(item.cases) || 0
+          const stock = stocks.find(s => s.product_name === item.product_name)
+          cases += c
+          value += c * (stock ? Number(stock.price_per_case) || 0 : 0)
+          empties += c * (stock ? Number(stock.empties_per_case) || 0 : 0)
+        })
+      }
+
+      map[t.name] = { cases, value, empties, isOut: !!active }
     })
+    return map
+  }, [trucks, activeByTruck, truckLoadouts, stocks])
 
   const combinedStats = useMemo(() => {
     let loadoutValue = 0
@@ -98,31 +158,132 @@ export default function Deployments () {
     let trucksOut = 0
 
     trucks.forEach(t => {
-      const active = activeByTruck[t.name]
-      if (active) {
-        trucksOut++
-        active.items.forEach(item => {
-          const cases = Number(item.cases) || 0
-          loadoutCases += cases
-          loadoutValue += cases * (Number(item.price_per_case) || 0)
-          loadoutEmpties += cases * (Number(item.empties_per_case) || 0)
-        })
-      } else {
-        const lo = truckLoadouts[t.name] || []
-        lo.forEach(item => {
-          const cases = Number(item.cases) || 0
-          const stock = stocks.find(s => s.product_name === item.product_name)
-          loadoutCases += cases
-          loadoutValue +=
-            cases * (stock ? Number(stock.price_per_case) || 0 : 0)
-          loadoutEmpties +=
-            cases * (stock ? Number(stock.empties_per_case) || 0 : 0)
-        })
-      }
+      const stats = truckStatsMap[t.name]
+      if (!stats) return
+      if (stats.isOut) trucksOut++
+      loadoutValue += stats.value
+      loadoutCases += stats.cases
+      loadoutEmpties += stats.empties
     })
 
     return { loadoutValue, loadoutCases, loadoutEmpties, trucksOut }
-  }, [trucks, activeByTruck, truckLoadouts, stocks])
+  }, [trucks, truckStatsMap])
+
+  // History-view: filter + sort
+  const visibleHistory = useMemo(() => {
+    const q = histSearch.trim().toLowerCase()
+
+    const decorated = history.map(d => {
+      const items = d.returnItems || []
+      const value = items.reduce((s, i) => s + (Number(i.value_sold) || 0), 0)
+      const empties = items.reduce(
+        (s, i) => s + (Number(i.empties_sold) || 0),
+        0
+      )
+      const r = d.remit || {}
+      const cash =
+        (Number(r.cash) || 0) + (Number(r.gcash) || 0) + (Number(r.credit) || 0)
+      const caseRemit = Number(r.case_remit) || 0
+      const remit = cash + caseRemit
+      const diff = remit - (value + empties)
+      const hasCredit = Number(r.credit) > 0
+      const creditPaid = !!r.credit_paid
+
+      const emptiesReceived = d.emptiesReceived || {}
+      let emptiesQty = 0
+      ;['fullCase', 'caseOnly', 'bottlesOnly'].forEach(g => {
+        const src = emptiesReceived[g] || {}
+        Object.values(src).forEach(v => {
+          emptiesQty += Number(v) || 0
+        })
+      })
+
+      return {
+        deployment: d,
+        value,
+        empties,
+        cash,
+        caseRemit,
+        remit,
+        diff,
+        hasCredit,
+        creditPaid,
+        emptiesQty
+      }
+    })
+
+    let list = decorated.filter(row => {
+      const d = row.deployment
+      if (q) {
+        const nameMatch = (d.truck || '').toLowerCase().includes(q)
+        const dateMatch = formatDate(d.returned_at || d.createdAt || '')
+          .toLowerCase()
+          .includes(q)
+        if (!nameMatch && !dateMatch) return false
+      }
+
+      switch (histFilterBy) {
+        case 'exact':
+          return Math.abs(row.diff) < 0.01
+        case 'over':
+          return row.diff > 0.01
+        case 'short':
+          return row.diff < -0.01
+        case 'unpaid_credit':
+          return row.hasCredit && !row.creditPaid
+        case 'paid_credit':
+          return row.hasCredit && row.creditPaid
+        case 'with_empties':
+          return row.emptiesQty > 0
+        default:
+          return true
+      }
+    })
+
+    return [...list]
+      .sort((a, b) => {
+        const da = new Date(
+          a.deployment.returned_at || a.deployment.createdAt || 0
+        )
+        const db = new Date(
+          b.deployment.returned_at || b.deployment.createdAt || 0
+        )
+        switch (histSortBy) {
+          case 'date_asc':
+            return da - db
+          case 'sales_desc':
+            return b.value - a.value
+          case 'remit_desc':
+            return b.remit - a.remit
+          case 'diff_over':
+            return b.diff - a.diff
+          case 'diff_short':
+            return a.diff - b.diff
+          case 'date_desc':
+          default:
+            return db - da
+        }
+      })
+      .map(row => row.deployment)
+  }, [history, histSearch, histFilterBy, histSortBy])
+
+  // Keep the mobile tab selection valid
+  useEffect(() => {
+    if (sortedTrucks.length === 0) return
+    setActiveTruckMobile(prev => {
+      if (prev && sortedTrucks.some(t => t.name === prev)) return prev
+      return sortedTrucks[0].name
+    })
+  }, [sortedTrucks])
+
+  const hasHistFilter =
+    histSearch !== '' || histFilterBy !== 'all' || histSortBy !== 'date_desc'
+
+  const resetHistFilters = () => {
+    setHistSearch('')
+    setHistFilterBy('all')
+    setHistSortBy('date_desc')
+  }
 
   const focusedHistory = focusedHistoryId
     ? history.find(d => d._id === focusedHistoryId)
@@ -182,6 +343,7 @@ export default function Deployments () {
     const loadout = truckLoadouts[truckName] || []
     const ok = await deployTruck(truckName, loadout)
     if (ok !== false) setDeployingTruck(null)
+    return ok
   }
 
   const saveLoadout = async (truckName, items) => {
@@ -308,14 +470,87 @@ export default function Deployments () {
                   ) : (
                     <>
                       <div className='hidden md:block shrink-0 mb-1.5 sm:mb-2'>
-                        <HistorySummary deployments={history} />
+                        <HistorySummary deployments={visibleHistory} />
+                      </div>
+
+                      {/* History filter bar */}
+                      <div className='shrink-0 flex flex-wrap items-center gap-1.5 sm:gap-2 pb-1.5 sm:pb-2 mb-1.5 sm:mb-2 border-b border-zinc-800/60'>
+                        <div className='relative w-full sm:w-auto sm:flex-1 sm:min-w-[140px]'>
+                          <TbSearch
+                            size={13}
+                            className='absolute left-2 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none'
+                          />
+                          <input
+                            type='text'
+                            value={histSearch}
+                            onChange={e => setHistSearch(e.target.value)}
+                            placeholder='Search truck or date…'
+                            className='w-full bg-zinc-900 border border-zinc-700 rounded-md pl-7 pr-2 py-1 sm:py-1.5 text-[11px] sm:text-xs text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-blue-500 transition'
+                          />
+                        </div>
+
+                        <select
+                          value={histFilterBy}
+                          onChange={e => setHistFilterBy(e.target.value)}
+                          className={`${selectClass} flex-1 sm:flex-none`}
+                        >
+                          {HISTORY_FILTER_OPTIONS.map(o => (
+                            <option key={o.value} value={o.value}>
+                              {o.label}
+                            </option>
+                          ))}
+                        </select>
+
+                        <select
+                          value={histSortBy}
+                          onChange={e => setHistSortBy(e.target.value)}
+                          className={`${selectClass} flex-1 sm:flex-none`}
+                        >
+                          {HISTORY_SORT_OPTIONS.map(o => (
+                            <option key={o.value} value={o.value}>
+                              {o.label}
+                            </option>
+                          ))}
+                        </select>
+
+                        {hasHistFilter && (
+                          <button
+                            onClick={resetHistFilters}
+                            className='text-[10px] sm:text-[11px] text-zinc-500 hover:text-zinc-200 transition'
+                          >
+                            Reset
+                          </button>
+                        )}
+
+                        <span className='text-[9px] sm:text-[10px] text-zinc-600 ml-auto tabular-nums'>
+                          {visibleHistory.length} of {history.length}
+                        </span>
                       </div>
 
                       <div className='flex-1 min-h-0'>
-                        <HistoryTable
-                          deployments={history}
-                          onRowClick={handleOpenHistory}
-                        />
+                        {visibleHistory.length === 0 ? (
+                          <div className='h-full flex flex-col items-center justify-center text-center p-4'>
+                            <div className='text-xs sm:text-sm text-zinc-400 font-medium mb-1'>
+                              No returns match your filter
+                            </div>
+                            <p className='text-[11px] sm:text-xs text-zinc-600 mb-3'>
+                              Try clearing the search or filter.
+                            </p>
+                            {hasHistFilter && (
+                              <button
+                                onClick={resetHistFilters}
+                                className='text-[11px] sm:text-xs text-blue-400 hover:text-blue-300 font-medium transition'
+                              >
+                                Reset filters
+                              </button>
+                            )}
+                          </div>
+                        ) : (
+                          <HistoryTable
+                            deployments={visibleHistory}
+                            onRowClick={handleOpenHistory}
+                          />
+                        )}
                       </div>
                     </>
                   )}
@@ -325,7 +560,6 @@ export default function Deployments () {
               {/* All view */}
               {!focusedHistory && !isHistoryView && (
                 <>
-                  {/* Summary */}
                   <div className='shrink-0 grid grid-cols-2 md:grid-cols-4 gap-1.5 sm:gap-2 pb-2 sm:pb-3 mb-1.5 sm:mb-2 border-b border-zinc-800/60'>
                     <CombinedStat
                       label='Trucks Out'
@@ -349,10 +583,9 @@ export default function Deployments () {
                     />
                   </div>
 
-                  {/* Mobile truck tabs */}
                   <div className='md:hidden shrink-0 overflow-x-auto pb-2 mb-1.5 border-b border-zinc-800/60'>
                     <div className='flex items-center gap-1 w-max'>
-                      {trucks.map(t => {
+                      {sortedTrucks.map(t => {
                         const isActive = activeTruckMobile === t.name
                         const isOut = !!activeByTruck[t.name]
                         return (
@@ -381,10 +614,9 @@ export default function Deployments () {
                     </div>
                   </div>
 
-                  {/* Cards */}
                   <div className='flex-1 min-h-0 overflow-hidden'>
                     <div className='h-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 auto-rows-fr gap-2 sm:gap-3'>
-                      {trucks.map(t => {
+                      {sortedTrucks.map(t => {
                         const isActiveMobile = activeTruckMobile === t.name
                         return (
                           <div

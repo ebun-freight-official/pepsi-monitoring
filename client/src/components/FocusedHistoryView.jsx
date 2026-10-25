@@ -71,7 +71,7 @@ function ProductTable ({ items, totals }) {
       <div className='flex-1 min-h-0 overflow-auto'>
         <div className='min-w-[640px]'>
           <div
-            className={`${GRID_HISTORY} px-2 sm:px-3 py-2 border-b border-zinc-800 bg-zinc-900/60 sticky top-0 z-10`}
+            className={`${GRID_HISTORY} px-2 sm:px-3 py-2 border-b border-zinc-800 bg-zinc-900 sticky top-0 z-10`}
           >
             <div className='min-w-0'>
               <div className='text-[9px] sm:text-[10px] uppercase tracking-wider text-zinc-500 truncate'>
@@ -307,7 +307,6 @@ export default function FocusedHistoryView ({
         </button>
 
         <div className='flex items-center gap-1.5 sm:gap-2 min-w-0'>
-          <TbTruck className='text-blue-400 shrink-0' size={15} />
           <span className='font-semibold text-sm sm:text-base truncate uppercase'>
             {deployment.truck}
           </span>

@@ -116,9 +116,6 @@ function CreateUserModal ({ isOpen, onClose, onCreated }) {
       <div className='bg-zinc-900 outline outline-zinc-800 rounded-xl w-full max-w-lg max-h-[80dvh] sm:max-h-[80vh] flex flex-col shadow-2xl shadow-black/60'>
         <div className='flex justify-between items-center px-3 sm:px-5 py-2.5 sm:py-4 border-b border-zinc-800 shrink-0'>
           <div className='flex items-center gap-2 sm:gap-2.5 min-w-0'>
-            <div className='w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-blue-600/15 flex items-center justify-center text-blue-400 shrink-0'>
-              <TbPlus size={15} />
-            </div>
             <div className='min-w-0'>
               <div className='uppercase font-medium text-sm tracking-wider'>
                 Create User

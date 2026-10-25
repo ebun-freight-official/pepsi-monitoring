@@ -140,7 +140,6 @@ export default function ReloadTruckModal ({
         {/* Header */}
         <div className='flex justify-between items-center px-3 sm:px-4 py-2.5 sm:py-3 border-b border-zinc-800 shrink-0'>
           <div className='flex items-center gap-2 min-w-0'>
-            <TbRefresh className='text-blue-400 shrink-0' size={16} />
             <span className='uppercase font-medium text-sm tracking-wide truncate'>
               Reload Truck
             </span>

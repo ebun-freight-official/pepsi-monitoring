@@ -4,6 +4,7 @@ import { TbPlus, TbHistory, TbX } from 'react-icons/tb'
 import StockTable from '../components/StockTable'
 import RecentEntries from '../components/RecentEntries'
 import NewEntryModal from '../components/NewEntryModal'
+import ProductDetailsModal from '../components/ProductDetailsModal'
 import { useAuth } from '../context/AuthContext'
 import { calcStockStats, formatMoney, formatNumber } from '../utils/inventory'
 
@@ -26,6 +27,7 @@ export default function MyStocks () {
     useOutletContext()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [entriesOpen, setEntriesOpen] = useState(false)
+  const [selectedRow, setSelectedRow] = useState(null)
   const stats = calcStockStats(stocks)
 
   return (
@@ -83,6 +85,7 @@ export default function MyStocks () {
               stocks={stocks}
               deployments={deployments}
               truckLoadouts={truckLoadouts}
+              onRowClick={setSelectedRow}
             />
           </div>
 
@@ -98,7 +101,6 @@ export default function MyStocks () {
       {entriesOpen && (
         <div className='fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 lg:hidden'>
           <div className='bg-zinc-900 outline outline-zinc-800 rounded-xl w-full max-w-lg max-h-[80dvh] flex flex-col shadow-2xl shadow-black/60 overflow-hidden'>
-            {/* Fixed header */}
             <div className='flex justify-between items-center gap-2 px-4 py-3 border-b border-zinc-800 shrink-0'>
               <div className='flex items-center gap-2 min-w-0'>
                 <TbHistory className='text-blue-400 shrink-0' size={16} />
@@ -121,7 +123,6 @@ export default function MyStocks () {
               </button>
             </div>
 
-            {/* Scrollable body */}
             <div className='flex-1 min-h-0 overflow-y-auto p-3'>
               <RecentEntries
                 entries={entries}
@@ -131,6 +132,13 @@ export default function MyStocks () {
           </div>
         </div>
       )}
+
+      {/* Product details modal */}
+      <ProductDetailsModal
+        isOpen={!!selectedRow}
+        onClose={() => setSelectedRow(null)}
+        row={selectedRow}
+      />
 
       {isAdmin && (
         <NewEntryModal

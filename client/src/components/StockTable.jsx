@@ -13,28 +13,6 @@ const formatCases = n => {
   return Number.isInteger(num) ? num.toString() : num.toFixed(1)
 }
 
-function StackCell ({
-  primary,
-  primaryClass,
-  secondary,
-  secondaryClass = 'text-zinc-500'
-}) {
-  return (
-    <div className='flex flex-col leading-tight'>
-      <span className={`font-medium tabular-nums ${primaryClass}`}>
-        {primary}
-      </span>
-      {secondary !== undefined && (
-        <span
-          className={`text-[10px] sm:text-[11px] tabular-nums mt-0.5 ${secondaryClass}`}
-        >
-          {secondary}
-        </span>
-      )}
-    </div>
-  )
-}
-
 const SORT_OPTIONS = [
   { value: 'name_asc', label: 'Name A–Z' },
   { value: 'name_desc', label: 'Name Z–A' },
@@ -69,7 +47,8 @@ const HEAD_CELL = 'px-2 sm:px-3 py-2 sm:py-2.5 font-medium whitespace-nowrap'
 export default function StockTable ({
   stocks,
   deployments = [],
-  truckLoadouts = {}
+  truckLoadouts = {},
+  onRowClick
 }) {
   const [search, setSearch] = useState('')
   const [sortBy, setSortBy] = useState('name_asc')
@@ -268,12 +247,11 @@ export default function StockTable ({
 
       {/* TABLE */}
       <div className='flex-1 min-h-0 overflow-auto'>
-        <table className='w-full min-w-[760px] text-xs sm:text-sm border-collapse'>
+        <table className='w-full min-w-[700px] text-xs sm:text-sm border-collapse'>
           <thead className='sticky top-0 bg-zinc-900 z-10'>
             <tr className='text-left text-[9px] sm:text-[11px] uppercase tracking-wider text-zinc-500'>
               <th className={HEAD_CELL}>Price</th>
               <th className={HEAD_CELL}>Product</th>
-              <th className={`${HEAD_CELL} text-center`}>Unit</th>
               <th className={HEAD_CELL}>In-House</th>
               <th className={HEAD_CELL}>On Truck</th>
               <th className={HEAD_CELL}>Total Stock</th>
@@ -287,7 +265,7 @@ export default function StockTable ({
             {rows.length === 0 && (
               <tr>
                 <td
-                  colSpan={9}
+                  colSpan={8}
                   className='px-3 py-6 sm:py-8 text-center text-zinc-600 text-xs sm:text-sm'
                 >
                   {stocks.length === 0
@@ -300,9 +278,10 @@ export default function StockTable ({
             {rows.map(r => (
               <tr
                 key={r.stock._id}
-                className={`border-t border-zinc-800 transition align-top ${rowClassFor(
-                  r
-                )}`}
+                onClick={onRowClick ? () => onRowClick(r) : undefined}
+                className={`border-t border-zinc-800 transition align-top ${
+                  onRowClick ? 'cursor-pointer' : ''
+                } ${rowClassFor(r)}`}
               >
                 <td className={CELL}>
                   <span className='text-xs sm:text-sm text-zinc-100 font-medium tabular-nums'>
@@ -313,12 +292,6 @@ export default function StockTable ({
                 <td className={CELL}>
                   <span className='text-xs sm:text-sm text-zinc-100 font-medium truncate block'>
                     {r.stock.product_name}
-                  </span>
-                </td>
-
-                <td className={`${CELL} text-center`}>
-                  <span className='text-xs sm:text-sm text-zinc-100 font-medium tabular-nums'>
-                    {r.unit}
                   </span>
                 </td>
 

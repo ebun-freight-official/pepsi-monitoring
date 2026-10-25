@@ -162,12 +162,12 @@ export default function AddProductModal ({ isOpen, onClose, onSave }) {
               </div>
             </div>
 
-            {/* Info cards */}
+            {/* Info cards — hidden on mobile */}
             {selectedBS && (
               <>
-                <div className='grid grid-cols-2 md:grid-cols-4 gap-1.5 sm:gap-2 text-[10px] sm:text-[11px]'>
-                  <div className='bg-zinc-950/60 border border-zinc-800 rounded-md px-2 sm:px-3 py-1.5 sm:py-2'>
-                    <div className='text-[9px] sm:text-[10px] uppercase tracking-wide text-zinc-500'>
+                <div className='hidden md:grid md:grid-cols-4 gap-2 text-[11px]'>
+                  <div className='bg-zinc-950/60 border border-zinc-800 rounded-md px-3 py-2'>
+                    <div className='text-[10px] uppercase tracking-wide text-zinc-500'>
                       Price / Bottle
                     </div>
                     <div className='text-emerald-400 font-semibold tabular-nums'>
@@ -177,11 +177,11 @@ export default function AddProductModal ({ isOpen, onClose, onSave }) {
 
                   {!isPlastic && (
                     <>
-                      <div className='bg-zinc-950/60 border border-zinc-800 rounded-md px-2 sm:px-3 py-1.5 sm:py-2'>
-                        <div className='text-[9px] sm:text-[10px] uppercase tracking-wide text-zinc-500'>
+                      <div className='bg-zinc-950/60 border border-zinc-800 rounded-md px-3 py-2'>
+                        <div className='text-[10px] uppercase tracking-wide text-zinc-500'>
                           Bottle deposit
                         </div>
-                        <div className='text-zinc-300 font-medium tabular-nums text-[10px] sm:text-[11px]'>
+                        <div className='text-zinc-300 font-medium tabular-nums text-[11px]'>
                           {formatMoney(selectedBS.bottleDeposit)} ×{' '}
                           {form.unit || 0} ={' '}
                           {formatMoney(
@@ -190,8 +190,8 @@ export default function AddProductModal ({ isOpen, onClose, onSave }) {
                         </div>
                       </div>
 
-                      <div className='bg-zinc-950/60 border border-zinc-800 rounded-md px-2 sm:px-3 py-1.5 sm:py-2'>
-                        <div className='text-[9px] sm:text-[10px] uppercase tracking-wide text-zinc-500'>
+                      <div className='bg-zinc-950/60 border border-zinc-800 rounded-md px-3 py-2'>
+                        <div className='text-[10px] uppercase tracking-wide text-zinc-500'>
                           Case deposit
                         </div>
                         <div className='text-zinc-300 font-medium tabular-nums'>
@@ -199,8 +199,8 @@ export default function AddProductModal ({ isOpen, onClose, onSave }) {
                         </div>
                       </div>
 
-                      <div className='bg-amber-500/5 border border-amber-800/40 rounded-md px-2 sm:px-3 py-1.5 sm:py-2'>
-                        <div className='text-[9px] sm:text-[10px] uppercase tracking-wide text-amber-400/80'>
+                      <div className='bg-amber-500/5 border border-amber-800/40 rounded-md px-3 py-2'>
+                        <div className='text-[10px] uppercase tracking-wide text-amber-400/80'>
                           Empties / Case
                         </div>
                         <div className='text-amber-400 font-semibold tabular-nums'>
@@ -212,7 +212,7 @@ export default function AddProductModal ({ isOpen, onClose, onSave }) {
                 </div>
 
                 {isPlastic && (
-                  <div className='bg-sky-500/10 border border-sky-800/50 rounded-md px-2.5 sm:px-3 py-1.5 sm:py-2 text-[11px] sm:text-xs text-sky-400 flex items-center justify-between gap-2'>
+                  <div className='hidden md:flex bg-sky-500/10 border border-sky-800/50 rounded-md px-3 py-2 text-xs text-sky-400 items-center justify-between gap-2'>
                     <span>
                       Plastic bottle · <b>non-returnable</b> — no bottle or case
                       deposit

@@ -93,7 +93,7 @@ export default function LoadoutPrintModal ({
 
       <div
         id='loadout-print-root'
-        className='fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-start justify-center p-4 overflow-y-auto'
+        className='fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-start justify-center p-4 overflow-y-auto'
       >
         {/* Print chrome (hidden on print) */}
         <div className='print-chrome fixed top-4 right-4 z-[60] flex items-center gap-2'>

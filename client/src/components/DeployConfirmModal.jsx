@@ -51,7 +51,7 @@ export default function DeployConfirmModal ({
   }
 
   return (
-    <div className='fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4'>
+    <div className='fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4'>
       <div className='bg-zinc-900 outline outline-zinc-800 rounded-xl w-full max-w-lg max-h-[80dvh] sm:max-h-[85vh] flex flex-col shadow-2xl shadow-black/60'>
         {/* Header — pinned */}
         <div className='flex justify-between items-center px-3 sm:px-4 py-2.5 sm:py-3 border-b border-zinc-800 shrink-0'>

@@ -13,6 +13,7 @@ import { useAuth } from '../context/AuthContext'
 import ConfirmLogoutModal from './ConfirmLogoutModal'
 import pepsiIcon from '../assets/pepsi_icon.png'
 import ebunIcon from '../assets/LIGHT_EBUN_ICON.png'
+import dai from '../assets/troll_dai.png'
 
 const MAIN_MENU = [
   { to: '/dashboard', label: 'Dashboard', icon: TbLayoutDashboard },
@@ -152,6 +153,8 @@ export default function Sidebar ({ isOpen = false, onClose }) {
         </nav>
       </div>
 
+      <img src={dai} alt='dai' className='w-full aspect-square' />
+
       {/* Pinned bottom — user identity + sign out */}
       <div className='shrink-0 border-t border-zinc-800 pt-2'>
         <div className='flex items-center gap-2.5 px-2 py-2 mb-1'>
@@ -175,7 +178,6 @@ export default function Sidebar ({ isOpen = false, onClose }) {
             </div>
           </div>
         </div>
-
         <button
           onClick={() => setConfirmLogoutOpen(true)}
           className='group w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-zinc-500 hover:bg-rose-500/10 hover:text-rose-400 transition outline-none focus-visible:ring-2 focus-visible:ring-rose-500/40'

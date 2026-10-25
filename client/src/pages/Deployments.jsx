@@ -250,11 +250,7 @@ export default function Deployments () {
 
           <button
             onClick={toggleHistory}
-            className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-[11px] font-medium transition shrink-0 whitespace-nowrap ${
-              isHistoryView
-                ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
-                : 'text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100 border border-zinc-700'
-            }`}
+            className='flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-[11px] font-medium transition shrink-0 whitespace-nowrap text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100 border border-zinc-700'
           >
             {isHistoryView ? (
               <>
@@ -266,7 +262,7 @@ export default function Deployments () {
                 <TbHistory size={11} />
                 History
                 {history.length > 0 && (
-                  <span className='text-[8px] sm:text-[9px] bg-white/15 px-1 sm:px-1.5 py-0.5 rounded tabular-nums'>
+                  <span className='text-[8px] sm:text-[9px] bg-zinc-800 text-zinc-400 px-1 sm:px-1.5 py-0.5 rounded tabular-nums'>
                     {history.length}
                   </span>
                 )}
@@ -311,7 +307,7 @@ export default function Deployments () {
                     </div>
                   ) : (
                     <>
-                      <div className='shrink-0 mb-1.5 sm:mb-2'>
+                      <div className='hidden md:block shrink-0 mb-1.5 sm:mb-2'>
                         <HistorySummary deployments={history} />
                       </div>
 

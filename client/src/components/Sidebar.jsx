@@ -84,7 +84,7 @@ export default function Sidebar ({ isOpen = false, onClose }) {
         bg-zinc-900 outline outline-zinc-800 rounded-lg
         flex flex-col p-2 shadow-lg shadow-black/40
         transition-transform duration-300 ease-in-out
-        ${isOpen ? 'translate-x-0' : '-translate-x-[calc(100%+1rem)]'}
+        ${isOpen ? 'translate-x-0' : '-translate-x-[calc(100%+3rem)]'}
       `}
     >
       {/* Mobile close button */}

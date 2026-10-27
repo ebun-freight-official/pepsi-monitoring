@@ -202,10 +202,10 @@ export default function ReturnTruckModal ({
                     className={`${GRID_RETURN} px-2 sm:px-3 py-1.5 sm:py-2 items-center transition-colors hover:bg-zinc-800/40`}
                   >
                     <div className='min-w-0'>
-                      <div className='text-[10px] sm:text-sm text-zinc-100 font-medium truncate'>
+                      <div className='text-[10px] sm:text-sm text-zinc-100 font-medium'>
                         {item.product_name}
                       </div>
-                      <div className='text-[8px] sm:text-[10px] text-zinc-500 tabular-nums truncate'>
+                      <div className='text-[8px] sm:text-[10px] text-zinc-500 tabular-nums'>
                         {formatMoney(price)}
                       </div>
                     </div>

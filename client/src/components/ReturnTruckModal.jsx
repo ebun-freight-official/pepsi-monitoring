@@ -10,7 +10,7 @@ import {
 } from '../data/bottleSizes'
 
 const GRID_RETURN =
-  'grid grid-cols-[minmax(0,1fr)_2.5rem_3rem_2rem_4rem_4rem] sm:grid-cols-[minmax(0,1fr)_3.5rem_4rem_2.75rem_5rem_5rem] gap-1 sm:gap-2 items-center'
+  'grid grid-cols-[minmax(0,1fr)_2.25rem_2.75rem_1.75rem_3.5rem_3.5rem] sm:grid-cols-[minmax(0,1fr)_3.5rem_4rem_2.75rem_5rem_5rem] gap-1 sm:gap-2 items-center'
 
 const diffMeta = diff => {
   const isExact = Math.abs(diff) < 0.01
@@ -180,7 +180,7 @@ export default function ReturnTruckModal ({
           {/* Return items */}
           <div className='rounded-md border border-zinc-800 bg-zinc-950/60 overflow-hidden'>
             <div
-              className={`${GRID_RETURN} px-2 sm:px-3 py-1.5 sm:py-2 border-b border-zinc-800 bg-zinc-900/60 text-[9px] sm:text-[10px] uppercase tracking-wider text-zinc-500`}
+              className={`${GRID_RETURN} px-2 sm:px-3 py-1.5 sm:py-2 border-b border-zinc-800 bg-zinc-900/60 text-[8px] sm:text-[10px] uppercase tracking-normal sm:tracking-wider text-zinc-500`}
             >
               <span>Product</span>
               <span className='text-center'>Loaded</span>
@@ -202,14 +202,14 @@ export default function ReturnTruckModal ({
                     className={`${GRID_RETURN} px-2 sm:px-3 py-1.5 sm:py-2 items-center transition-colors hover:bg-zinc-800/40`}
                   >
                     <div className='min-w-0'>
-                      <div className='text-[11px] sm:text-sm text-zinc-100 font-medium truncate'>
+                      <div className='text-[10px] sm:text-sm text-zinc-100 font-medium truncate'>
                         {item.product_name}
                       </div>
-                      <div className='text-[9px] sm:text-[10px] text-zinc-500 tabular-nums'>
-                        {formatMoney(price)}/c · {formatNumber(item.unit)} btls
+                      <div className='text-[8px] sm:text-[10px] text-zinc-500 tabular-nums truncate'>
+                        {formatMoney(price)}
                       </div>
                     </div>
-                    <div className='text-[11px] sm:text-sm text-blue-400 font-medium text-center tabular-nums'>
+                    <div className='text-[10px] sm:text-sm text-blue-400 font-medium text-center tabular-nums'>
                       {formatNumber(item.cases)}
                     </div>
                     <input
@@ -222,15 +222,15 @@ export default function ReturnTruckModal ({
                         updateReturn(item.product_name, e.target.value)
                       }
                       disabled={busy}
-                      className='w-full bg-zinc-950 border border-zinc-700 rounded-md px-1 py-1 text-[11px] sm:text-sm text-center focus:outline-none focus:border-emerald-500 tabular-nums disabled:opacity-60'
+                      className='w-full bg-zinc-950 border border-zinc-700 rounded-md px-1 py-1 text-[10px] sm:text-sm text-center focus:outline-none focus:border-emerald-500 tabular-nums disabled:opacity-60'
                     />
-                    <div className='text-[11px] sm:text-sm text-zinc-300 font-medium text-center tabular-nums'>
+                    <div className='text-[10px] sm:text-sm text-zinc-300 font-medium text-center tabular-nums'>
                       {sold}
                     </div>
-                    <div className='text-[11px] sm:text-sm text-emerald-400 font-semibold text-right tabular-nums'>
+                    <div className='text-[10px] sm:text-sm text-emerald-400 font-semibold text-right tabular-nums'>
                       {formatMoney(sold * price)}
                     </div>
-                    <div className='text-[11px] sm:text-sm text-amber-400 font-semibold text-right tabular-nums'>
+                    <div className='text-[10px] sm:text-sm text-amber-400 font-semibold text-right tabular-nums'>
                       {formatMoney(sold * emptiesPer)}
                     </div>
                   </div>

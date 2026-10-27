@@ -335,11 +335,6 @@ export default function ReturnTruckModal ({
                 <span className='text-[9px] sm:text-[10px] uppercase tracking-wider font-semibold text-emerald-400 truncate'>
                   Sales → Cash
                 </span>
-                <span
-                  className={`text-[9px] sm:text-[10px] font-medium tabular-nums shrink-0 ${salesMeta.color}`}
-                >
-                  {salesMeta.label} · {salesMeta.display}
-                </span>
               </div>
 
               <div className='p-2 sm:p-3 space-y-1.5 sm:space-y-2'>
@@ -352,32 +347,30 @@ export default function ReturnTruckModal ({
                   </span>
                 </div>
 
-                <div className='border-t border-zinc-800/60'>
-                  <div className='flex items-center gap-1 sm:gap-2 bg-black/50'>
-                    {[
-                      { key: 'cash', label: 'Cash' },
-                      { key: 'gcash', label: 'G-Cash' },
-                      { key: 'credit', label: 'Credit' }
-                    ].map(f => (
-                      <div
-                        key={f.key}
-                        className='flex items-center gap-1 flex-1 min-w-0 py-1.5 sm:py-2'
-                      >
-                        <label className='text-[9px] sm:text-[10px] uppercase tracking-wide text-zinc-500 shrink-0'>
-                          {f.label}:
-                        </label>
-                        <input
-                          type='number'
-                          min='0'
-                          value={remit[f.key] || ''}
-                          placeholder='0'
-                          onChange={e => updateRemit(f.key, e.target.value)}
-                          disabled={busy}
-                          className='flex-1 min-w-0 bg-transparent border-0 px-1 py-0 text-[11px] text-right text-zinc-100 tabular-nums focus:outline-none focus:text-teal-400 transition disabled:opacity-60'
-                        />
-                      </div>
-                    ))}
-                  </div>
+                <div className='border-t border-zinc-800/60 py-1.5 sm:py-2 space-y-1'>
+                  {[
+                    { key: 'cash', label: 'Cash' },
+                    { key: 'gcash', label: 'G-Cash' },
+                    { key: 'credit', label: 'Credit' }
+                  ].map(f => (
+                    <div
+                      key={f.key}
+                      className='flex items-center justify-between gap-2'
+                    >
+                      <label className='text-[10px] sm:text-[11px] text-zinc-500 shrink-0'>
+                        {f.label}
+                      </label>
+                      <input
+                        type='number'
+                        min='0'
+                        value={remit[f.key] || ''}
+                        placeholder='0'
+                        onChange={e => updateRemit(f.key, e.target.value)}
+                        disabled={busy}
+                        className='flex-1 bg-transparent border-0 p-0 text-[11px] sm:text-xs text-right text-zinc-100 tabular-nums focus:outline-none focus:text-teal-400 transition disabled:opacity-60'
+                      />
+                    </div>
+                  ))}
                 </div>
                 <div className='pt-1.5 sm:pt-2 -mt-2 border-t border-zinc-800/60 space-y-1'>
                   <div className='flex justify-between items-baseline gap-2'>
@@ -407,11 +400,6 @@ export default function ReturnTruckModal ({
               <div className='flex justify-between items-center px-2 sm:px-3 py-1.5 sm:py-2 border-b border-zinc-800 bg-zinc-900/60 gap-2'>
                 <span className='text-[9px] sm:text-[10px] uppercase tracking-wider font-semibold text-amber-400 truncate'>
                   Empties → Case
-                </span>
-                <span
-                  className={`text-[9px] sm:text-[10px] font-medium tabular-nums shrink-0 ${emptiesMeta.color}`}
-                >
-                  {emptiesMeta.label} · {emptiesMeta.display}
                 </span>
               </div>
 

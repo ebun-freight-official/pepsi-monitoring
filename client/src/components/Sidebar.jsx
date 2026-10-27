@@ -13,8 +13,6 @@ import { useAuth } from '../context/AuthContext'
 import ConfirmLogoutModal from './ConfirmLogoutModal'
 import pepsiIcon from '../assets/pepsi_icon.png'
 import ebunIcon from '../assets/LIGHT_EBUN_ICON.png'
-import dai from '../assets/troll_dai.png'
-
 const MAIN_MENU = [
   { to: '/dashboard', label: 'Dashboard', icon: TbLayoutDashboard },
   { to: '/stocks', label: 'My Stocks', icon: TbPackages },
@@ -152,8 +150,6 @@ export default function Sidebar ({ isOpen = false, onClose }) {
           {BELOW_ADMIN_MENU.map(renderLink)}
         </nav>
       </div>
-
-      <img src={dai} alt='dai' className='w-full aspect-square' />
 
       {/* Pinned bottom — user identity + sign out */}
       <div className='shrink-0 border-t border-zinc-800 pt-2'>

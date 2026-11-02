@@ -1,6 +1,7 @@
 import { formatMoney, formatNumber, formatDate } from './inventory'
 import { EMPTIES_RATES } from '../data/bottleSizes'
 import ebunLogo from '../assets/EBUN_NO_SLOGAN.png'
+import pepsiLogo from '../assets/pepsi_logo.png'
 
 const escapeHtml = str =>
   String(str ?? '').replace(
@@ -86,29 +87,33 @@ export function printLoadoutSheet ({ truck, loadout, stocks = [] }) {
     print-color-adjust: exact;
   }
 
-  /* ── Header: logo centered, title centered below ── */
+  /* ── Header: logos only ── */
   .header {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    text-align: center;
-    padding-bottom: 12px;
-    border-bottom: 2px solid #000;
-    margin-bottom: 14px;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #d4d4d4;
   }
   .logo {
     height: 52px;
     max-width: 220px;
     object-fit: contain;
-    margin-bottom: 6px;
+    flex-shrink: 0;
   }
-  .title {
+  .logo-left { order: 1; }
+  .logo-right { order: 3; }
+
+  /* ── Title below header ── */
+  .doc-title {
+    text-align: center;
     font-size: 18px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.14em;
     color: #000;
-    margin-top: 6px;
+    margin: 14px 0 16px;
   }
 
   /* ── Meta row: agent left · date right ── */
@@ -199,11 +204,14 @@ export function printLoadoutSheet ({ truck, loadout, stocks = [] }) {
 </style>
 </head>
 <body>
-  <!-- Centered logo + title -->
+  <!-- Logos only -->
   <div class="header">
-    <img src="${ebunLogo}" class="logo" alt="Ebun">
-    <div class="title">Loadout Sheet</div>
+    <img src="${ebunLogo}" class="logo logo-left" alt="Ebun">
+    <img src="${pepsiLogo}" class="logo logo-right" alt="Pepsi">
   </div>
+
+  <!-- Title as normal text -->
+  <div class="doc-title">Loadout Sheet</div>
 
   <!-- Agent left · Date right -->
   <div class="meta-row">

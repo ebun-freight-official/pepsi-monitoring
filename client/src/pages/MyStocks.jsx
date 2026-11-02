@@ -6,7 +6,12 @@ import RecentEntries from '../components/RecentEntries'
 import NewEntryModal from '../components/NewEntryModal'
 import ProductDetailsModal from '../components/ProductDetailsModal'
 import { useAuth } from '../context/AuthContext'
-import { calcStockStats, formatMoney, formatNumber } from '../utils/inventory'
+import {
+  calcStockStats,
+  calcOnTruckByProduct,
+  formatMoney,
+  formatNumber
+} from '../utils/inventory'
 
 function HeaderStat ({ label, value, color }) {
   return (
@@ -28,7 +33,9 @@ export default function MyStocks () {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [entriesOpen, setEntriesOpen] = useState(false)
   const [selectedRow, setSelectedRow] = useState(null)
-  const stats = calcStockStats(stocks)
+
+  const onTruckMap = calcOnTruckByProduct(deployments, truckLoadouts)
+  const stats = calcStockStats(stocks, onTruckMap)
 
   return (
     <>
@@ -103,7 +110,6 @@ export default function MyStocks () {
           <div className='bg-zinc-900 outline outline-zinc-800 rounded-xl w-full max-w-lg max-h-[80dvh] flex flex-col shadow-2xl shadow-black/60 overflow-hidden'>
             <div className='flex justify-between items-center gap-2 px-4 py-3 border-b border-zinc-800 shrink-0'>
               <div className='flex items-center gap-2 min-w-0'>
-                <TbHistory className='text-blue-400 shrink-0' size={16} />
                 <span className='uppercase font-medium text-sm tracking-wide truncate'>
                   Recent Entries
                 </span>

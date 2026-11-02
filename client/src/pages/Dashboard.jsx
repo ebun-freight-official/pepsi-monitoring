@@ -1460,9 +1460,6 @@ function PaymentMixChart ({ deployments }) {
   )
 }
 
-const ALERT_WINDOW = 30
-const TARGET_COVER_DAYS = 30
-
 function StockAlerts ({ stocks, deployments }) {
   const data = useMemo(() => {
     const soldMap = {}
@@ -2809,37 +2806,10 @@ export default function Dashboard () {
         <AgentLeaderboard deployments={safeDeployments} />
       </Panel>
 
-      <div className='contents lg:grid lg:grid-cols-2 lg:gap-3'>
-        <Panel
-          title='Stock Alerts'
-          className='order-9 lg:order-none min-h-[420px]'
-          info={
-            <>
-              <b className='text-zinc-100'>Products that need attention.</b>
-              <br />
-              Based on the last 30 days of sales, ranked by urgency:
-              <br />
-              <b>Out</b> — no stock, still selling
-              <br />
-              <b>Critical</b> — ≤ 3 days of stock left
-              <br />
-              <b>Low</b> — ≤ 7 days left
-              <br />
-              <b>Watch</b> — ≤ 14 days left
-              <br />
-              <b>Dead</b> — no movement in 30 days
-              <br />
-              The suggested <b>Reorder</b> quantity brings you back to 30 days
-              of coverage.
-            </>
-          }
-        >
-          <StockAlerts stocks={safeStocks} deployments={safeDeployments} />
-        </Panel>
-
+      <div className='grid grid-cols-1 lg:grid-cols-2 gap-3'>
         <Panel
           title='Weekly Selling Pattern'
-          className='order-11 lg:order-none min-h-[420px]'
+          className='min-h-[420px]'
           info={
             <>
               <b className='text-zinc-100'>Which days sell best.</b>
@@ -2854,9 +2824,7 @@ export default function Dashboard () {
         >
           <WeeklySellingPattern deployments={safeDeployments} />
         </Panel>
-      </div>
 
-      <div className='order-12 lg:order-none max-w-2xl mx-auto w-full shrink-0'>
         <Panel
           title='Deployment Calendar'
           info={

@@ -1,4 +1,4 @@
-import { TbX, TbPackage } from 'react-icons/tb'
+import { TbX } from 'react-icons/tb'
 import { formatMoney, formatNumber } from '../utils/inventory'
 import { findBottleSize } from '../data/bottleSizes'
 

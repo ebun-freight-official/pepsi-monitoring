@@ -191,7 +191,7 @@ export default function NewEntryModal ({
                       <input
                         type='number'
                         min='0'
-                        step='1'
+                        step='any'
                         value={item.quantity}
                         onChange={e =>
                           updateItem(index, 'quantity', e.target.value)

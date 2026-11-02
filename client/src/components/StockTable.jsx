@@ -72,8 +72,9 @@ export default function StockTable ({
     const price = Number(stock.price_per_case) || 0
     const emptiesPer = Number(stock.empties_per_case) || 0
 
-    const stockValue = (inHouse + onTruck) * price
     const totalOwned = inHouse + onTruck
+    // Stock value — goods only (price per case × total cases)
+    const stockValue = totalOwned * price
 
     const isOut = inHouse === 0
     const isLow = !isOut && inHouse <= LOW_STOCK_THRESHOLD
@@ -168,13 +169,8 @@ export default function StockTable ({
   const lowStockCount = decorated.filter(r => r.isLow).length
   const outOfStockCount = decorated.filter(r => r.isOut).length
 
-  const rowClassFor = r => {
-    if (r.isOut)
-      return 'bg-rose-500/10 border-l-2 border-l-rose-500 hover:bg-rose-500/15'
-    if (r.isLow)
-      return 'bg-amber-500/10 border-l-2 border-l-amber-500 hover:bg-amber-500/15'
-    return 'border-l-2 border-l-transparent hover:bg-zinc-800/40'
-  }
+  const rowClassFor = () =>
+    'border-l-2 border-l-transparent hover:bg-zinc-800/40'
 
   return (
     <div className='flex flex-col h-full min-h-0'>

@@ -2806,7 +2806,8 @@ export default function Dashboard () {
         <AgentLeaderboard deployments={safeDeployments} />
       </Panel>
 
-      <div className='grid grid-cols-1 lg:grid-cols-2 gap-3'>
+      {/* Weekly Selling Pattern + Deployment Calendar */}
+      <div className='order-12 lg:order-none grid grid-cols-1 lg:grid-cols-2 gap-3'>
         <Panel
           title='Weekly Selling Pattern'
           className='min-h-[420px]'

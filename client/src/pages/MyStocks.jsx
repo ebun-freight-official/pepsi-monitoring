@@ -48,11 +48,6 @@ export default function MyStocks () {
 
           <div className='flex items-center gap-2 sm:gap-5 shrink-0'>
             <HeaderStat
-              label='Free Cases'
-              value={formatNumber(stats.totalFreeCases)}
-              color='text-amber-400'
-            />
-            <HeaderStat
               label='Total Cases'
               value={formatNumber(stats.totalCases)}
               color='text-blue-400'

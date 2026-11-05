@@ -12,7 +12,6 @@ const stockSchema = new mongoose.Schema(
     bottle_size: { type: String, trim: true, default: '' },
     unit: { type: Number, required: true, default: 24, min: 0 },
     quantity: { type: Number, required: true, default: 0, min: 0 },
-    promo: { type: Number, default: 0, min: 0 },
     price_per_case: { type: Number, default: 0, min: 0 },
     empties_per_case: { type: Number, default: 0, min: 0 }
   },

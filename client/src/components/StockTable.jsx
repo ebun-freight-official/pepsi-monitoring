@@ -59,7 +59,6 @@ export default function StockTable ({
 
   const decorated = stocks.map(stock => {
     const inHouse = Number(stock.quantity) || 0
-    const free = Number(stock.promo) || 0
     const onTruck = onTruckMap[stock.product_name] || 0
     const soldInfo = soldMap[stock.product_name] || {
       cases: 0,
@@ -73,7 +72,6 @@ export default function StockTable ({
     const emptiesPer = Number(stock.empties_per_case) || 0
 
     const totalOwned = inHouse + onTruck
-    // Stock value — goods only (price per case × total cases)
     const stockValue = totalOwned * price
 
     const isOut = inHouse === 0
@@ -82,7 +80,6 @@ export default function StockTable ({
     return {
       stock,
       inHouse,
-      free,
       onTruck,
       totalOwned,
       sold,
@@ -292,24 +289,17 @@ export default function StockTable ({
                 </td>
 
                 <td className={CELL}>
-                  <div className='flex items-baseline gap-1 sm:gap-1.5 flex-wrap'>
-                    <span
-                      className={`text-xs sm:text-sm font-medium tabular-nums ${
-                        r.isOut
-                          ? 'text-rose-400'
-                          : r.isLow
-                          ? 'text-amber-400'
-                          : 'text-zinc-100'
-                      }`}
-                    >
-                      {formatCases(r.inHouse)}
-                    </span>
-                    {r.free > 0 && (
-                      <span className='text-[10px] sm:text-[11px] text-amber-300 font-medium tabular-nums'>
-                        +{formatCases(r.free)} free
-                      </span>
-                    )}
-                  </div>
+                  <span
+                    className={`text-xs sm:text-sm font-medium tabular-nums ${
+                      r.isOut
+                        ? 'text-rose-400'
+                        : r.isLow
+                        ? 'text-amber-400'
+                        : 'text-zinc-100'
+                    }`}
+                  >
+                    {formatCases(r.inHouse)}
+                  </span>
                 </td>
 
                 <td className={CELL}>

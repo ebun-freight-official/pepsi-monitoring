@@ -28,10 +28,8 @@ const createEntry = async (req, res, next) => {
         bottle_size: i.bottle_size || '',
         unit: Number(i.unit) || 0,
         quantity: Number(i.quantity) || 0,
-        promo: Number(i.promo) || 0,
         price_per_case: Number(i.price_per_case) || 0,
-        empties_per_case: Number(i.empties_per_case) || 0,
-        discount: Number(i.discount) || 0
+        empties_per_case: Number(i.empties_per_case) || 0
       }))
 
     if (cleaned.length === 0) {
@@ -40,10 +38,7 @@ const createEntry = async (req, res, next) => {
 
     const total =
       Number(net_amount) ||
-      cleaned.reduce(
-        (s, i) => s + i.quantity * i.price_per_case - i.discount,
-        0
-      )
+      cleaned.reduce((s, i) => s + i.quantity * i.price_per_case, 0)
 
     const entry = await Entry.create({
       user: req.user._id,
@@ -51,12 +46,11 @@ const createEntry = async (req, res, next) => {
       net_amount: total
     })
 
-    // Upsert each stock — discount does NOT affect stock quantity
     for (const item of cleaned) {
       await Stock.findOneAndUpdate(
         { product_name: item.product_name },
         {
-          $inc: { quantity: item.quantity, promo: item.promo },
+          $inc: { quantity: item.quantity },
           $set: {
             bottle_size: item.bottle_size,
             unit: item.unit,

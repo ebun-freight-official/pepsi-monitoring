@@ -41,7 +41,7 @@ function EntryReceipt ({ entry }) {
           <div className='font-semibold text-xs sm:text-sm text-zinc-100 uppercase tracking-[0.15em]'>
             Stock Entry
           </div>
-          <div className='text-[11px] sm:text-xs text-zinc-500 mt-1 tabular-nums'>
+          <div className='text-[10px] sm:text-xs text-zinc-500 mt-1 tabular-nums'>
             {formatDate(entry.createdAt || entry.date)}
           </div>
         </div>
@@ -51,11 +51,9 @@ function EntryReceipt ({ entry }) {
         {entry.items.length > 0 ? (
           <div className='space-y-2.5 sm:space-y-3'>
             {entry.items.map((item, i) => {
-              const subtotal =
+              const lineTotal =
                 (Number(item.quantity) || 0) *
                 (Number(item.price_per_case) || 0)
-              const discount = Number(item.discount) || 0
-              const lineTotal = subtotal - discount
 
               return (
                 <div key={i}>
@@ -68,22 +66,16 @@ function EntryReceipt ({ entry }) {
                     </span>
                   </div>
                   <div className='flex justify-between items-baseline gap-2 mt-1'>
-                    <span className='text-[11px] sm:text-xs text-zinc-500 tabular-nums pl-0.5'>
+                    <span className='text-[10px] sm:text-xs text-zinc-500 tabular-nums pl-0.5'>
                       {item.quantity} cases
-                      {Number(item.promo) > 0 && ` + ${item.promo} free`}
                     </span>
-                    {discount > 0 && (
-                      <span className='text-[11px] sm:text-xs text-rose-400 tabular-nums shrink-0'>
-                        − {formatMoney(discount)}
-                      </span>
-                    )}
                   </div>
                 </div>
               )
             })}
           </div>
         ) : (
-          <div className='text-center text-[11px] sm:text-xs text-zinc-600 py-3'>
+          <div className='text-center text-[10px] sm:text-xs text-zinc-600 py-3'>
             No items
           </div>
         )}
@@ -91,7 +83,7 @@ function EntryReceipt ({ entry }) {
         <Dashed className='my-3 sm:my-4' />
 
         <div className='flex justify-between items-baseline gap-2'>
-          <span className='text-[11px] sm:text-xs uppercase tracking-[0.14em] text-zinc-500'>
+          <span className='text-[10px] sm:text-xs uppercase tracking-[0.14em] text-zinc-500'>
             Cases
           </span>
           <span className='text-xs sm:text-sm text-zinc-300 tabular-nums'>

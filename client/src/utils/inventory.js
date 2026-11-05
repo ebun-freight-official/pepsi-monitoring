@@ -46,9 +46,7 @@ export const createEmptyDeployItem = () => ({
 export const calcEntryTotal = items =>
   items.reduce(
     (sum, item) =>
-      sum +
-      (Number(item.quantity) || 0) * (Number(item.price_per_case) || 0) -
-      (Number(item.discount) || 0),
+      sum + (Number(item.quantity) || 0) * (Number(item.price_per_case) || 0),
     0
   )
 
@@ -59,15 +57,12 @@ export const calcEmptiesTotal = items =>
     0
   )
 
-export const calcItemCases = item =>
-  (Number(item.quantity) || 0) + (Number(item.promo) || 0)
+export const calcItemCases = item => Number(item.quantity) || 0
 
 // onTruckMap: optional { product_name: cases_on_trucks }
-// included so Total Value reflects warehouse + on-truck goods (price only,
-// no empties) — matches the sum of the "Stock Value" column in StockTable.
+// included so Total Value reflects warehouse + on-truck goods (price only).
 export const calcStockStats = (stocks, onTruckMap = {}) => ({
   totalCases: stocks.reduce((sum, s) => sum + calcItemCases(s), 0),
-  totalFreeCases: stocks.reduce((sum, s) => sum + (Number(s.promo) || 0), 0),
   totalBottles: stocks.reduce(
     (sum, s) => sum + calcItemCases(s) * (Number(s.unit) || 0),
     0

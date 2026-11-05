@@ -16,13 +16,7 @@ const updateStock = async (req, res, next) => {
     const stock = await Stock.findById(id)
     if (!stock) return next(createError(404, 'Stock not found'))
 
-    const fields = [
-      'unit',
-      'quantity',
-      'promo',
-      'price_per_case',
-      'empties_per_case'
-    ]
+    const fields = ['unit', 'quantity', 'price_per_case', 'empties_per_case']
     fields.forEach(f => {
       if (req.body[f] !== undefined) stock[f] = req.body[f]
     })

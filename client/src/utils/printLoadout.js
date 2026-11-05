@@ -82,7 +82,7 @@ export function printLoadoutSheet ({ truck, loadout, stocks = [] }) {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
   }
   body {
-    padding: 15mm 12mm;
+    padding: 10mm 10mm;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
@@ -93,12 +93,12 @@ export function printLoadoutSheet ({ truck, loadout, stocks = [] }) {
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    padding-bottom: 14px;
+    padding-bottom: 10px;
     border-bottom: 1px solid #d4d4d4;
   }
   .logo {
-    height: 52px;
-    max-width: 220px;
+    height: 46px;
+    max-width: 200px;
     object-fit: contain;
     flex-shrink: 0;
   }
@@ -111,9 +111,9 @@ export function printLoadoutSheet ({ truck, loadout, stocks = [] }) {
     font-size: 18px;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.12em;
     color: #000;
-    margin: 14px 0 16px;
+    margin: 10px 0 12px;
   }
 
   /* ── Meta row: agent left · date right ── */
@@ -122,7 +122,7 @@ export function printLoadoutSheet ({ truck, loadout, stocks = [] }) {
     justify-content: space-between;
     align-items: baseline;
     gap: 16px;
-    margin-bottom: 18px;
+    margin-bottom: 12px;
   }
   .meta-row .agent {
     font-size: 12px;
@@ -144,13 +144,17 @@ export function printLoadoutSheet ({ truck, loadout, stocks = [] }) {
     text-transform: uppercase;
     letter-spacing: 0.08em;
     color: #333;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
   }
 
-  table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 12px;
+  }
   th, td {
     border: 1px solid #000;
-    padding: 6px 8px;
+    padding: 4px 7px;
     font-size: 12px;
     vertical-align: middle;
   }
@@ -163,7 +167,7 @@ export function printLoadoutSheet ({ truck, loadout, stocks = [] }) {
     font-weight: 700;
   }
   td.num {
-    width: 36px;
+    width: 32px;
     color: #666;
     text-align: center;
   }
@@ -173,15 +177,16 @@ export function printLoadoutSheet ({ truck, loadout, stocks = [] }) {
     font-variant-numeric: tabular-nums;
     font-weight: 500;
   }
-  td.sign { height: 32px; }
+  td.sign { height: 24px; }
 
   /* ── Signatures: label centered under its line ── */
   .signatures {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 48px;
-    margin-top: 32px;
-    padding-top: 8px;
+    gap: 40px;
+    margin-top: 22px;
+    padding-top: 4px;
+    page-break-inside: avoid;
   }
   .sig-block {
     display: flex;
@@ -191,7 +196,7 @@ export function printLoadoutSheet ({ truck, loadout, stocks = [] }) {
   }
   .sig-line {
     width: 100%;
-    height: 44px;
+    height: 36px;
     border-bottom: 1px solid #000;
   }
   .sig-label {
@@ -199,7 +204,7 @@ export function printLoadoutSheet ({ truck, loadout, stocks = [] }) {
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: #666;
-    margin-top: 4px;
+    margin-top: 3px;
   }
 </style>
 </head>
@@ -210,7 +215,7 @@ export function printLoadoutSheet ({ truck, loadout, stocks = [] }) {
     <img src="${pepsiLogo}" class="logo logo-right" alt="Pepsi">
   </div>
 
-  <!-- Title as normal text -->
+  <!-- Title -->
   <div class="doc-title">Loadout Sheet</div>
 
   <!-- Agent left · Date right -->
@@ -223,11 +228,11 @@ export function printLoadoutSheet ({ truck, loadout, stocks = [] }) {
   <table>
     <thead>
       <tr>
-        <th style="width: 36px;">#</th>
-        <th style="width: 100px; text-align: right;">Price</th>
+        <th style="width: 32px;">#</th>
+        <th style="width: 90px; text-align: right;">Price</th>
         <th>Product</th>
         <th style="width: 90px; text-align: right;">Qty</th>
-        <th style="width: 130px; text-align: center;">Return</th>
+        <th style="width: 90px; text-align: center;">Return</th>
       </tr>
     </thead>
     <tbody>
@@ -240,9 +245,9 @@ export function printLoadoutSheet ({ truck, loadout, stocks = [] }) {
     <thead>
       <tr>
         <th>Bottle Size</th>
-        <th style="width: 120px; text-align: center;">Full Case</th>
-        <th style="width: 120px; text-align: center;">Case Only</th>
-        <th style="width: 120px; text-align: center;">Bottles Only</th>
+        <th style="width: 110px; text-align: center;">Full Case</th>
+        <th style="width: 110px; text-align: center;">Case Only</th>
+        <th style="width: 110px; text-align: center;">Bottles Only</th>
       </tr>
     </thead>
     <tbody>

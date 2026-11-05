@@ -1,27 +1,6 @@
-import { useState, useEffect, useMemo } from 'react'
-import { TbX, TbPlus, TbTrash, TbLoader2 } from 'react-icons/tb'
-import { calcEntryTotal, formatMoney } from '../utils/inventory'
-import ProductCombobox from './ProductCombobox'
-
-const blankItem = () => ({
-  product_name: '',
-  bottle_size: '',
-  unit: 0,
-  quantity: 1,
-  promo: 0,
-  price_per_case: 0,
-  empties_per_case: 0,
-  discount: 0
-})
-
-const inputClass =
-  'w-full bg-zinc-900 border border-zinc-700 rounded-md px-2 sm:px-3 py-1.5 text-sm text-zinc-100 placeholder-zinc-600 uppercase focus:outline-none focus:border-blue-500 transition disabled:opacity-60 disabled:cursor-not-allowed'
-
-const lockedClass =
-  'w-full bg-zinc-950/60 border border-zinc-800 rounded-md px-2 sm:px-3 py-1.5 text-sm text-zinc-400 uppercase cursor-not-allowed'
-
-const labelClass =
-  'block text-[10px] sm:text-xs uppercase tracking-wide text-zinc-500 mb-1'
+import { useState, useEffect } from 'react'
+import { TbX, TbLoader2, TbCheck } from 'react-icons/tb'
+import { formatMoney, formatNumber } from '../utils/inventory'
 
 export default function NewEntryModal ({
   isOpen,
@@ -29,74 +8,85 @@ export default function NewEntryModal ({
   onSave,
   products = []
 }) {
-  const [items, setItems] = useState([blankItem()])
-  const [netAmount, setNetAmount] = useState('0.00')
+  const [draft, setDraft] = useState({}) // { name: { quantity } }
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
 
   useEffect(() => {
     if (isOpen) {
-      setItems([blankItem()])
-      setNetAmount('0.00')
+      setDraft({})
       setBusy(false)
       setError('')
     }
   }, [isOpen])
 
-  const productOptions = useMemo(
-    () =>
-      products.map(p => ({
-        value: p.product_name,
-        label: p.product_name,
-        meta: `${p.unit} btls · ${formatMoney(p.price_per_case)}`
-      })),
-    [products]
-  )
-
   if (!isOpen) return null
 
-  const applyProduct = (index, productName) => {
-    const product = products.find(p => p.product_name === productName)
-    const next = items.map((item, i) =>
-      i === index
-        ? {
-            ...item,
-            product_name: productName,
-            bottle_size: product ? product.bottle_size : '',
-            unit: product ? Number(product.unit) || 0 : 0,
-            price_per_case: product ? Number(product.price_per_case) || 0 : 0,
-            empties_per_case: product
-              ? Number(product.empties_per_case) || 0
-              : 0
-          }
-        : item
-    )
-    setItems(next)
-    setNetAmount(calcEntryTotal(next).toFixed(2))
+  const sortedProducts = [...products].sort((a, b) =>
+    a.product_name.localeCompare(b.product_name)
+  )
+
+  const toggleProduct = name => {
+    setDraft(prev => {
+      if (prev[name]) {
+        const { [name]: _, ...rest } = prev
+        return rest
+      }
+      return { ...prev, [name]: { quantity: 1 } }
+    })
   }
 
-  const updateItem = (index, field, value) => {
-    const next = items.map((item, i) =>
-      i === index ? { ...item, [field]: value } : item
-    )
-    setItems(next)
-    setNetAmount(calcEntryTotal(next).toFixed(2))
+  const updateQuantity = (name, value) => {
+    setDraft(prev => ({
+      ...prev,
+      [name]: { ...prev[name], quantity: value }
+    }))
   }
 
-  const addItem = () => setItems([...items, blankItem()])
+  const computedTotal = Object.entries(draft).reduce((sum, [name, item]) => {
+    const product = products.find(p => p.product_name === name)
+    const price = product ? Number(product.price_per_case) || 0 : 0
+    const qty = Number(item.quantity) || 0
+    return sum + qty * price
+  }, 0)
 
-  const removeItem = index => {
-    const next = items.filter((_, i) => i !== index)
-    setItems(next)
-    setNetAmount(calcEntryTotal(next).toFixed(2))
+  const totalCases = Object.values(draft).reduce(
+    (sum, item) => sum + (Number(item.quantity) || 0),
+    0
+  )
+
+  const selectedCount = Object.keys(draft).length
+  const netAmount = computedTotal.toFixed(2)
+
+  const handleSelectAll = () => {
+    const next = {}
+    sortedProducts.forEach(p => {
+      next[p.product_name] = draft[p.product_name] || { quantity: 1 }
+    })
+    setDraft(next)
   }
 
-  const handleSubmit = async event => {
-    event.preventDefault()
-    if (busy) return
+  const handleClearAll = () => setDraft({})
+
+  const isValid = selectedCount > 0 && !busy
+
+  const handleSubmit = async e => {
+    e.preventDefault()
+    if (!isValid) return
     setBusy(true)
     setError('')
     try {
+      const items = Object.entries(draft).map(([name, data]) => {
+        const product = products.find(p => p.product_name === name)
+        return {
+          product_name: name,
+          bottle_size: product?.bottle_size || '',
+          unit: product ? Number(product.unit) || 0 : 0,
+          quantity: Number(data.quantity) || 0,
+          price_per_case: product ? Number(product.price_per_case) || 0 : 0,
+          empties_per_case: product ? Number(product.empties_per_case) || 0 : 0
+        }
+      })
       const ok = await onSave(items, netAmount)
       if (ok === false) {
         setError('Failed to save entry. Please try again.')
@@ -111,9 +101,9 @@ export default function NewEntryModal ({
   }
 
   return (
-    <div className='fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 z-50'>
+    <div className='fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 z-50'>
       <div className='bg-zinc-900 outline outline-zinc-800 rounded-xl w-full max-w-3xl max-h-[80dvh] sm:max-h-[85vh] flex flex-col shadow-2xl shadow-black/60'>
-        {/* HEADER */}
+        {/* Header */}
         <div className='flex justify-between items-center px-3 sm:px-4 py-2.5 sm:py-3 border-b border-zinc-800 shrink-0'>
           <div className='uppercase font-medium text-sm tracking-wide'>
             New Entry
@@ -125,7 +115,7 @@ export default function NewEntryModal ({
             className='p-1 -m-1 text-zinc-500 hover:text-zinc-100 transition disabled:opacity-40'
             aria-label='Close'
           >
-            <TbX size={20} />
+            <TbX size={18} />
           </button>
         </div>
 
@@ -133,203 +123,153 @@ export default function NewEntryModal ({
           onSubmit={handleSubmit}
           className='flex flex-col flex-1 min-h-0 overflow-hidden'
         >
-          {/* BODY */}
-          <div className='flex-1 min-h-0 overflow-y-auto p-2.5 sm:p-4 space-y-2'>
-            {products.length === 0 && (
-              <div className='bg-amber-500/10 border border-amber-800/50 text-amber-400 rounded-md px-3 py-2 text-xs'>
+          {/* Meta bar */}
+          <div className='shrink-0 px-3 sm:px-4 py-2 border-b border-zinc-800/60 flex items-center justify-between gap-2 text-[10px] sm:text-[11px]'>
+            <span className='text-zinc-500 tabular-nums'>
+              <span className='text-zinc-100 font-semibold'>
+                {selectedCount}
+              </span>{' '}
+              of {sortedProducts.length} selected
+            </span>
+            <div className='flex items-center gap-2'>
+              <button
+                type='button'
+                onClick={handleSelectAll}
+                disabled={busy || sortedProducts.length === 0}
+                className='text-blue-400 hover:text-blue-300 transition font-medium disabled:opacity-40'
+              >
+                Select all
+              </button>
+              {selectedCount > 0 && (
+                <>
+                  <span className='text-zinc-700'>·</span>
+                  <button
+                    type='button'
+                    onClick={handleClearAll}
+                    disabled={busy}
+                    className='text-zinc-500 hover:text-zinc-200 transition disabled:opacity-40'
+                  >
+                    Clear
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Body — 2-column checklist */}
+          <div className='flex-1 min-h-0 overflow-y-auto p-2 sm:p-3'>
+            {sortedProducts.length === 0 ? (
+              <div className='py-10 text-center text-zinc-600 text-xs'>
                 No products defined yet. Go to <b>Products</b> page to add
                 products first.
               </div>
-            )}
+            ) : (
+              <div className='grid grid-cols-1 sm:grid-cols-2 gap-1.5 sm:gap-2'>
+                {sortedProducts.map(product => {
+                  const isChecked = draft[product.product_name] !== undefined
+                  const data = draft[product.product_name] || { quantity: '' }
+                  const price = Number(product.price_per_case) || 0
+                  const unit = Number(product.unit) || 0
 
-            {items.map((item, index) => {
-              const subtotal =
-                (Number(item.quantity) || 0) *
-                (Number(item.price_per_case) || 0)
-              const discount = Number(item.discount) || 0
-              const total = subtotal - discount
-
-              return (
-                <div
-                  key={index}
-                  className='bg-zinc-950/60 border border-zinc-800 rounded-lg p-2.5 sm:p-3'
-                >
-                  <div className='flex justify-between items-center mb-2'>
-                    <span className='text-[10px] sm:text-[11px] uppercase tracking-wide text-zinc-500'>
-                      Product {index + 1}
-                    </span>
-
-                    {items.length > 1 && (
+                  return (
+                    <div
+                      key={product.product_name}
+                      className={`grid grid-cols-[auto_minmax(0,1fr)_3.5rem] gap-2 items-center px-2 sm:px-2.5 py-1.5 sm:py-2 rounded-md border transition ${
+                        isChecked
+                          ? 'bg-blue-500/5 border-blue-800/40'
+                          : 'bg-zinc-950/40 border-zinc-800/60 hover:border-zinc-700'
+                      }`}
+                    >
                       <button
                         type='button'
-                        onClick={() => removeItem(index)}
+                        onClick={() => toggleProduct(product.product_name)}
                         disabled={busy}
-                        className='p-1 -m-1 text-zinc-500 hover:text-rose-400 transition disabled:opacity-40'
-                        title='Remove product'
-                        aria-label='Remove product'
+                        className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 transition disabled:opacity-40 ${
+                          isChecked
+                            ? 'bg-blue-600 border-blue-600 text-white'
+                            : 'bg-zinc-950 border-zinc-600 hover:border-zinc-500'
+                        }`}
+                        aria-label={isChecked ? 'Uncheck' : 'Check'}
                       >
-                        <TbTrash size={15} />
+                        {isChecked && <TbCheck size={12} />}
                       </button>
-                    )}
-                  </div>
 
-                  {/* Row 1 */}
-                  <div className='grid grid-cols-12 gap-2'>
-                    <div className='col-span-12 sm:col-span-6 min-w-0'>
-                      <label className={labelClass}>Product</label>
-                      <ProductCombobox
-                        value={item.product_name}
-                        options={productOptions}
-                        onChange={name => applyProduct(index, name)}
-                        disabled={products.length === 0 || busy}
-                        placeholder='— Search product —'
-                      />
-                    </div>
+                      <div className='min-w-0'>
+                        <div className='text-[12px] sm:text-[13px] text-zinc-100 font-medium truncate'>
+                          {product.product_name}
+                        </div>
+                        <div className='text-[9px] sm:text-[10px] text-zinc-500 tabular-nums truncate'>
+                          {formatMoney(price)}/case · {formatNumber(unit)} btls
+                        </div>
+                      </div>
 
-                    <div className='col-span-6 sm:col-span-3 min-w-0'>
-                      <label className={labelClass}>Cases</label>
                       <input
                         type='number'
                         min='0'
                         step='any'
-                        value={item.quantity}
+                        value={data.quantity}
                         onChange={e =>
-                          updateItem(index, 'quantity', e.target.value)
+                          updateQuantity(product.product_name, e.target.value)
                         }
-                        disabled={busy}
-                        className={inputClass}
+                        disabled={!isChecked || busy}
+                        placeholder='—'
+                        className='w-full bg-zinc-950 border border-zinc-700 rounded-md px-1.5 py-1 text-[11px] sm:text-xs text-center text-zinc-100 tabular-nums focus:outline-none focus:border-blue-500 transition disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-zinc-900/40'
                       />
                     </div>
-
-                    <div className='col-span-6 sm:col-span-3 min-w-0'>
-                      <label className={labelClass}>Free</label>
-                      <input
-                        type='number'
-                        min='0'
-                        step='1'
-                        value={item.promo}
-                        onChange={e =>
-                          updateItem(index, 'promo', e.target.value)
-                        }
-                        disabled={busy}
-                        placeholder='0'
-                        className={inputClass}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Row 2 */}
-                  <div className='grid grid-cols-12 gap-2 mt-2'>
-                    <div className='col-span-6 sm:col-span-4 min-w-0'>
-                      <label className={labelClass}>Price / Case</label>
-                      <input
-                        type='text'
-                        value={
-                          item.product_name
-                            ? formatMoney(item.price_per_case)
-                            : '—'
-                        }
-                        readOnly
-                        tabIndex={-1}
-                        className={lockedClass}
-                      />
-                    </div>
-
-                    <div className='col-span-6 sm:col-span-4 min-w-0'>
-                      <label className={labelClass}>Discount</label>
-                      <input
-                        type='number'
-                        min='0'
-                        step='0.01'
-                        value={item.discount}
-                        onChange={e =>
-                          updateItem(index, 'discount', e.target.value)
-                        }
-                        disabled={busy}
-                        placeholder='0.00'
-                        className={inputClass}
-                      />
-                    </div>
-
-                    <div className='col-span-12 sm:col-span-4 min-w-0'>
-                      <label className={labelClass}>Total</label>
-                      <input
-                        type='text'
-                        value={formatMoney(total)}
-                        readOnly
-                        tabIndex={-1}
-                        className={lockedClass + ' text-emerald-400'}
-                      />
-                    </div>
-                  </div>
-
-                  {discount > 0 && (
-                    <div className='flex justify-end text-[10px] text-rose-400/80 mt-1 tabular-nums'>
-                      Subtotal {formatMoney(subtotal)} − Discount{' '}
-                      {formatMoney(discount)}
-                    </div>
-                  )}
-                </div>
-              )
-            })}
-
-            <button
-              type='button'
-              onClick={addItem}
-              disabled={products.length === 0 || busy}
-              className='w-full flex items-center justify-center gap-1.5 border border-dashed border-zinc-700 hover:border-blue-500 hover:text-blue-400 text-zinc-400 text-xs sm:text-sm py-2 rounded-lg transition disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-zinc-700 disabled:hover:text-zinc-400'
-            >
-              <TbPlus size={14} />
-              Add another product
-            </button>
-
-            {error && (
-              <div className='text-xs text-rose-400 bg-rose-500/10 border border-rose-800/50 rounded-md px-3 py-2'>
-                {error}
+                  )
+                })}
               </div>
             )}
           </div>
 
-          {/* FOOTER */}
-          <div className='shrink-0 px-2.5 sm:px-4 py-2.5 sm:py-3 border-t border-zinc-800 flex flex-col sm:flex-row justify-between items-stretch sm:items-end gap-2 sm:gap-3'>
-            <div className='min-w-0 sm:w-auto'>
-              <label className={labelClass}>Net Amount</label>
-              <div className='flex items-center gap-1'>
-                <span className='text-zinc-400 text-sm shrink-0'>₱</span>
-                <input
-                  type='number'
-                  step='0.01'
-                  value={netAmount}
-                  onChange={e => setNetAmount(e.target.value)}
-                  disabled={busy}
-                  className='w-full sm:w-40 bg-zinc-950 border border-zinc-700 rounded-md px-2 py-1.5 text-sm font-semibold text-emerald-400 uppercase focus:outline-none focus:border-blue-500 transition disabled:opacity-60'
-                />
+          {/* Footer */}
+          <div className='shrink-0 border-t border-zinc-800 px-3 sm:px-4 py-2.5 sm:py-3'>
+            {error && (
+              <div className='text-[10px] sm:text-[11px] text-rose-400 bg-rose-500/10 border border-rose-800/50 rounded-md px-2.5 py-1.5 mb-2'>
+                {error}
               </div>
-            </div>
+            )}
 
-            <div className='flex gap-2'>
-              <button
-                type='button'
-                onClick={onClose}
-                disabled={busy}
-                className='flex-1 sm:flex-none px-4 py-2 text-sm rounded-md border border-zinc-700 text-zinc-300 hover:bg-zinc-800 transition disabled:opacity-40 disabled:cursor-not-allowed'
-              >
-                Cancel
-              </button>
-              <button
-                type='submit'
-                disabled={products.length === 0 || busy}
-                className='flex-1 sm:flex-none px-4 py-2 text-sm rounded-md bg-blue-600 hover:bg-blue-500 font-medium transition shadow-md shadow-blue-600/30 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5'
-              >
-                {busy ? (
-                  <>
-                    <TbLoader2 size={14} className='animate-spin' />
-                    Saving…
-                  </>
-                ) : (
-                  'Save Entry'
-                )}
-              </button>
+            <div className='flex flex-col sm:flex-row items-stretch sm:items-end gap-2 sm:gap-3'>
+              <div className='rounded-md border border-zinc-800 bg-zinc-950/60 px-3 py-2 flex items-center justify-between gap-3 min-w-0 sm:min-w-[200px]'>
+                <div className='flex flex-col min-w-0'>
+                  <span className='text-[9px] sm:text-[10px] uppercase tracking-wider text-zinc-500 font-semibold'>
+                    Net Amount
+                  </span>
+                  <span className='text-[8px] sm:text-[9px] text-zinc-600 tabular-nums'>
+                    {formatNumber(totalCases)}{' '}
+                    {totalCases === 1 ? 'case' : 'cases'}
+                  </span>
+                </div>
+                <span className='text-base sm:text-lg font-bold text-emerald-400 tabular-nums shrink-0'>
+                  {formatMoney(computedTotal)}
+                </span>
+              </div>
+
+              <div className='flex gap-2 sm:ml-auto'>
+                <button
+                  type='button'
+                  onClick={onClose}
+                  disabled={busy}
+                  className='flex-1 sm:flex-none px-4 py-2 text-sm rounded-md border border-zinc-700 text-zinc-300 hover:bg-zinc-800 transition disabled:opacity-40 disabled:cursor-not-allowed'
+                >
+                  Cancel
+                </button>
+                <button
+                  type='submit'
+                  disabled={!isValid || busy}
+                  className='flex-1 sm:flex-none px-4 py-2 text-sm rounded-md bg-blue-600 hover:bg-blue-500 font-medium transition shadow-md shadow-blue-600/30 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5'
+                >
+                  {busy ? (
+                    <>
+                      <TbLoader2 size={14} className='animate-spin' />
+                      Saving…
+                    </>
+                  ) : (
+                    'Save Entry'
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </form>

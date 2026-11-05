@@ -6,10 +6,8 @@ const entryItemSchema = new mongoose.Schema(
     bottle_size: { type: String, default: '' },
     unit: { type: Number, required: true },
     quantity: { type: Number, required: true },
-    promo: { type: Number, default: 0 },
     price_per_case: { type: Number, default: 0 },
-    empties_per_case: { type: Number, default: 0 },
-    discount: { type: Number, default: 0, min: 0 }
+    empties_per_case: { type: Number, default: 0 }
   },
   { _id: false }
 )
